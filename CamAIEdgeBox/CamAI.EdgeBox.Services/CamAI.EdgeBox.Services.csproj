@@ -6,4 +6,8 @@
         <Nullable>enable</Nullable>
     </PropertyGroup>
 
+    <ItemGroup>
+      <ProjectReference Include="..\CamAI.EdgeBox.Repositories\CamAI.EdgeBox.Repositories.csproj" />
+    </ItemGroup>
+
 </Project>
