@@ -1,0 +1,6 @@
+@CamAI.EdgeBox.Controllers_HostAddress = http://localhost:5061
+
+GET {{CamAI.EdgeBox.Controllers_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
