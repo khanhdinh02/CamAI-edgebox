@@ -8,10 +8,15 @@ public class UnitOfWork(CamAiEdgeBoxContext db)
 
     private CameraRepository? _cameraRepository;
     public CameraRepository Cameras => _cameraRepository ??= new CameraRepository(db);
-    public async Task<int> CompleteAsync()
-    {
-        return await db.SaveChangesAsync();
-    }
+
+    private BrandRepository? _brandRepository;
+    public BrandRepository Brands => _brandRepository ??= new BrandRepository(db);
+    private ShopRepository? _shopRepository;
+    public ShopRepository Shops => _shopRepository ??= new ShopRepository(db);
+    private EdgeBoxRepository? _edgeBoxRepository;
+    public EdgeBoxRepository EdgeBoxes => _edgeBoxRepository ??= new EdgeBoxRepository(db);
+
+    public int Complete() => db.SaveChanges();
 
     public void Dispose()
     {
@@ -28,12 +33,5 @@ public class UnitOfWork(CamAiEdgeBoxContext db)
             db.Dispose();
         }
         disposed = true;
-    }
-
-    public async ValueTask DisposeAsync()
-    {
-        await db.DisposeAsync();
-        Dispose(false);
-        GC.SuppressFinalize(this);
     }
 }

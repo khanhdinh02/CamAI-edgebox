@@ -12,7 +12,7 @@ builder.Services.AddSwaggerGen();
 
 builder.Services.AddDbContext<CamAiEdgeBoxContext>();
 builder.Services.AddScoped<UnitOfWork>();
-builder.Services.AddScoped<CameraService>();
+builder.Services.AddScoped<CameraService>().AddScoped<BrandService>();
 
 builder.Services.Configure<RouteOptions>(opts =>
 {
@@ -32,5 +32,6 @@ if (app.Environment.IsDevelopment())
 app.UseHttpsRedirection();
 
 app.MapControllers();
+app.UseWebSockets();
 
 app.Run();
