@@ -5,8 +5,10 @@ using System.Text;
 using CamAI.EdgeBox.Models;
 using CamAI.EdgeBox.Services;
 using FFMpegCore;
+using FFMpegCore.Enums;
 using FFMpegCore.Pipes;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.VisualBasic;
 
 namespace CamAI.EdgeBox.Controllers.Controllers;
 
@@ -45,39 +47,29 @@ public class CamerasController(CameraService cameraService, ILogger<CamerasContr
         cameraService.DeleteCamera(id);
     }
 
-    // [Route("ws")]
-    // [ApiExplorerSettings(IgnoreApi = true)]
-    // public async Task Stream()
-    // {
-    //     if (HttpContext.WebSockets.IsWebSocketRequest)
-    //     {
-    //         using var webSocket = await HttpContext.WebSockets.AcceptWebSocketAsync();
-    //         await FFMpegArguments.FromUrlInput(
-    //             new Uri("rtsp://admin:Admin123%40@192.168.1.200:554/Streaming/channels/201"))
-    //             .OutputToPipe(new StreamPipeSink(webSocket));
-    //         await SendTime(webSocket);
-    //     }
-    //     else
-    //     {
-    //         HttpContext.Response.StatusCode = StatusCodes.Status400BadRequest;
-    //     }
-    // }
-    //
-    // private async Task SendTime(WebSocket webSocket)
-    // {
-    //     while (true)
-    //     {
-    //         var bytes = Encoding.UTF8.GetBytes($"Time: {DateTime.Now}");
-    //         var arraySegment = new ArraySegment<byte>(bytes, 0, bytes.Length);
-    //         if (webSocket.State == WebSocketState.Open)
-    //             await webSocket.SendAsync(
-    //                 arraySegment,
-    //                 WebSocketMessageType.Text,
-    //                 true,
-    //                 CancellationToken.None
-    //             );
-    //         else if (webSocket.State is WebSocketState.Closed or WebSocketState.Aborted)
-    //             break;
-    //     }
-    // }
+    [HttpGet("Example")]
+    public async Task<IActionResult> Example()
+    {
+        Response.Headers.Append("Access-Control-Allow-Origin", "*");
+        return File(
+            System.IO.File.OpenRead(
+                @"C:\Users\ngud\Downloads\ffmpeg-6.1.1-essentials_build\bin\example.m3u8"
+            ),
+            "application/octet-stream",
+            enableRangeProcessing: true
+        );
+    }
+
+    [HttpGet("example/{tsFileName}")]
+    public async Task<IActionResult> Example_GetTS(string tsFileName)
+    {
+        Response.Headers.Append("Access-Control-Allow-Origin", "*");
+        return File(
+            System.IO.File.OpenRead(
+                @"C:\Users\ngud\Downloads\ffmpeg-6.1.1-essentials_build\bin\" + tsFileName
+            ),
+            "application/octet-stream",
+            enableRangeProcessing: true
+        );
+    }
 }
