@@ -21,7 +21,13 @@ public static class ReceiveEndpointConfigurator
         {
             cfg.ChangeExchangeName(publisher, endpoint);
 
-            cfg.Publish(publisher);
+            cfg.Publish(
+                publisher,
+                x =>
+                {
+                    x.Exclude = true;
+                }
+            );
         }
     }
 
