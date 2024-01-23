@@ -1,4 +1,5 @@
 ﻿using System.Reflection;
+using CamAI.EdgeBox.Consumers;
 using MassTransit;
 
 namespace CamAI.EdgeBox.MassTransit;
@@ -12,17 +13,28 @@ public static class MassTransitConfiguration
 
         builder.Services.AddMassTransit(x =>
         {
-            RegisterPublisherEndpoint(assemblies);
             x.AddConsumers(assemblies);
 
             if (settings!.HostName == "in-memory")
-                x.UsingInMemory((context, cfg) => cfg.ConfigureBus(context, assemblies));
+            {
+                RegisterPublisherEndpoint(assemblies);
+                x.UsingInMemory((context, cfg) => cfg.RegisterConsumer(context, assemblies));
+            }
             else
                 x.UsingRabbitMq(
                     (context, cfg) =>
                     {
                         cfg.SetupHost(settings);
-                        cfg.ConfigureBus(context, assemblies);
+
+                        // TODO [Duy]: Cannot set the routing yet using reflection yet so we have to declare by hand
+                        cfg.Send<TestMessage>(configurator =>
+                            configurator.UseRoutingKeyFormatter(sendContext =>
+                                sendContext.Message.RoutingKey
+                            )
+                        );
+
+                        cfg.RegisterPublisher(assemblies);
+                        cfg.RegisterConsumer(context, assemblies);
                     }
                 );
         });

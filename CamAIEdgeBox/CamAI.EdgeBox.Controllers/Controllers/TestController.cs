@@ -6,7 +6,7 @@ namespace CamAI.EdgeBox.Controllers.Controllers;
 
 [Route("api/[controller]")]
 [ApiController]
-public class TestController(ISendEndpointProvider bus) : ControllerBase
+public class TestController(IPublishEndpoint bus) : ControllerBase
 {
     [HttpGet("{name}")]
     public ActionResult<string> TestConnection([FromRoute] string name)
@@ -17,6 +17,6 @@ public class TestController(ISendEndpointProvider bus) : ControllerBase
     [HttpGet("test")]
     public void Test()
     {
-        bus.Send(new Test { Something = "ya" });
+        bus.Publish(new TestMessage { RoutingKey = "routingKey" });
     }
 }
