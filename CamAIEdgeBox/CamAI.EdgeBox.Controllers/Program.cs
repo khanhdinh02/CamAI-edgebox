@@ -2,6 +2,7 @@ using CamAI.EdgeBox.MassTransit;
 using CamAI.EdgeBox.Models;
 using CamAI.EdgeBox.Repositories;
 using CamAI.EdgeBox.Services;
+using CamAI.EdgeBox.Services.AI;
 using CamAI.EdgeBox.Services.Streaming;
 using FFMpegCore;
 
@@ -20,6 +21,9 @@ builder.Services.AddScoped<CameraService>().AddScoped<BrandService>();
 
 builder.Services.Configure<StreamingConfiguration>(
     builder.Configuration.GetSection(StreamingConfiguration.Section)
+);
+builder.Services.Configure<AIConfiguration>(
+    builder.Configuration.GetSection(AIConfiguration.Section)
 );
 
 GlobalFFOptions.Configure(x =>
