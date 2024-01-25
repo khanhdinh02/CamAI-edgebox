@@ -1,9 +1,36 @@
+using CamAI.EdgeBox.MassTransit;
+using CamAI.EdgeBox.Models;
+using CamAI.EdgeBox.Repositories;
+using CamAI.EdgeBox.Services;
+
 var builder = WebApplication.CreateBuilder(args);
+
+builder.Services.AddControllers();
 
 // Add services to the container.
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
+
+builder.Services.AddDbContext<CamAiEdgeBoxContext>();
+builder.Services.AddScoped<UnitOfWork>();
+builder.Services.AddScoped<CameraService>().AddScoped<BrandService>();
+
+builder.Services.AddCors(opts =>
+    opts.AddPolicy(
+        name: "AllowAll",
+        policy =>
+            policy.AllowAnyOrigin().AllowAnyMethod().AllowAnyHeader().WithExposedHeaders("auto")
+    )
+);
+
+builder.ConfigureMassTransit();
+
+builder.Services.Configure<RouteOptions>(opts =>
+{
+    opts.LowercaseUrls = true;
+    opts.LowercaseQueryStrings = true;
+});
 
 var app = builder.Build();
 
@@ -16,29 +43,6 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 
-var summaries = new[]
-{
-    "Freezing", "Bracing", "Chilly", "Cool", "Mild", "Warm", "Balmy", "Hot", "Sweltering", "Scorching"
-};
-
-app.MapGet("/weatherforecast", () =>
-    {
-        var forecast = Enumerable.Range(1, 5).Select(index =>
-                new WeatherForecast
-                (
-                    DateOnly.FromDateTime(DateTime.Now.AddDays(index)),
-                    Random.Shared.Next(-20, 55),
-                    summaries[Random.Shared.Next(summaries.Length)]
-                ))
-            .ToArray();
-        return forecast;
-    })
-    .WithName("GetWeatherForecast")
-    .WithOpenApi();
+app.MapControllers();
 
 app.Run();
-
-record WeatherForecast(DateOnly Date, int TemperatureC, string? Summary)
-{
-    public int TemperatureF => 32 + (int)(TemperatureC / 0.5556);
-}
