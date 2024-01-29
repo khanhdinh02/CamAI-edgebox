@@ -2,7 +2,6 @@
 using CamAI.EdgeBox.Repositories;
 using CamAI.EdgeBox.Services.Streaming;
 using CamAI.EdgeBox.Services.Utils;
-using FFMpegCore;
 using Microsoft.Extensions.Options;
 
 namespace CamAI.EdgeBox.Services;
@@ -52,10 +51,13 @@ public class CameraService(
 
         var cameraName = id.ToString("N");
         var cameraDir = Path.Combine(streamingConfiguration.Directory, cameraName);
-        StreamingEncoderProcessManager.RunEncoder(cameraDir, camera.GetUri(), cameraDir);
-        return File.OpenRead(
-            Path.Combine(streamingConfiguration.Directory, cameraDir, $"{cameraName}.m3u8")
-        );
+        if (!Directory.Exists(cameraDir))
+            Directory.CreateDirectory(cameraDir);
+
+        var cameraFileName = Path.Combine(cameraDir, $"{cameraName}.m3u8");
+        StreamingEncoderProcessManager.RunEncoder(cameraDir, camera.GetUri(), cameraFileName);
+        Thread.Sleep(5000);
+        return File.OpenRead(Path.Combine(streamingConfiguration.Directory, cameraFileName));
     }
 
     public FileStream GetTsFile(Guid id, string tsFileName)

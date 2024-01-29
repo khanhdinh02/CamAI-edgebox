@@ -17,9 +17,8 @@ public class StreamingEncoderProcessWrapper(string name)
                 true,
                 args =>
                 {
-                    args.WithVideoCodec(VideoCodec.LibX264);
                     args.WithCustomArgument(
-                        "-fflags flush_packets -max_delay 5 -flags -global_header -hls_flags delete_segments -hls_time 3 -hls_list_size 5 -y -an"
+                        "-fflags flush_packets -max_delay 5 -flags -global_header -hls_flags delete_segments -hls_time 3 -hls_list_size 20 -y -an -vcodec h264"
                     );
                 }
             )
