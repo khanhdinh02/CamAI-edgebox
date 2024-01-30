@@ -1,14 +1,6 @@
-﻿using System.Net;
-using System.Net.Sockets;
-using System.Net.WebSockets;
-using System.Text;
-using CamAI.EdgeBox.Models;
+﻿using CamAI.EdgeBox.Models;
 using CamAI.EdgeBox.Services;
-using FFMpegCore;
-using FFMpegCore.Enums;
-using FFMpegCore.Pipes;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.VisualBasic;
 
 namespace CamAI.EdgeBox.Controllers.Controllers;
 
@@ -24,7 +16,7 @@ public class CamerasController(CameraService cameraService, ILogger<CamerasContr
     }
 
     [HttpGet("{id}")]
-    public Camera GetCamera([FromQuery] Guid id)
+    public Camera GetCamera([FromRoute] Guid id)
     {
         return cameraService.GetCamera(id);
     }
@@ -36,38 +28,34 @@ public class CamerasController(CameraService cameraService, ILogger<CamerasContr
     }
 
     [HttpPut("{id}")]
-    public Camera UpdateCamera([FromQuery] Guid id, [FromBody] Camera camera)
+    public Camera UpdateCamera([FromRoute] Guid id, [FromBody] Camera camera)
     {
         return cameraService.UpdateCamera(id, camera);
     }
 
     [HttpDelete("{id}")]
-    public void DeleteCamera([FromQuery] Guid id)
+    public void DeleteCamera([FromRoute] Guid id)
     {
         cameraService.DeleteCamera(id);
     }
 
-    [HttpGet("Example")]
-    public async Task<IActionResult> Example()
+    [HttpGet("{id}/stream/start")]
+    public IActionResult GetM3U8File([FromRoute] Guid id)
     {
         Response.Headers.Append("Access-Control-Allow-Origin", "*");
         return File(
-            System.IO.File.OpenRead(
-                @"C:\Users\ngud\Downloads\ffmpeg-6.1.1-essentials_build\bin\example.m3u8"
-            ),
+            cameraService.GetM3U8File(id),
             "application/octet-stream",
             enableRangeProcessing: true
         );
     }
 
-    [HttpGet("example/{tsFileName}")]
-    public async Task<IActionResult> Example_GetTS(string tsFileName)
+    [HttpGet("{id}/stream/{tsFileName}")]
+    public IActionResult GetTsFile([FromRoute] Guid id, [FromRoute] string tsFileName)
     {
         Response.Headers.Append("Access-Control-Allow-Origin", "*");
         return File(
-            System.IO.File.OpenRead(
-                @"C:\Users\ngud\Downloads\ffmpeg-6.1.1-essentials_build\bin\" + tsFileName
-            ),
+            cameraService.GetTsFile(id, tsFileName),
             "application/octet-stream",
             enableRangeProcessing: true
         );

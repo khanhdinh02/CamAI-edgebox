@@ -2,6 +2,8 @@ using CamAI.EdgeBox.MassTransit;
 using CamAI.EdgeBox.Models;
 using CamAI.EdgeBox.Repositories;
 using CamAI.EdgeBox.Services;
+using CamAI.EdgeBox.Services.Streaming;
+using FFMpegCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -15,6 +17,15 @@ builder.Services.AddSwaggerGen();
 builder.Services.AddDbContext<CamAiEdgeBoxContext>();
 builder.Services.AddScoped<UnitOfWork>();
 builder.Services.AddScoped<CameraService>().AddScoped<BrandService>();
+
+var streamConf = builder.Configuration.GetSection(StreamingConfiguration.Section);
+builder.Services.Configure<StreamingConfiguration>(streamConf);
+
+var ffmpegPath = streamConf.GetRequiredSection("FFMpegPath").Get<string>();
+GlobalFFOptions.Configure(x =>
+{
+    x.BinaryFolder = ffmpegPath!;
+});
 
 builder.Services.AddCors(opts =>
     opts.AddPolicy(

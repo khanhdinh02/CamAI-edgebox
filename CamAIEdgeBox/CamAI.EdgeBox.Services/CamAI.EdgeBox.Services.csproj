@@ -7,6 +7,10 @@
     </PropertyGroup>
 
     <ItemGroup>
+        <PackageReference Include="FFMpegCore" Version="5.1.0" />
+    </ItemGroup>
+
+    <ItemGroup>
       <ProjectReference Include="..\CamAI.EdgeBox.Repositories\CamAI.EdgeBox.Repositories.csproj" />
     </ItemGroup>
 
