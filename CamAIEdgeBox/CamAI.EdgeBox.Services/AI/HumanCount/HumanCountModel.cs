@@ -8,4 +8,5 @@ public class HumanCountModel
 {
     public DateTime Time { get; set; }
     public int Count { get; set; }
+    public Guid ShopId { get; set; }
 }
