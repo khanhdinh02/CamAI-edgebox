@@ -1,18 +1,35 @@
-﻿namespace CamAI.EdgeBox.Services.AI;
+﻿using MassTransit;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Options;
 
-public static class AIProcessManager
+namespace CamAI.EdgeBox.Services.AI;
+
+public static class AiProcessManager
 {
-    // TODO: include a result watcher for each process
-    private static readonly List<AIProcessWrapper> RunningProcess = [];
+    private static readonly List<AiProcessWrapper> RunningProcess = [];
 
-    public static void RunEncoder(string processName, Uri uri, string path)
+    public static void Run(string processName, Uri uri, string path, IServiceProvider provider)
     {
+        // TODO: get processor Event and add to watcher
+        // if (RunningProcess.Exists(x => x.AiProcess.Name == processName))
+        //     return;
+        //
+        // var aiProcess = new AiProcessWrapper(processName);
+        // aiProcess.Run(uri, path);
+        // RunningProcess.Add(aiProcess);
+        // var humanCountProcessor = new HumanCountProcessor();
+    }
+
+    public static void Run(string processName, IServiceProvider provider)
+    {
+        // TODO: get processor Event and add to watcher
         if (RunningProcess.Exists(x => x.Name == processName))
             return;
 
-        var ffmpegProcess = new AIProcessWrapper(processName);
-        ffmpegProcess.Run(uri, path);
-        RunningProcess.Add(ffmpegProcess);
+        var aiProcess = new AiProcessWrapper(processName, provider);
+        aiProcess.Run(new Uri("http://localhost/"), "");
+
+        RunningProcess.Add(aiProcess);
     }
 
     public static void Kill(string processName)

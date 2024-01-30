@@ -6,8 +6,11 @@ namespace CamAI.EdgeBox.Controllers.Controllers;
 
 [Route("api/[controller]")]
 [ApiController]
-public class CamerasController(CameraService cameraService, ILogger<CamerasController> logger)
-    : Controller
+public class CamerasController(
+    CameraService cameraService,
+    AIService aiService,
+    ILogger<CamerasController> logger
+) : Controller
 {
     [HttpGet]
     public List<Camera> GetCameras()
@@ -59,5 +62,11 @@ public class CamerasController(CameraService cameraService, ILogger<CamerasContr
             "application/octet-stream",
             enableRangeProcessing: true
         );
+    }
+
+    [HttpGet("test/ai")]
+    public void RunAI()
+    {
+        aiService.RunAI();
     }
 }

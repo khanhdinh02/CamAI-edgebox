@@ -17,13 +17,13 @@ builder.Services.AddSwaggerGen();
 
 builder.Services.AddDbContext<CamAiEdgeBoxContext>();
 builder.Services.AddScoped<UnitOfWork>();
-builder.Services.AddScoped<CameraService>().AddScoped<BrandService>();
+builder.Services.AddScoped<CameraService>().AddScoped<BrandService>().AddScoped<AIService>();
 
 builder.Services.Configure<StreamingConfiguration>(
     builder.Configuration.GetSection(StreamingConfiguration.Section)
 );
-builder.Services.Configure<AIConfiguration>(
-    builder.Configuration.GetSection(AIConfiguration.Section)
+builder.Services.Configure<AiConfiguration>(
+    builder.Configuration.GetSection(AiConfiguration.Section)
 );
 
 GlobalFFOptions.Configure(x =>
@@ -61,3 +61,5 @@ app.UseHttpsRedirection();
 app.MapControllers();
 
 app.Run();
+
+// TODO: Get all camera and run AI
