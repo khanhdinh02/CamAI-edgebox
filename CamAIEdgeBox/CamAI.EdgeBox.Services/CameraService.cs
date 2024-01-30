@@ -34,6 +34,9 @@ public class CameraService(
         return camera;
     }
 
+    // TODO: check camera health
+    // TODO: run ai for camera
+
     public void DeleteCamera(Guid id)
     {
         var camera = unitOfWork.Cameras.GetById(id);

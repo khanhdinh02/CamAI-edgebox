@@ -22,4 +22,5 @@ public class Camera : BaseEntity
     public string Host { get; set; } = null!;
     public string Path { get; set; } = null!;
     public int Index { get; set; }
+    // TODO: add status
 }
