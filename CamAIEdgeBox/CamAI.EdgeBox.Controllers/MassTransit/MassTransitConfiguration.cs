@@ -25,14 +25,6 @@ public static class MassTransitConfiguration
                     (context, cfg) =>
                     {
                         cfg.SetupHost(settings);
-
-                        // TODO [Duy]: Cannot set the routing yet using reflection yet so we have to declare by hand
-                        cfg.Send<TestMessage>(configurator =>
-                            configurator.UseRoutingKeyFormatter(sendContext =>
-                                sendContext.Message.RoutingKey
-                            )
-                        );
-
                         cfg.RegisterPublisher(assemblies);
                         cfg.RegisterConsumer(context, assemblies);
                     }

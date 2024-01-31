@@ -13,10 +13,4 @@ public class TestController(IPublishEndpoint bus) : ControllerBase
     {
         return $"Hello {name} from edge box";
     }
-
-    [HttpGet("test")]
-    public void Test()
-    {
-        bus.Publish(new TestMessage { RoutingKey = "routingKey" });
-    }
 }
