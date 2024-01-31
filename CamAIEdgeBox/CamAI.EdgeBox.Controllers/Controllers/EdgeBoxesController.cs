@@ -11,12 +11,14 @@ public class DbEdgeBoxesController(EdgeBoxService edgeBoxService) : Controller
     [HttpGet]
     public DbEdgeBox GetEdgeBox()
     {
-        return edgeBoxService.GetEdgeBox();
+        return GlobalData.EdgeBox;
     }
 
     [HttpPut]
-    public DbEdgeBox UpsertEdgeBox([FromBody] DbEdgeBox edgeBox)
+    public DbEdgeBox UpsertEdgeBox([FromBody] DbEdgeBox edgeBoxDto)
     {
-        return edgeBoxService.UpsertEdgeBox(edgeBox);
+        var edgeBox = edgeBoxService.UpsertEdgeBox(edgeBoxDto);
+        GlobalData.EdgeBox = edgeBox;
+        return edgeBox;
     }
 }

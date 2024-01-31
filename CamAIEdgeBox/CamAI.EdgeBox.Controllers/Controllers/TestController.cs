@@ -1,5 +1,4 @@
-﻿using CamAI.EdgeBox.Consumers;
-using MassTransit;
+﻿using MassTransit;
 using Microsoft.AspNetCore.Mvc;
 
 namespace CamAI.EdgeBox.Controllers.Controllers;

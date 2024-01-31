@@ -15,31 +15,36 @@ public class CamerasController(
     [HttpGet]
     public List<Camera> GetCameras()
     {
-        return cameraService.GetCamera();
+        return GlobalData.Cameras;
     }
 
     [HttpGet("{id}")]
     public Camera GetCamera([FromRoute] Guid id)
     {
-        return cameraService.GetCamera(id);
+        return GlobalData.Cameras.Find(x => x.Id == id) ?? throw new Exception("Camera not found");
     }
 
     [HttpPost]
-    public Camera AddCamera([FromBody] Camera camera)
+    public Camera AddCamera([FromBody] Camera cameraDto)
     {
-        return cameraService.AddCamera(camera);
+        var camera = cameraService.AddCamera(cameraDto);
+        GlobalData.Cameras = cameraService.GetCamera();
+        return camera;
     }
 
     [HttpPut("{id}")]
-    public Camera UpdateCamera([FromRoute] Guid id, [FromBody] Camera camera)
+    public Camera UpdateCamera([FromRoute] Guid id, [FromBody] Camera cameraDto)
     {
-        return cameraService.UpdateCamera(id, camera);
+        var camera = cameraService.UpdateCamera(id, cameraDto);
+        GlobalData.Cameras = cameraService.GetCamera();
+        return camera;
     }
 
     [HttpDelete("{id}")]
     public void DeleteCamera([FromRoute] Guid id)
     {
         cameraService.DeleteCamera(id);
+        GlobalData.Cameras = cameraService.GetCamera();
     }
 
     [HttpGet("{id}/stream/start")]
