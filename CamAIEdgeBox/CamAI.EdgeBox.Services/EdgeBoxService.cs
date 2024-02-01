@@ -5,9 +5,9 @@ namespace CamAI.EdgeBox.Services;
 
 public class EdgeBoxService(UnitOfWork unitOfWork)
 {
-    public DbEdgeBox GetEdgeBox()
+    public DbEdgeBox? GetEdgeBox()
     {
-        return unitOfWork.EdgeBoxes.GetAll()[0];
+        return unitOfWork.EdgeBoxes.GetAll().FirstOrDefault();
     }
 
     public DbEdgeBox UpsertEdgeBox(DbEdgeBox edgeBox)
@@ -24,6 +24,7 @@ public class EdgeBoxService(UnitOfWork unitOfWork)
             unitOfWork.EdgeBoxes.Update(edgeBox);
         }
         unitOfWork.Complete();
+        GlobalData.EdgeBox = edgeBox;
         return edgeBox;
     }
 }

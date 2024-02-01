@@ -21,7 +21,6 @@ public class UpdateDataConsumer(
     {
         var brand = context.Message.ToBrand();
         brandService.UpsertBrand(brand);
-        GlobalData.Brand = brand;
         return Task.CompletedTask;
     }
 
@@ -29,7 +28,6 @@ public class UpdateDataConsumer(
     {
         var shop = context.Message.ToShop();
         shopService.UpsertShop(shop);
-        GlobalData.Shop = shop;
         return Task.CompletedTask;
     }
 
@@ -37,7 +35,6 @@ public class UpdateDataConsumer(
     {
         var employee = context.Message.ToEmployee();
         employeeService.UpsertEmployee(employee);
-        GlobalData.Employees = employeeService.GetEmployee();
         return Task.CompletedTask;
     }
 }

@@ -26,6 +26,7 @@ public class EmployeeService(UnitOfWork unitOfWork)
             unitOfWork.Employees.Update(employee);
         }
         unitOfWork.Complete();
+        GlobalData.Employees = GetEmployee();
         return employee;
     }
 }

@@ -9,7 +9,7 @@ namespace CamAI.EdgeBox.Controllers.Controllers;
 public class DbEdgeBoxesController(EdgeBoxService edgeBoxService) : Controller
 {
     [HttpGet]
-    public DbEdgeBox GetEdgeBox()
+    public DbEdgeBox? GetEdgeBox()
     {
         return GlobalData.EdgeBox;
     }
@@ -18,7 +18,6 @@ public class DbEdgeBoxesController(EdgeBoxService edgeBoxService) : Controller
     public DbEdgeBox UpsertEdgeBox([FromBody] DbEdgeBox edgeBoxDto)
     {
         var edgeBox = edgeBoxService.UpsertEdgeBox(edgeBoxDto);
-        GlobalData.EdgeBox = edgeBox;
         return edgeBox;
     }
 }

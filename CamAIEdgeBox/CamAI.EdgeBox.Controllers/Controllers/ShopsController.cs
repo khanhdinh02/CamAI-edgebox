@@ -9,7 +9,7 @@ namespace CamAI.EdgeBox.Controllers.Controllers;
 public class ShopsController(ShopService shopService) : Controller
 {
     [HttpGet]
-    public Shop GetShop()
+    public Shop? GetShop()
     {
         return GlobalData.Shop;
     }
@@ -18,7 +18,6 @@ public class ShopsController(ShopService shopService) : Controller
     public Shop UpsertShop([FromBody] Shop shopDto)
     {
         var shop = shopService.UpsertShop(shopDto);
-        GlobalData.Shop = shop;
         return shop;
     }
 }

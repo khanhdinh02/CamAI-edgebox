@@ -6,6 +6,7 @@ using CamAI.EdgeBox.Services;
 using CamAI.EdgeBox.Services.AI;
 using CamAI.EdgeBox.Services.Streaming;
 using FFMpegCore;
+using SQLitePCL;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -69,9 +70,12 @@ app.UseHttpsRedirection();
 
 app.MapControllers();
 
+using (var scope = app.Services.CreateScope())
+{
+    var globalDataSync = scope.ServiceProvider.GetRequiredService<GlobalDataSync>();
+    globalDataSync.SyncData();
+}
+
 app.Run();
 
 // TODO: Get all camera and run AI
-
-var globalDataSync = app.Services.GetRequiredService<GlobalDataSync>();
-globalDataSync.SyncData();

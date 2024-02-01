@@ -25,7 +25,6 @@ public class EmployeesController(EmployeeService employeeService) : Controller
     public Employee AddEmployee([FromBody] Employee employeeDto)
     {
         var employee = employeeService.UpsertEmployee(employeeDto);
-        GlobalData.Employees = employeeService.GetEmployee();
         return employee;
     }
 
@@ -34,7 +33,6 @@ public class EmployeesController(EmployeeService employeeService) : Controller
     {
         employeeDto.Id = id;
         var employee = employeeService.UpsertEmployee(employeeDto);
-        GlobalData.Employees = employeeService.GetEmployee();
         return employee;
     }
     //
