@@ -19,7 +19,7 @@ public class CamerasController(
     }
 
     [HttpGet("{id}")]
-    public Camera GetCamera([FromQuery] Guid id)
+    public Camera GetCamera([FromRoute] Guid id)
     {
         return cameraService.GetCamera(id);
     }
@@ -31,19 +31,19 @@ public class CamerasController(
     }
 
     [HttpPut("{id}")]
-    public Camera UpdateCamera([FromQuery] Guid id, [FromBody] Camera camera)
+    public Camera UpdateCamera([FromRoute] Guid id, [FromBody] Camera camera)
     {
         return cameraService.UpdateCamera(id, camera);
     }
 
     [HttpDelete("{id}")]
-    public void DeleteCamera([FromQuery] Guid id)
+    public void DeleteCamera([FromRoute] Guid id)
     {
         cameraService.DeleteCamera(id);
     }
 
-    [HttpGet("{id}/stream")]
-    public IActionResult GetM3U8File([FromQuery] Guid id)
+    [HttpGet("{id}/stream/start")]
+    public IActionResult GetM3U8File([FromRoute] Guid id)
     {
         Response.Headers.Append("Access-Control-Allow-Origin", "*");
         return File(
@@ -54,7 +54,7 @@ public class CamerasController(
     }
 
     [HttpGet("{id}/stream/{tsFileName}")]
-    public IActionResult GetTsFile([FromQuery] Guid id, [FromQuery] string tsFileName)
+    public IActionResult GetTsFile([FromRoute] Guid id, [FromRoute] string tsFileName)
     {
         Response.Headers.Append("Access-Control-Allow-Origin", "*");
         return File(

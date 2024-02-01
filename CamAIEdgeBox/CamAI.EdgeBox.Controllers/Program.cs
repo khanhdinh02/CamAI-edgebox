@@ -19,16 +19,17 @@ builder.Services.AddDbContext<CamAiEdgeBoxContext>();
 builder.Services.AddScoped<UnitOfWork>();
 builder.Services.AddScoped<CameraService>().AddScoped<BrandService>().AddScoped<AIService>();
 
-builder.Services.Configure<StreamingConfiguration>(
-    builder.Configuration.GetSection(StreamingConfiguration.Section)
-);
 builder.Services.Configure<AiConfiguration>(
     builder.Configuration.GetSection(AiConfiguration.Section)
 );
 
+var streamConf = builder.Configuration.GetSection(StreamingConfiguration.Section);
+builder.Services.Configure<StreamingConfiguration>(streamConf);
+
+var ffmpegPath = streamConf.GetRequiredSection("FFMpegPath").Get<string>();
 GlobalFFOptions.Configure(x =>
 {
-    x.BinaryFolder = "C:\\Users\\ngud\\Downloads\\ffmpeg-6.1.1-essentials_build\\bin";
+    x.BinaryFolder = ffmpegPath!;
 });
 
 builder.Services.AddCors(opts =>
