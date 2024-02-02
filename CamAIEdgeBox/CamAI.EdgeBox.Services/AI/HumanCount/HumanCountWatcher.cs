@@ -7,8 +7,8 @@ public class HumanCountWatcher
 {
     private readonly FileSystemWatcher fileWatcher;
     private readonly AiConfiguration aiConfiguration;
-    public event HumanCountNotify Notifier;
-    private string watchFile;
+    public event HumanCountNotify? Notifier;
+    private readonly string watchFile;
 
     public HumanCountWatcher(IOptions<AiConfiguration> aiConfiguration)
     {
@@ -32,13 +32,13 @@ public class HumanCountWatcher
     private void HandleFileChange(object sender, FileSystemEventArgs e)
     {
         var lastLine = Retry.Do(
-            () => File.ReadLines(watchFile).Last().Split(","),
+            () => File.ReadLines(watchFile).Last().Split(aiConfiguration.OutputSeparator),
             TimeSpan.FromSeconds(1)
         );
         if (!int.TryParse(lastLine[0], out var time))
             return;
         var count = int.Parse(lastLine[1]);
-        Notifier.Invoke(time, count);
+        Notifier?.Invoke(time, count);
     }
 }
 

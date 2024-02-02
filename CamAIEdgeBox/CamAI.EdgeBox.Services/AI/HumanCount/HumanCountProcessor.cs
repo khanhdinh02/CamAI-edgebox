@@ -7,13 +7,12 @@ namespace CamAI.EdgeBox.Services.AI;
 public class HumanCountProcessor
 {
     private readonly ConcurrentBag<HumanCountItem> items = [];
-    private HumanCountWatcher watcher;
     private readonly PeriodicTimer timer;
     private readonly IPublishEndpoint bus;
 
     public HumanCountProcessor(IOptions<AiConfiguration> configuration, IPublishEndpoint bus)
     {
-        watcher = new HumanCountWatcher(configuration);
+        var watcher = new HumanCountWatcher(configuration);
         watcher.Notifier += ReceiveData;
         timer = new PeriodicTimer(TimeSpan.FromSeconds(configuration.Value.HumanCount.Interval));
         this.bus = bus;
@@ -34,7 +33,7 @@ public class HumanCountProcessor
             Console.WriteLine("Avg: {0}: {1}", countModel.Time, countModel.Count);
             try
             {
-                await bus.Publish(countModel);
+                await bus.Publish(countModel, CancellationToken.None);
             }
             catch (Exception)
             {
