@@ -2,6 +2,7 @@ using CamAI.EdgeBox.MassTransit;
 using CamAI.EdgeBox.Models;
 using CamAI.EdgeBox.Repositories;
 using CamAI.EdgeBox.Services;
+using CamAI.EdgeBox.Services.AI;
 using CamAI.EdgeBox.Services.Streaming;
 using FFMpegCore;
 
@@ -16,7 +17,11 @@ builder.Services.AddSwaggerGen();
 
 builder.Services.AddDbContext<CamAiEdgeBoxContext>();
 builder.Services.AddScoped<UnitOfWork>();
-builder.Services.AddScoped<CameraService>().AddScoped<BrandService>();
+builder.Services.AddScoped<CameraService>().AddScoped<BrandService>().AddScoped<AIService>();
+
+builder.Services.Configure<AiConfiguration>(
+    builder.Configuration.GetSection(AiConfiguration.Section)
+);
 
 var streamConf = builder.Configuration.GetSection(StreamingConfiguration.Section);
 builder.Services.Configure<StreamingConfiguration>(streamConf);
@@ -57,3 +62,5 @@ app.UseHttpsRedirection();
 app.MapControllers();
 
 app.Run();
+
+// TODO: Get all camera and run AI
