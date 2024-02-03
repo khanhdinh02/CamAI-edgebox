@@ -69,4 +69,10 @@ public class CamerasController(
     {
         aiService.RunAI();
     }
+
+    [HttpGet("test/ai/kill")]
+    public void KillAi()
+    {
+        aiService.KillAI();
+    }
 }

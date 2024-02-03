@@ -9,4 +9,9 @@ public class AIService(IPublishEndpoint bus, IServiceProvider provider)
     {
         AiProcessManager.Run("Test", provider);
     }
+
+    public void KillAI()
+    {
+        AiProcessManager.Kill("Test");
+    }
 }

@@ -3,4 +3,5 @@
 public static class Constants
 {
     public const string HumanCount = "HumanCount";
+    public const string Classifier = "Classifier";
 }
