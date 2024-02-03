@@ -1,8 +1,7 @@
 ﻿using System.Collections.Concurrent;
+using CamAI.EdgeBox.Models;
 using MassTransit;
 using Microsoft.Extensions.Options;
-using CamAI.EdgeBox.Services.Utils;
-using static CamAI.EdgeBox.Services.AI.EnumConversion;
 
 namespace CamAI.EdgeBox.Services.AI;
 
@@ -27,24 +26,32 @@ public class ClassifierProcessor
             var items = classifierItems.ToArray();
             classifierItems.Clear();
 
-            var actionDict = new Dictionary<ActionType, int>();
+            var total = 0;
+            var maxPhone = 0;
+            var maxLaptop = 0;
             foreach (var item in items)
             {
-                var data = item.Output.Select(x => x.Data).GroupBy(x => x.Label);
-                foreach (var group in data)
-                    actionDict.SetOrIncrease(ActionTypes[group.Key], group.Count());
+                var data = item.Output.Select(x => x.Data).ToList();
+                total += data.Count;
+                var actionGroup = data.GroupBy(x => x.Label).ToList();
+                maxPhone = Math.Max(maxPhone, actionGroup.Count(x => x.Key == ActionType.Phone));
+                maxLaptop = Math.Max(maxLaptop, actionGroup.Count(x => x.Key == ActionType.Laptop));
             }
+
+            // TODO [Duy]: test the accuracy of this
+            total /= items.Length;
+            var result = new List<ClassifierResult>
+            {
+                new() { ActionType = ActionType.Phone, Count = maxPhone },
+                new() { ActionType = ActionType.Laptop, Count = maxLaptop },
+                new() { ActionType = ActionType.Idle, Count = total - maxLaptop - maxPhone }
+            };
             var countModel = new ClassifierModel
             {
                 Time = DateTime.Now,
-                Total = actionDict.Select(x => x.Value).Sum()/items.Length,
-                Results = actionDict.Select(x => new ClassifierResult
-                {
-                    // TODO [Duy]: process the phone and laptop classification
-                    ActionType = x.Key,
-                    Count = x.Value/items.Length
-                }).ToList()
-                // TODO [Duy]: add shop id from global data after merge
+                Total = total,
+                Results = result,
+                ShopId = GlobalData.Shop!.Id
             };
             try
             {

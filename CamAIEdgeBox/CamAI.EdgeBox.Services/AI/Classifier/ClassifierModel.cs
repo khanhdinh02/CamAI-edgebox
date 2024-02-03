@@ -14,25 +14,14 @@ public class ClassifierModel
 
 public class ClassifierResult
 {
-    public ActionType ActionType { get; set; }
+    public string ActionType { get; set; } = null!;
     public int Count { get; set; }
 }
 
-public enum ActionType
+public static class ActionType
 {
-    Idle = 0,
-    Walking = 1,
-    Phone = 2,
-    Laptop = 3
-}
-
-public static class EnumConversion
-{
-    public static readonly IReadOnlyDictionary<string, ActionType> ActionTypes = new Dictionary<string, ActionType>()
-    {
-        { "idle", ActionType.Idle },
-        { "walking", ActionType.Walking },
-        { "phone", ActionType.Phone },
-        { "laptop", ActionType.Laptop }
-    };
+    public const string Idle = "idle";
+    public const string Walking = "walking";
+    public const string Phone = "phone";
+    public const string Laptop = "laptop";
 }

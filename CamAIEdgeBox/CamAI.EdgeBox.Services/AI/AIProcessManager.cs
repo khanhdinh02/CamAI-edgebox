@@ -10,7 +10,6 @@ public static class AiProcessManager
 
     public static void Run(string processName, Uri uri, string path, IServiceProvider provider)
     {
-        // TODO: get processor Event and add to watcher
         // if (RunningProcess.Exists(x => x.AiProcess.Name == processName))
         //     return;
         //
@@ -22,7 +21,7 @@ public static class AiProcessManager
 
     public static void Run(string processName, IServiceProvider provider)
     {
-        // TODO: get processor Event and add to watcher
+        // TODO [Duy]: validate edge box has shop before running AI
         if (RunningProcess.Exists(x => x.Name == processName))
             return;
 
