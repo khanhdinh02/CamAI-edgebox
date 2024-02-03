@@ -9,14 +9,15 @@ namespace CamAI.EdgeBox.Controllers.Controllers;
 public class ShopsController(ShopService shopService) : Controller
 {
     [HttpGet]
-    public Shop GetShop()
+    public Shop? GetShop()
     {
-        return shopService.GetShop();
+        return GlobalData.Shop;
     }
 
     [HttpPut]
-    public Shop UpsertShop([FromBody] Shop shop)
+    public Shop UpsertShop([FromBody] Shop shopDto)
     {
-        return shopService.UpsertShop(shop);
+        var shop = shopService.UpsertShop(shopDto);
+        return shop;
     }
 }

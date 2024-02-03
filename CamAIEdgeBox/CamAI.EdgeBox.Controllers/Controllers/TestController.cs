@@ -1,5 +1,4 @@
-﻿using CamAI.EdgeBox.Consumers;
-using MassTransit;
+﻿using MassTransit;
 using Microsoft.AspNetCore.Mvc;
 
 namespace CamAI.EdgeBox.Controllers.Controllers;
@@ -12,11 +11,5 @@ public class TestController(IPublishEndpoint bus) : ControllerBase
     public ActionResult<string> TestConnection([FromRoute] string name)
     {
         return $"Hello {name} from edge box";
-    }
-
-    [HttpGet("test")]
-    public void Test()
-    {
-        bus.Publish(new TestMessage { RoutingKey = "routingKey" });
     }
 }

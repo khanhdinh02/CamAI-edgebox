@@ -9,14 +9,15 @@ namespace CamAI.EdgeBox.Controllers.Controllers;
 public class BrandsController(BrandService brandService) : Controller
 {
     [HttpGet]
-    public Brand GetBrand()
+    public Brand? GetBrand()
     {
-        return brandService.GetBrand();
+        return GlobalData.Brand;
     }
 
     [HttpPut]
-    public Brand UpsertBrand([FromBody] Brand brand)
+    public Brand UpsertBrand([FromBody] Brand brandDto)
     {
-        return brandService.UpsertBrand(brand);
+        var brand = brandService.UpsertBrand(brandDto);
+        return brand;
     }
 }

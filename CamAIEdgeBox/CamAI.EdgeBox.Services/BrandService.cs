@@ -5,15 +5,14 @@ namespace CamAI.EdgeBox.Services;
 
 public class BrandService(UnitOfWork unitOfWork)
 {
-    public Brand GetBrand()
+    public Brand? GetBrand()
     {
-        return unitOfWork.Brands.GetAll()[0];
+        return unitOfWork.Brands.GetAll().FirstOrDefault();
     }
 
     public Brand UpsertBrand(Brand brand)
     {
-        // TODO: detach entity
-        var foundBrand = unitOfWork.Brands.GetAll().FirstOrDefault();
+        var foundBrand = unitOfWork.Brands.GetAll(false).FirstOrDefault();
         if (foundBrand == null)
             // insert
             unitOfWork.Brands.Add(brand);
@@ -24,6 +23,7 @@ public class BrandService(UnitOfWork unitOfWork)
             unitOfWork.Brands.Update(brand);
         }
         unitOfWork.Complete();
+        GlobalData.Brand = brand;
         return brand;
     }
 }

@@ -5,15 +5,14 @@ namespace CamAI.EdgeBox.Services;
 
 public class ShopService(UnitOfWork unitOfWork)
 {
-    public Shop GetShop()
+    public Shop? GetShop()
     {
-        return unitOfWork.Shops.GetAll()[0];
+        return unitOfWork.Shops.GetAll().FirstOrDefault();
     }
 
     public Shop UpsertShop(Shop shop)
     {
-        // TODO: detach entity
-        var foundShop = unitOfWork.Shops.GetAll().FirstOrDefault();
+        var foundShop = unitOfWork.Shops.GetAll(false).FirstOrDefault();
         if (foundShop == null)
             // insert
             unitOfWork.Shops.Add(shop);
@@ -24,6 +23,7 @@ public class ShopService(UnitOfWork unitOfWork)
             unitOfWork.Shops.Update(shop);
         }
         unitOfWork.Complete();
+        GlobalData.Shop = shop;
         return shop;
     }
 }
