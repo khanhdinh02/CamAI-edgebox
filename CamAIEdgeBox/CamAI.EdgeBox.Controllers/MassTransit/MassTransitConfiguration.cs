@@ -1,6 +1,6 @@
 ﻿using System.Reflection;
-using CamAI.EdgeBox.Consumers;
 using MassTransit;
+using Microsoft.Extensions.FileSystemGlobbing;
 
 namespace CamAI.EdgeBox.MassTransit;
 
@@ -9,7 +9,7 @@ public static class MassTransitConfiguration
     public static void ConfigureMassTransit(this WebApplicationBuilder builder)
     {
         var settings = builder.Configuration.GetSection("RabbitMq").Get<RabbitMqConfiguration>();
-        var assemblies = new[] { typeof(Program).Assembly };
+        var assemblies = GetLoadedAssemblies();
 
         builder.Services.AddMassTransit(x =>
         {
@@ -26,13 +26,9 @@ public static class MassTransitConfiguration
                     {
                         cfg.SetupHost(settings);
 
-                        // TODO [Duy]: Cannot set the routing yet using reflection yet so we have to declare by hand
-                        cfg.Send<TestMessage>(configurator =>
-                            configurator.UseRoutingKeyFormatter(sendContext =>
-                                sendContext.Message.RoutingKey
-                            )
+                        cfg.Send<RoutingKeyMessage>(configurator =>
+                            configurator.UseRoutingKeyFormatter(sendContext => sendContext.Message.RoutingKey)
                         );
-
                         cfg.RegisterPublisher(assemblies);
                         cfg.RegisterConsumer(context, assemblies);
                     }
@@ -77,5 +73,14 @@ public static class MassTransitConfiguration
                 h.Password(settings.Password);
             }
         );
+    }
+
+    private static Assembly[] GetLoadedAssemblies()
+    {
+        var path = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location)!;
+        var matcher = new Matcher();
+        matcher.AddIncludePatterns(["CamAI.*.dll"]);
+        var assemblies = matcher.GetResultsInFullPath(path).Select(Assembly.LoadFrom);
+        return assemblies.ToArray();
     }
 }

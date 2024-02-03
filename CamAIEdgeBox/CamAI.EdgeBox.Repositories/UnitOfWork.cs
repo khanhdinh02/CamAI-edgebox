@@ -16,6 +16,9 @@ public class UnitOfWork(CamAiEdgeBoxContext db)
     private EdgeBoxRepository? _edgeBoxRepository;
     public EdgeBoxRepository EdgeBoxes => _edgeBoxRepository ??= new EdgeBoxRepository(db);
 
+    private EmployeeRepository? _employeeRepository;
+    public EmployeeRepository Employees => _employeeRepository ??= new EmployeeRepository(db);
+
     public int Complete() => db.SaveChanges();
 
     public void Dispose()

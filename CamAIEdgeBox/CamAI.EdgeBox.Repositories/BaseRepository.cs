@@ -4,7 +4,8 @@ using Microsoft.EntityFrameworkCore;
 
 namespace CamAI.EdgeBox.Repositories;
 
-public class BaseRepository<T>(CamAiEdgeBoxContext context) where T : BaseEntity
+public class BaseRepository<T>(CamAiEdgeBoxContext context)
+    where T : BaseEntity
 {
     protected DbContext Context => context;
 
@@ -29,9 +30,12 @@ public class BaseRepository<T>(CamAiEdgeBoxContext context) where T : BaseEntity
         return entity;
     }
 
-    public virtual List<T> GetAll()
+    public virtual List<T> GetAll(bool tracking = true)
     {
-        return Context.Set<T>().ToList();
+        IQueryable<T> query = Context.Set<T>();
+        if (!tracking)
+            query = query.AsNoTracking();
+        return query.ToList();
     }
 
     public virtual T? GetById(object key)

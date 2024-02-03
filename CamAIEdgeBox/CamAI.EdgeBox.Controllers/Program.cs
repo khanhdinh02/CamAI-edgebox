@@ -1,3 +1,4 @@
+using CamAI.EdgeBox.Controllers;
 using CamAI.EdgeBox.MassTransit;
 using CamAI.EdgeBox.Models;
 using CamAI.EdgeBox.Repositories;
@@ -5,6 +6,7 @@ using CamAI.EdgeBox.Services;
 using CamAI.EdgeBox.Services.AI;
 using CamAI.EdgeBox.Services.Streaming;
 using FFMpegCore;
+using SQLitePCL;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -17,7 +19,14 @@ builder.Services.AddSwaggerGen();
 
 builder.Services.AddDbContext<CamAiEdgeBoxContext>();
 builder.Services.AddScoped<UnitOfWork>();
-builder.Services.AddScoped<CameraService>().AddScoped<BrandService>().AddScoped<AIService>();
+builder
+    .Services.AddScoped<CameraService>()
+    .AddScoped<BrandService>()
+    .AddScoped<AIService>()
+    .AddScoped<ShopService>()
+    .AddScoped<EdgeBoxService>()
+    .AddScoped<EmployeeService>()
+    .AddScoped<GlobalDataSync>();
 
 builder.Services.Configure<AiConfiguration>(
     builder.Configuration.GetSection(AiConfiguration.Section)
@@ -60,6 +69,12 @@ if (app.Environment.IsDevelopment())
 app.UseHttpsRedirection();
 
 app.MapControllers();
+
+using (var scope = app.Services.CreateScope())
+{
+    var globalDataSync = scope.ServiceProvider.GetRequiredService<GlobalDataSync>();
+    globalDataSync.SyncData();
+}
 
 app.Run();
 
