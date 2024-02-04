@@ -12,8 +12,7 @@ public class EdgeBoxService(UnitOfWork unitOfWork)
 
     public DbEdgeBox UpsertEdgeBox(DbEdgeBox edgeBox)
     {
-        // TODO: detach entity
-        var foundEdgeBox = unitOfWork.EdgeBoxes.GetAll().FirstOrDefault();
+        var foundEdgeBox = unitOfWork.EdgeBoxes.GetAll(false).FirstOrDefault();
         if (foundEdgeBox == null)
             // insert
             unitOfWork.EdgeBoxes.Add(edgeBox);
