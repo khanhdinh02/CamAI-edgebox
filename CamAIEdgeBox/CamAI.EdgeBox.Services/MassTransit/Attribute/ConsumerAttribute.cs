@@ -10,7 +10,7 @@ public class ConsumerAttribute(
 ) : MessageQueueEndpointAttribute(queueName)
 {
     public override string QueueName => $"Consumer:{FormatTemplate(Template)}";
-    public string RoutingKey => routingKey ?? QueueName;
+    public string RoutingKey => FormatTemplate(routingKey ?? Template);
     public string ExchangeName => $"Publisher:{FormatTemplate(exchangeName ?? Template)}";
     public string ExchangeType => exchangeType;
 }
