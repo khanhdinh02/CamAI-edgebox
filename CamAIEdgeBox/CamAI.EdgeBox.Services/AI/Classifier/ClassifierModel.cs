@@ -1,9 +1,11 @@
 ﻿using CamAI.EdgeBox.MassTransit;
 using CamAI.EdgeBox.Services.MassTransit;
+using MassTransit;
 
 namespace CamAI.EdgeBox.Services.AI;
 
 [Publisher(Constants.Classifier)]
+[MessageUrn("ClassifierModel")]
 public class ClassifierModel
 {
     public DateTime Time { get; set; }

@@ -1,4 +1,5 @@
 ﻿using System.Text;
+using System.Web;
 using CamAI.EdgeBox.Models;
 
 namespace CamAI.EdgeBox.MassTransit;
@@ -13,10 +14,11 @@ public abstract class MessageQueueEndpointAttribute(string queueName) : Attribut
     {
         var sb = new StringBuilder(template);
         sb.Replace("{MachineName}", Environment.MachineName);
-        sb.Replace("{BrandName}", GlobalData.Brand!.Name);
-        sb.Replace("{ShopName}", GlobalData.Shop!.Name);
-        sb.Replace("{BrandId}", GlobalData.Brand.Id.ToString("N"));
-        sb.Replace("{ShopId}", GlobalData.Shop.Id.ToString("N"));
+        sb.Replace("{BrandName}", GlobalData.Brand?.Name);
+        sb.Replace("{ShopName}", GlobalData.Shop?.Name);
+        sb.Replace("{BrandId}", GlobalData.Brand?.Id.ToString("N"));
+        sb.Replace("{ShopId}", GlobalData.Shop?.Id.ToString("N"));
+        sb.Replace(" ", "");
         return sb.ToString();
     }
 }

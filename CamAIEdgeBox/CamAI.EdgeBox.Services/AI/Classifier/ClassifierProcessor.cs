@@ -2,6 +2,7 @@
 using CamAI.EdgeBox.Models;
 using MassTransit;
 using Microsoft.Extensions.Options;
+using Serilog;
 
 namespace CamAI.EdgeBox.Services.AI;
 
@@ -55,6 +56,7 @@ public class ClassifierProcessor
             };
             try
             {
+                Log.Information("{Time}: {Total}", countModel.Time, countModel.Total);
                 await bus.Publish(countModel, CancellationToken.None);
             }
             catch (Exception)

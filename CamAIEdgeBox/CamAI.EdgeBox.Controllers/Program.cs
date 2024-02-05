@@ -6,7 +6,7 @@ using CamAI.EdgeBox.Services;
 using CamAI.EdgeBox.Services.AI;
 using CamAI.EdgeBox.Services.Streaming;
 using FFMpegCore;
-using SQLitePCL;
+using Serilog;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -16,6 +16,11 @@ builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
+
+builder.Host.UseSerilog(
+    (context, logConfig) =>
+        logConfig.ReadFrom.Configuration(context.Configuration).Enrich.FromLogContext()
+);
 
 builder.Services.AddDbContext<CamAiEdgeBoxContext>();
 builder.Services.AddScoped<UnitOfWork>();
@@ -49,6 +54,16 @@ builder.Services.AddCors(opts =>
     )
 );
 
+#pragma warning disable ASP0000
+var provider = builder.Services.BuildServiceProvider();
+#pragma warning restore ASP0000
+using (var scope = provider.CreateScope())
+{
+    var globalDataSync = scope.ServiceProvider.GetRequiredService<GlobalDataSync>();
+    globalDataSync.SyncData();
+}
+
+// TODO [Duy]: how to run masstransit configuration after sync data
 builder.ConfigureMassTransit();
 
 builder.Services.Configure<RouteOptions>(opts =>
@@ -69,12 +84,6 @@ if (app.Environment.IsDevelopment())
 app.UseHttpsRedirection();
 
 app.MapControllers();
-
-using (var scope = app.Services.CreateScope())
-{
-    var globalDataSync = scope.ServiceProvider.GetRequiredService<GlobalDataSync>();
-    globalDataSync.SyncData();
-}
 
 app.Run();
 

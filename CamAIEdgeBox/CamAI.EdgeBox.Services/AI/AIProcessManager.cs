@@ -16,7 +16,6 @@ public static class AiProcessManager
         // var aiProcess = new AiProcessWrapper(processName);
         // aiProcess.Run(uri, path);
         // RunningProcess.Add(aiProcess);
-        // var humanCountProcessor = new HumanCountProcessor();
     }
 
     public static void Run(string processName, IServiceProvider provider)
