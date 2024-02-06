@@ -4,12 +4,12 @@ using Microsoft.Extensions.Options;
 
 namespace CamAI.EdgeBox.Services.AI;
 
-public class ClassifierWatcher
+public class ClassifierWatcher : IDisposable
 {
-    private static readonly JsonSerializerOptions Options = new()
-    {
-        PropertyNameCaseInsensitive = true
-    };
+    private bool disposed;
+
+    private static readonly JsonSerializerOptions Options =
+        new() { PropertyNameCaseInsensitive = true };
 
     private readonly FileSystemWatcher fileWatcher;
     private readonly AiConfiguration aiConfiguration;
@@ -19,7 +19,6 @@ public class ClassifierWatcher
     public ClassifierWatcher(IOptions<AiConfiguration> aiConfiguration)
     {
         fileWatcher = new FileSystemWatcher(aiConfiguration.Value.OutputDirectory);
-        // TODO [Duy]: add dispose for filewatcher
         this.aiConfiguration = aiConfiguration.Value;
         watchFile = Path.Combine(
             this.aiConfiguration.OutputDirectory,
@@ -44,8 +43,26 @@ public class ClassifierWatcher
         if (!int.TryParse(lastLine[0], out var time))
             return;
 
-        var result = JsonSerializer.Deserialize<List<ClassifierOutputModel>>(lastLine[1].Replace('\'', '"'), Options);
+        var result = JsonSerializer.Deserialize<List<ClassifierOutputModel>>(
+            lastLine[1].Replace('\'', '"'),
+            Options
+        );
         Notifier?.Invoke(time, result!);
+    }
+
+    public void Dispose()
+    {
+        Dispose(true);
+        GC.SuppressFinalize(this);
+    }
+
+    protected virtual void Dispose(bool disposing)
+    {
+        if (disposed)
+            return;
+        if (disposing)
+            fileWatcher.Dispose();
+        disposed = true;
     }
 }
 

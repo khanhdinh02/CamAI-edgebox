@@ -6,15 +6,18 @@ using Serilog;
 
 namespace CamAI.EdgeBox.Services.AI;
 
-public class ClassifierProcessor
+public class ClassifierProcessor : IDisposable
 {
+    private bool disposed;
+
     private readonly ConcurrentBag<ClassifierItem> classifierItems = [];
     private readonly PeriodicTimer timer;
     private readonly IPublishEndpoint bus;
+    private readonly ClassifierWatcher watcher;
 
     public ClassifierProcessor(IOptions<AiConfiguration> configuration, IPublishEndpoint bus)
     {
-        var watcher = new ClassifierWatcher(configuration);
+        watcher = new ClassifierWatcher(configuration);
         watcher.Notifier += ReceiveData;
         timer = new PeriodicTimer(TimeSpan.FromSeconds(configuration.Value.Classifier.Interval));
         this.bus = bus;
@@ -69,6 +72,24 @@ public class ClassifierProcessor
     private void ReceiveData(int time, List<ClassifierOutputModel> output)
     {
         classifierItems.Add(new ClassifierItem(time, output));
+    }
+
+    public void Dispose()
+    {
+        Dispose(true);
+        GC.SuppressFinalize(this);
+    }
+
+    protected virtual void Dispose(bool disposing)
+    {
+        if (disposed)
+            return;
+        if (disposing)
+        {
+            timer.Dispose();
+            watcher.Dispose();
+        }
+        disposed = true;
     }
 }
 
