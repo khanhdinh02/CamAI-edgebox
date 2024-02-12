@@ -41,12 +41,13 @@ GlobalFFOptions.Configure(x =>
     x.BinaryFolder = ffmpegPath!;
 });
 
-builder.Services.AddCors(opts =>
-    opts.AddPolicy(
-        name: "AllowAll",
-        policy =>
-            policy.AllowAnyOrigin().AllowAnyMethod().AllowAnyHeader().WithExposedHeaders("auto")
-    )
+builder.Services.AddCors(
+    opts =>
+        opts.AddPolicy(
+            name: "AllowAll",
+            policy =>
+                policy.AllowAnyOrigin().AllowAnyMethod().AllowAnyHeader().WithExposedHeaders("auto")
+        )
 );
 
 builder.ConfigureMassTransit();
@@ -59,12 +60,12 @@ builder.Services.Configure<RouteOptions>(opts =>
 
 var app = builder.Build();
 
-// Configure the HTTP request pipeline.
-if (app.Environment.IsDevelopment())
-{
-    app.UseSwagger();
-    app.UseSwaggerUI();
-}
+// if (app.Environment.IsDevelopment())
+// {
+app.UseSwagger();
+app.UseSwaggerUI();
+
+// }
 
 app.UseHttpsRedirection();
 

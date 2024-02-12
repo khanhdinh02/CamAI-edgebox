@@ -18,7 +18,7 @@ public class TestController(IPublishEndpoint bus, ILogger<TestController> logger
         }
         if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
         {
-            // Do something here
+            await "wmic cpu get loadpercentage".WindowsPrompt(logger);
         }
         return $"Hello {name} from edge box";
     }

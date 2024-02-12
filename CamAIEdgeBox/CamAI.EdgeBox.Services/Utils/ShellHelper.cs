@@ -58,4 +58,28 @@ public static class ShellHelper
 
         return source.Task;
     }
+
+    public static async Task WindowsPrompt(this string command, ILogger logger)
+    {
+        var process = new Process
+        {
+            StartInfo = new ProcessStartInfo
+            {
+                FileName = "cmd.exe",
+                RedirectStandardError = true,
+                RedirectStandardOutput = true,
+                RedirectStandardInput = true,
+                CreateNoWindow = true,
+                UseShellExecute = false
+            }
+        };
+
+        process.Start();
+        process.StandardInput.WriteLine(command);
+        process.StandardInput.Flush();
+        process.StandardInput.Close();
+        process.WaitForExit();
+        logger.LogWarning(await process.StandardError.ReadToEndAsync());
+        logger.LogInformation(await process.StandardOutput.ReadToEndAsync());
+    }
 }
