@@ -85,12 +85,12 @@ app.UseHttpsRedirection();
 
 app.MapControllers();
 
-app.Run();
-
-// TODO: Get all camera and run AI
-
 using (var scope = app.Services.CreateScope())
 {
     var aiService = scope.ServiceProvider.GetRequiredService<AIService>();
     aiService.RunAI();
 }
+
+app.Run();
+
+// TODO: Get all camera and run AI

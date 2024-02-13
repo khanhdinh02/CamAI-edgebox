@@ -28,6 +28,8 @@ public class ClassifierProcessor : IDisposable
         while (await timer.WaitForNextTickAsync(cancellationToken))
         {
             var items = classifierItems.ToArray();
+            if (items.Length == 0)
+                continue;
             classifierItems.Clear();
 
             var total = 0;
