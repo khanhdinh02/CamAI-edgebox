@@ -4,14 +4,16 @@ public static class StreamingEncoderProcessManager
 {
     private static readonly List<StreamingEncoderProcessWrapper> RunningProcess = [];
 
-    public static void RunEncoder(string processName, Uri uri, string path)
+    public static string RunEncoder(string processName, Uri uri, string path)
     {
-        if (RunningProcess.Exists(x => x.Name == processName))
-            return;
+        var process = RunningProcess.Find(x => x.Name == processName);
+        if (process != null)
+            return process.M3U8File;
 
-        var ffmpegProcess = new StreamingEncoderProcessWrapper(processName);
-        ffmpegProcess.Run(uri, path);
+        var ffmpegProcess = new StreamingEncoderProcessWrapper(processName, uri, path);
         RunningProcess.Add(ffmpegProcess);
+        ffmpegProcess.Run();
+        return ffmpegProcess.M3U8File;
     }
 
     public static void Kill(string processName)

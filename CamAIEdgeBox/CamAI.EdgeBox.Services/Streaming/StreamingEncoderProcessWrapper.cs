@@ -5,22 +5,28 @@ namespace CamAI.EdgeBox.Services.Streaming;
 
 public class StreamingEncoderProcessWrapper
 {
+    public bool Running { get; private set; }
     public string Name { get; }
     private readonly CancellationTokenSource cancellationTokenSource;
     private readonly Timer timer;
+    private readonly Uri inputUrl;
+    private readonly string outputPath;
+    public string M3U8File => Path.Combine(outputPath, $"{Name}.m3u8");
 
-    public StreamingEncoderProcessWrapper(string name)
+    public StreamingEncoderProcessWrapper(string name, Uri inputUrl, string outputPath)
     {
         cancellationTokenSource = new CancellationTokenSource();
         timer = CreateTimer();
         Name = name;
+        this.inputUrl = inputUrl;
+        this.outputPath = outputPath;
     }
 
     private Timer CreateTimer()
     {
         var newTimer = new Timer(TimeSpan.FromMinutes(3));
         newTimer.AutoReset = false;
-        newTimer.Elapsed += (_, _) => Kill();
+        newTimer.Elapsed += (_, _) => StreamingEncoderProcessManager.Kill(Name);
         return newTimer;
     }
 
@@ -30,12 +36,12 @@ public class StreamingEncoderProcessWrapper
         timer.Start();
     }
 
-    public void Run(Uri inputUrl, string outputPath)
+    public void Run()
     {
         FFMpegArguments
             .FromUrlInput(inputUrl)
             .OutputToFile(
-                outputPath,
+                M3U8File,
                 true,
                 args =>
                 {
@@ -50,30 +56,43 @@ public class StreamingEncoderProcessWrapper
         timer.Start();
     }
 
-    public void Run()
-    {
-        FFMpegArguments
-            .FromFileInput(
-                "C:\\Users\\ngud\\Downloads\\ffmpeg-6.1.1-essentials_build\\bin\\big_buck_bunny_640x360.ts",
-                true,
-                args =>
-                {
-                    args.WithCustomArgument("-stream_loop -1");
-                }
-            )
-            .OutputToFile(
-                "C:\\Users\\ngud\\Downloads\\ffmpeg-6.1.1-essentials_build\\bin\\example.m3u8"
-            )
-            .CancellableThrough(cancellationTokenSource.Token)
-            .ProcessAsynchronously();
-        Thread.Sleep(5000);
-        timer.Start();
-    }
+    // public void Run()
+    // {
+    //     Running = true;
+    //     FFMpegArguments
+    //         .FromFileInput(
+    //             "C:\\Users\\ngud\\Downloads\\ffmpeg-6.1.1-essentials_build\\bin\\big_buck_bunny_640x360.ts",
+    //             true,
+    //             args =>
+    //             {
+    //                 args.WithCustomArgument("-stream_loop -1");
+    //             }
+    //         )
+    //         .OutputToFile(M3U8File)
+    //         .CancellableThrough(cancellationTokenSource.Token)
+    //         .ProcessAsynchronously();
+    //     Thread.Sleep(5000);
+    //     timer.Start();
+    // }
 
     public void Kill()
     {
         cancellationTokenSource.Cancel();
         timer.Dispose();
         cancellationTokenSource.Dispose();
+        CleanUpTsFile();
+        Running = false;
+    }
+
+    private void CleanUpTsFile()
+    {
+        // delete ts file
+        var tsFiles = Directory.EnumerateFiles(outputPath, "*.ts", SearchOption.TopDirectoryOnly);
+        foreach (var file in tsFiles)
+            File.Delete(file);
+        // delete m3u8 file
+        File.Delete(
+            Directory.EnumerateFiles(outputPath, "*.m3u8", SearchOption.TopDirectoryOnly).First()
+        );
     }
 }
