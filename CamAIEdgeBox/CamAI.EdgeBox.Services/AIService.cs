@@ -1,9 +1,8 @@
 ﻿using CamAI.EdgeBox.Services.AI;
-using MassTransit;
 
 namespace CamAI.EdgeBox.Services;
 
-public class AIService(IPublishEndpoint bus, IServiceProvider provider)
+public class AIService(IServiceProvider provider)
 {
     public void RunAI()
     {

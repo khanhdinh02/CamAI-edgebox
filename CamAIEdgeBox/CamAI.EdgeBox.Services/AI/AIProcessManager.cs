@@ -1,8 +1,4 @@
-﻿using MassTransit;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Options;
-
-namespace CamAI.EdgeBox.Services.AI;
+﻿namespace CamAI.EdgeBox.Services.AI;
 
 public static class AiProcessManager
 {

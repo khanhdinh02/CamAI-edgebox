@@ -48,10 +48,17 @@ public class ClassifierProcessor : IDisposable
             total /= items.Length;
             var result = new List<ClassifierResult>
             {
-                new() { ActionType = ActionType.Phone, Count = maxPhone },
-                new() { ActionType = ActionType.Laptop, Count = maxLaptop },
                 new() { ActionType = ActionType.Idle, Count = total - maxLaptop - maxPhone }
             };
+            if (maxPhone > 0)
+                result.Add(
+                    new ClassifierResult { ActionType = ActionType.Phone, Count = maxPhone }
+                );
+            if (maxLaptop > 0)
+                result.Add(
+                    new ClassifierResult { ActionType = ActionType.Laptop, Count = maxLaptop }
+                );
+
             var countModel = new ClassifierModel
             {
                 Time = DateTime.Now,
