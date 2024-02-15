@@ -23,4 +23,7 @@ public static class StreamingEncoderProcessManager
         RunningProcess.Remove(process);
         process.Kill();
     }
+
+    public static void UpdateTimer(string processName) =>
+        RunningProcess.Find(x => x.Name == processName)?.ResetTimer();
 }

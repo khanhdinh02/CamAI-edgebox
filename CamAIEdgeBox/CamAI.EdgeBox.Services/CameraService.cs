@@ -22,7 +22,8 @@ public class CameraService(
     public Camera AddCamera(Camera camera)
     {
         var result = unitOfWork.Cameras.Add(camera);
-        unitOfWork.Complete();
+        if (unitOfWork.Complete() > 0)
+            GlobalData.Cameras = unitOfWork.Cameras.GetAll();
         return result;
     }
 
@@ -30,7 +31,8 @@ public class CameraService(
     {
         camera.Id = id;
         unitOfWork.Cameras.Update(camera);
-        unitOfWork.Complete();
+        if (unitOfWork.Complete() > 0)
+            GlobalData.Cameras = unitOfWork.Cameras.GetAll();
         return camera;
     }
 
@@ -40,11 +42,12 @@ public class CameraService(
     public void DeleteCamera(Guid id)
     {
         var camera = unitOfWork.Cameras.GetById(id);
-        if (camera != null)
-        {
-            unitOfWork.Cameras.Delete(camera);
-            unitOfWork.Complete();
-        }
+        if (camera == null)
+            return;
+
+        unitOfWork.Cameras.Delete(camera);
+        if (unitOfWork.Complete() > 0)
+            GlobalData.Cameras = unitOfWork.Cameras.GetAll();
     }
 
     public FileStream GetM3U8File(Guid id)
@@ -58,14 +61,15 @@ public class CameraService(
             Directory.CreateDirectory(cameraDir);
 
         var cameraFileName = Path.Combine(cameraDir, $"{cameraName}.m3u8");
-        StreamingEncoderProcessManager.RunEncoder(cameraDir, camera.GetUri(), cameraFileName);
-        Thread.Sleep(5000);
+        StreamingEncoderProcessManager.RunEncoder(cameraName, camera.GetUri(), cameraFileName);
+        // Wait for the processor to start
         return File.OpenRead(Path.Combine(streamingConfiguration.Directory, cameraFileName));
     }
 
     public FileStream GetTsFile(Guid id, string tsFileName)
     {
         var cameraName = id.ToString("N");
+        StreamingEncoderProcessManager.UpdateTimer(cameraName);
         return File.OpenRead(
             Path.Combine(streamingConfiguration.Directory, cameraName, tsFileName)
         );

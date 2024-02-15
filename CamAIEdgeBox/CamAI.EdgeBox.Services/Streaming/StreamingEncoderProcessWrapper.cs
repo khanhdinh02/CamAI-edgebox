@@ -1,12 +1,34 @@
 ﻿using FFMpegCore;
-using FFMpegCore.Enums;
+using Timer = System.Timers.Timer;
 
 namespace CamAI.EdgeBox.Services.Streaming;
 
-public class StreamingEncoderProcessWrapper(string name)
+public class StreamingEncoderProcessWrapper
 {
-    public string Name => name;
-    private readonly CancellationTokenSource cancellationTokenSource = new();
+    public string Name { get; }
+    private readonly CancellationTokenSource cancellationTokenSource;
+    private readonly Timer timer;
+
+    public StreamingEncoderProcessWrapper(string name)
+    {
+        cancellationTokenSource = new CancellationTokenSource();
+        timer = CreateTimer();
+        Name = name;
+    }
+
+    private Timer CreateTimer()
+    {
+        var newTimer = new Timer(TimeSpan.FromMinutes(3));
+        newTimer.AutoReset = false;
+        newTimer.Elapsed += (_, _) => Kill();
+        return newTimer;
+    }
+
+    public void ResetTimer()
+    {
+        timer.Stop();
+        timer.Start();
+    }
 
     public void Run(Uri inputUrl, string outputPath)
     {
@@ -24,6 +46,8 @@ public class StreamingEncoderProcessWrapper(string name)
             )
             .CancellableThrough(cancellationTokenSource.Token)
             .ProcessAsynchronously();
+        Thread.Sleep(5000);
+        timer.Start();
     }
 
     public void Run()
@@ -42,11 +66,14 @@ public class StreamingEncoderProcessWrapper(string name)
             )
             .CancellableThrough(cancellationTokenSource.Token)
             .ProcessAsynchronously();
+        Thread.Sleep(5000);
+        timer.Start();
     }
 
     public void Kill()
     {
         cancellationTokenSource.Cancel();
+        timer.Dispose();
         cancellationTokenSource.Dispose();
     }
 }
