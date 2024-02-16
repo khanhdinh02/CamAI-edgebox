@@ -13,6 +13,7 @@ public static class StreamingEncoderProcessManager
         var ffmpegProcess = new StreamingEncoderProcessWrapper(processName, uri, path);
         RunningProcess.Add(ffmpegProcess);
         ffmpegProcess.Run();
+        ffmpegProcess.terminate += Kill;
         return ffmpegProcess.M3U8File;
     }
 
@@ -23,7 +24,7 @@ public static class StreamingEncoderProcessManager
             return;
 
         RunningProcess.Remove(process);
-        process.Kill();
+        process.Dispose();
     }
 
     public static void UpdateTimer(string processName) =>

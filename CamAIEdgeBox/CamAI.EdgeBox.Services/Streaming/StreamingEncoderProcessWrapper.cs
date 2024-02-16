@@ -3,8 +3,9 @@ using Timer = System.Timers.Timer;
 
 namespace CamAI.EdgeBox.Services.Streaming;
 
-public class StreamingEncoderProcessWrapper
+public class StreamingEncoderProcessWrapper : IDisposable
 {
+    private bool disposed;
     public bool Running { get; private set; }
     public string Name { get; }
     private readonly CancellationTokenSource cancellationTokenSource;
@@ -12,6 +13,7 @@ public class StreamingEncoderProcessWrapper
     private readonly Uri inputUrl;
     private readonly string outputPath;
     public string M3U8File => Path.Combine(outputPath, $"{Name}.m3u8");
+    public event SelfTerminate? terminate;
 
     public StreamingEncoderProcessWrapper(string name, Uri inputUrl, string outputPath)
     {
@@ -26,7 +28,7 @@ public class StreamingEncoderProcessWrapper
     {
         var newTimer = new Timer(TimeSpan.FromMinutes(3));
         newTimer.AutoReset = false;
-        newTimer.Elapsed += (_, _) => StreamingEncoderProcessManager.Kill(Name);
+        newTimer.Elapsed += (_, _) => Dispose();
         return newTimer;
     }
 
@@ -75,13 +77,27 @@ public class StreamingEncoderProcessWrapper
     //     timer.Start();
     // }
 
-    public void Kill()
+    public void Dispose()
     {
-        cancellationTokenSource.Cancel();
-        timer.Dispose();
-        cancellationTokenSource.Dispose();
-        CleanUpTsFile();
-        Running = false;
+        Dispose(true);
+        GC.SuppressFinalize(this);
+    }
+
+    protected virtual void Dispose(bool disposing)
+    {
+        if (disposed)
+            return;
+        if (disposing)
+        {
+            cancellationTokenSource.Cancel();
+            timer.Dispose();
+            cancellationTokenSource.Dispose();
+            CleanUpTsFile();
+            Running = false;
+
+            terminate?.Invoke(Name);
+        }
+        disposed = true;
     }
 
     private void CleanUpTsFile()
@@ -96,3 +112,5 @@ public class StreamingEncoderProcessWrapper
         );
     }
 }
+
+public delegate void SelfTerminate(string processName);
