@@ -6,7 +6,6 @@ using CamAI.EdgeBox.Services;
 using CamAI.EdgeBox.Services.AI;
 using CamAI.EdgeBox.Services.Streaming;
 using FFMpegCore;
-using SQLitePCL;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -32,14 +31,15 @@ builder.Services.Configure<AiConfiguration>(
     builder.Configuration.GetSection(AiConfiguration.Section)
 );
 
-var streamConf = builder.Configuration.GetSection(StreamingConfiguration.Section);
-builder.Services.Configure<StreamingConfiguration>(streamConf);
+var streamConfigurationSection = builder.Configuration.GetSection(StreamingConfiguration.Section);
+builder.Services.Configure<StreamingConfiguration>(streamConfigurationSection);
 
-var ffmpegPath = streamConf.GetRequiredSection("FFMpegPath").Get<string>();
+var streamConf = streamConfigurationSection.Get<StreamingConfiguration>()!;
 GlobalFFOptions.Configure(x =>
 {
-    x.BinaryFolder = ffmpegPath!;
+    x.BinaryFolder = streamConf.FFMpegPath;
 });
+StreamingEncoderProcessManager.Option.TimerInterval = streamConf.Interval;
 
 builder.Services.AddCors(opts =>
     opts.AddPolicy(
