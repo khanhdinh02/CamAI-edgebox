@@ -1,8 +1,4 @@
-﻿using MassTransit;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Options;
-
-namespace CamAI.EdgeBox.Services.AI;
+﻿namespace CamAI.EdgeBox.Services.AI;
 
 public static class AiProcessManager
 {
@@ -10,19 +6,17 @@ public static class AiProcessManager
 
     public static void Run(string processName, Uri uri, string path, IServiceProvider provider)
     {
-        // TODO: get processor Event and add to watcher
         // if (RunningProcess.Exists(x => x.AiProcess.Name == processName))
         //     return;
         //
         // var aiProcess = new AiProcessWrapper(processName);
         // aiProcess.Run(uri, path);
         // RunningProcess.Add(aiProcess);
-        // var humanCountProcessor = new HumanCountProcessor();
     }
 
     public static void Run(string processName, IServiceProvider provider)
     {
-        // TODO: get processor Event and add to watcher
+        // TODO [Duy]: validate edge box has shop before running AI
         if (RunningProcess.Exists(x => x.Name == processName))
             return;
 

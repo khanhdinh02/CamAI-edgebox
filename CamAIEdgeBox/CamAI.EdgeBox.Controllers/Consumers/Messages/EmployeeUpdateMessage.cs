@@ -4,7 +4,7 @@ using MassTransit;
 namespace CamAI.EdgeBox.Consumers.Messages;
 
 [MessageUrn(nameof(ShopUpdateMessage))]
-public class EmployeeUpdateMessage
+public class EmployeeUpdateMessage : BaseUpdateMessage
 {
     public string Name { get; set; } = null!;
     public string Email { get; set; } = null!;
@@ -16,6 +16,7 @@ public class EmployeeUpdateMessage
     public Employee ToEmployee() =>
         new()
         {
+            Id = Id,
             Name = Name,
             Phone = Phone,
             Email = Email,

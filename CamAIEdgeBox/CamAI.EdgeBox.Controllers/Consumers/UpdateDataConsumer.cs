@@ -8,9 +8,7 @@ using Constants = CamAI.EdgeBox.Services.MassTransit.Constants;
 
 namespace CamAI.EdgeBox.Consumers;
 
-// TODO [DUY]: replace template
-// [Consumer("{brandName}.{shopName}", Constants.UpdateData, "{brandId}.{shopId}", ExchangeType.Topic)]
-[Consumer("brand1.shop1", Constants.UpdateData, "brand1.shop1", ExchangeType.Topic)]
+[Consumer("{BrandName}.{ShopName}", Constants.UpdateData, "{BrandId}.{ShopId}", ExchangeType.Topic)]
 public class UpdateDataConsumer(
     BrandService brandService,
     ShopService shopService,
