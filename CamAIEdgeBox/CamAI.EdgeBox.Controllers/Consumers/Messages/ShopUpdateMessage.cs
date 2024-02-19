@@ -4,7 +4,7 @@ using MassTransit;
 namespace CamAI.EdgeBox.Consumers.Messages;
 
 [MessageUrn(nameof(ShopUpdateMessage))]
-public class ShopUpdateMessage
+public class ShopUpdateMessage : BaseUpdateMessage
 {
     public string Name { get; set; } = null!;
     public string? Phone { get; set; }
@@ -13,6 +13,7 @@ public class ShopUpdateMessage
     public Shop ToShop() =>
         new()
         {
+            Id = Id,
             Name = Name,
             Phone = Phone,
             Address = Address,

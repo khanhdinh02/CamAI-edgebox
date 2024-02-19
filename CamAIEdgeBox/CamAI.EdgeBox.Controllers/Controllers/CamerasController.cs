@@ -13,38 +13,38 @@ public class CamerasController(
 ) : Controller
 {
     [HttpGet]
-    public List<Camera> GetCameras()
-    {
-        return GlobalData.Cameras;
-    }
+    public List<Camera> GetCameras() => GlobalData.Cameras;
 
     [HttpGet("{id}")]
-    public Camera GetCamera([FromRoute] Guid id)
-    {
-        return GlobalData.Cameras.Find(x => x.Id == id) ?? throw new Exception("Camera not found");
-    }
+    public Camera GetCamera([FromRoute] Guid id) =>
+        GlobalData.Cameras.Find(x => x.Id == id) ?? throw new Exception("Camera not found");
 
     [HttpPost]
-    public Camera AddCamera([FromBody] Camera cameraDto)
-    {
-        var camera = cameraService.AddCamera(cameraDto);
-        GlobalData.Cameras = cameraService.GetCamera();
-        return camera;
-    }
+    public Camera AddCamera([FromBody] Camera cameraDto) => cameraService.AddCamera(cameraDto);
 
     [HttpPut("{id}")]
-    public Camera UpdateCamera([FromRoute] Guid id, [FromBody] Camera cameraDto)
-    {
-        var camera = cameraService.UpdateCamera(id, cameraDto);
-        GlobalData.Cameras = cameraService.GetCamera();
-        return camera;
-    }
+    public Camera UpdateCamera([FromRoute] Guid id, [FromBody] Camera cameraDto) =>
+        cameraService.UpdateCamera(id, cameraDto);
 
     [HttpDelete("{id}")]
     public void DeleteCamera([FromRoute] Guid id)
     {
         cameraService.DeleteCamera(id);
-        GlobalData.Cameras = cameraService.GetCamera();
+    }
+
+    [HttpPut("{id}/connection")]
+    public void CheckConnection([FromRoute] Guid id)
+    {
+        var cameras = GetCamera(id);
+        // curl --head --silent --connect-timeout 15 -i -X OPTIONS username:userpassword@192.168.1.15:554/Streaming/Channels/101
+        // https://stackoverflow.com/questions/49002614/is-it-possible-to-do-a-simple-health-check-of-rtsp-stream-with-curl-tool
+        // TODO [Duy]: Update status after checking connection
+    }
+
+    [HttpPut("/connection")]
+    public void CheckConnection()
+    {
+        var cameras = GlobalData.Cameras;
     }
 
     [HttpGet("{id}/stream/start")]
@@ -73,5 +73,11 @@ public class CamerasController(
     public void RunAI()
     {
         aiService.RunAI();
+    }
+
+    [HttpGet("test/ai/kill")]
+    public void KillAi()
+    {
+        aiService.KillAI();
     }
 }
