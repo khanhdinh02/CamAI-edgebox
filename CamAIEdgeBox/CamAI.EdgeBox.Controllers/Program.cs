@@ -37,14 +37,15 @@ builder.Services.Configure<AiConfiguration>(
     builder.Configuration.GetSection(AiConfiguration.Section)
 );
 
-var streamConf = builder.Configuration.GetSection(StreamingConfiguration.Section);
-builder.Services.Configure<StreamingConfiguration>(streamConf);
+var streamConfigurationSection = builder.Configuration.GetSection(StreamingConfiguration.Section);
+builder.Services.Configure<StreamingConfiguration>(streamConfigurationSection);
 
-var ffmpegPath = streamConf.GetRequiredSection("FFMpegPath").Get<string>();
+var streamConf = streamConfigurationSection.Get<StreamingConfiguration>()!;
 GlobalFFOptions.Configure(x =>
 {
-    x.BinaryFolder = ffmpegPath!;
+    x.BinaryFolder = streamConf.FFMpegPath;
 });
+StreamingEncoderProcessManager.Option.TimerInterval = streamConf.Interval;
 
 builder.Services.AddCors(opts =>
     opts.AddPolicy(
@@ -87,6 +88,8 @@ app.MapControllers();
 
 using (var scope = app.Services.CreateScope())
 {
+    var globalDataSync = scope.ServiceProvider.GetRequiredService<GlobalDataSync>();
+    globalDataSync.SyncData();
     var aiService = scope.ServiceProvider.GetRequiredService<AIService>();
     aiService.RunAI();
 }

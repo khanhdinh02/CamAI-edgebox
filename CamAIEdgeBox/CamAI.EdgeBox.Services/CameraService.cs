@@ -60,16 +60,18 @@ public class CameraService(
         if (!Directory.Exists(cameraDir))
             Directory.CreateDirectory(cameraDir);
 
-        var cameraFileName = Path.Combine(cameraDir, $"{cameraName}.m3u8");
-        StreamingEncoderProcessManager.RunEncoder(cameraDir, camera.GetUri(), cameraFileName);
-        // Wait for the processor to start
-        Thread.Sleep(5000);
-        return File.OpenRead(Path.Combine(streamingConfiguration.Directory, cameraFileName));
+        var m3u8File = StreamingEncoderProcessManager.RunEncoder(
+            cameraName,
+            camera.GetUri(),
+            cameraDir
+        );
+        return File.OpenRead(Path.Combine(streamingConfiguration.Directory, m3u8File));
     }
 
     public FileStream GetTsFile(Guid id, string tsFileName)
     {
         var cameraName = id.ToString("N");
+        StreamingEncoderProcessManager.UpdateTimer(cameraName);
         return File.OpenRead(
             Path.Combine(streamingConfiguration.Directory, cameraName, tsFileName)
         );
