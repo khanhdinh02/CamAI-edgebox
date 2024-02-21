@@ -1,5 +1,6 @@
 using CamAI.EdgeBox.Controllers;
 using CamAI.EdgeBox.MassTransit;
+using CamAI.EdgeBox.Middlewares;
 using CamAI.EdgeBox.Models;
 using CamAI.EdgeBox.Repositories;
 using CamAI.EdgeBox.Services;
@@ -12,8 +13,6 @@ var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddControllers();
 
-// Add services to the container.
-// Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
@@ -47,12 +46,13 @@ GlobalFFOptions.Configure(x =>
 });
 StreamingEncoderProcessManager.Option.TimerInterval = streamConf.Interval;
 
-builder.Services.AddCors(opts =>
-    opts.AddPolicy(
-        name: "AllowAll",
-        policy =>
-            policy.AllowAnyOrigin().AllowAnyMethod().AllowAnyHeader().WithExposedHeaders("auto")
-    )
+builder.Services.AddCors(
+    opts =>
+        opts.AddPolicy(
+            name: "AllowAll",
+            policy =>
+                policy.AllowAnyOrigin().AllowAnyMethod().AllowAnyHeader().WithExposedHeaders("auto")
+        )
 );
 
 #pragma warning disable ASP0000
@@ -75,7 +75,8 @@ builder.Services.Configure<RouteOptions>(opts =>
 
 var app = builder.Build();
 
-// Configure the HTTP request pipeline.
+app.UseMiddleware<GlobalExceptionHandler>();
+
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
