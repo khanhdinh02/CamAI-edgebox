@@ -6,6 +6,7 @@ using CamAI.EdgeBox.Services;
 using CamAI.EdgeBox.Services.AI;
 using CamAI.EdgeBox.Services.Streaming;
 using FFMpegCore;
+using Microsoft.EntityFrameworkCore;
 using Serilog;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -61,8 +62,22 @@ var provider = builder.Services.BuildServiceProvider();
 #pragma warning restore ASP0000
 using (var scope = provider.CreateScope())
 {
-    var globalDataSync = scope.ServiceProvider.GetRequiredService<GlobalDataSync>();
-    globalDataSync.SyncData();
+    while (true)
+    {
+        try
+        {
+            var globalDataSync = scope.ServiceProvider.GetRequiredService<GlobalDataSync>();
+            globalDataSync.SyncData();
+            break;
+        }
+        catch (Microsoft.Data.Sqlite.SqliteException)
+        {
+            await scope
+                .ServiceProvider.GetRequiredService<CamAiEdgeBoxContext>()
+                .Database.MigrateAsync();
+            scope.ServiceProvider.GetRequiredService<GlobalDataSync>().SyncData();
+        }
+    }
 }
 
 // TODO [Duy]: how to run masstransit configuration after sync data
@@ -93,6 +108,8 @@ using (var scope = app.Services.CreateScope())
     var aiService = scope.ServiceProvider.GetRequiredService<AIService>();
     aiService.RunAI();
 }
+
+app.MapGet("/", () => Results.Ok("Hello word"));
 
 app.Run();
 
