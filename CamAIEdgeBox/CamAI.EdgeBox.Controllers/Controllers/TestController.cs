@@ -1,4 +1,4 @@
-﻿using System.Runtime.InteropServices;
+using System.Runtime.InteropServices;
 using CamAI.EdgeBox.Services.Utils;
 using MassTransit;
 using Microsoft.AspNetCore.Mvc;
@@ -14,7 +14,10 @@ public class TestController(IPublishEndpoint bus, ILogger<TestController> logger
     {
         if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
         {
-            await $"scripts/CpuUsageScript.sh".Bash(logger);
+            //var dir = Directory.GetCurrentDirectory().Substring(0, Directory.GetCurrentDirectory().LastIndexOf("/"));
+            //if (Directory.Exists(@$"{dir}/scripts"))
+            //    await @$"{dir}/scripts/CpuUsageScript.sh".Bash(logger);
+            await $"top -bn1".LinuxCmd(logger);
         }
         if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
         {

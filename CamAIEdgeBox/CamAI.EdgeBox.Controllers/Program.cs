@@ -91,11 +91,10 @@ builder.Services.Configure<RouteOptions>(opts =>
 
 var app = builder.Build();
 
-if (app.Environment.IsDevelopment())
-{
-    app.UseSwagger();
-    app.UseSwaggerUI();
-}
+app.UseCors("AllowAll");
+
+app.UseSwagger();
+app.UseSwaggerUI();
 
 app.UseHttpsRedirection();
 
@@ -105,8 +104,8 @@ using (var scope = app.Services.CreateScope())
 {
     var globalDataSync = scope.ServiceProvider.GetRequiredService<GlobalDataSync>();
     globalDataSync.SyncData();
-    var aiService = scope.ServiceProvider.GetRequiredService<AIService>();
-    aiService.RunAI();
+    // var aiService = scope.ServiceProvider.GetRequiredService<AIService>();
+    // aiService.RunAI();
 }
 
 app.MapGet("/", () => Results.Ok("Hello word"));

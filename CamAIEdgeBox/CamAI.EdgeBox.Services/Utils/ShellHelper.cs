@@ -1,4 +1,4 @@
-﻿using System.Diagnostics;
+using System.Diagnostics;
 using Microsoft.Extensions.Logging;
 
 namespace CamAI.EdgeBox.Services.Utils;
@@ -28,10 +28,10 @@ public static class ShellHelper
             },
             EnableRaisingEvents = true
         };
-        process.Exited += (sender, args) =>
+        process.Exited += async (sender, args) =>
         {
-            logger.LogWarning(process.StandardError.ReadToEnd());
-            logger.LogInformation(process.StandardOutput.ReadToEnd());
+            logger.LogWarning(await process.StandardError.ReadToEndAsync());
+            logger.LogInformation(await process.StandardOutput.ReadToEndAsync());
             if (process.ExitCode == 0)
             {
                 source.SetResult(0);
@@ -82,4 +82,27 @@ public static class ShellHelper
         logger.LogWarning(await process.StandardError.ReadToEndAsync());
         logger.LogInformation(await process.StandardOutput.ReadToEndAsync());
     }
+
+    public static async Task LinuxCmd(this string cmd, ILogger logger)
+    {
+        var process = new Process
+        {
+            StartInfo = new ProcessStartInfo
+            {
+                FileName = "/bin/bash",
+                Arguments = $"-c {cmd}",
+                RedirectStandardError = true,
+                RedirectStandardOutput = true,
+                RedirectStandardInput = true,
+                CreateNoWindow = true,
+                UseShellExecute = false
+            }
+
+        };
+        process.Start();
+        logger.LogWarning(await process.StandardError.ReadToEndAsync());
+        logger.LogInformation(await process.StandardOutput.ReadToEndAsync());
+        await process.WaitForExitAsync();
+    }
+
 }
