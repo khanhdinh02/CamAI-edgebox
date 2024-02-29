@@ -1,6 +1,7 @@
 using CamAI.EdgeBox.Controllers;
 using CamAI.EdgeBox.Controllers.BackgroundServices;
 using CamAI.EdgeBox.MassTransit;
+using CamAI.EdgeBox.Middlewares;
 using CamAI.EdgeBox.Models;
 using CamAI.EdgeBox.Repositories;
 using CamAI.EdgeBox.Services;
@@ -91,6 +92,8 @@ builder.Services.Configure<RouteOptions>(opts =>
 });
 
 var app = builder.Build();
+
+app.UseMiddleware<GlobalExceptionHandler>();
 
 app.UseCors("AllowAll");
 
