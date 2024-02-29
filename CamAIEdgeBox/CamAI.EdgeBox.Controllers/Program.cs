@@ -1,4 +1,5 @@
 using CamAI.EdgeBox.Controllers;
+using CamAI.EdgeBox.Controllers.BackgroundServices;
 using CamAI.EdgeBox.MassTransit;
 using CamAI.EdgeBox.Models;
 using CamAI.EdgeBox.Repositories;
@@ -13,8 +14,6 @@ var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddControllers();
 
-// Add services to the container.
-// Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
@@ -34,6 +33,8 @@ builder
     .AddScoped<EmployeeService>()
     .AddScoped<GlobalDataSync>();
 
+builder.Services.AddMemoryCache();
+builder.Services.AddHostedService<CpuTrackingService>();
 builder.Services.Configure<AiConfiguration>(
     builder.Configuration.GetSection(AiConfiguration.Section)
 );
