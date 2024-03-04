@@ -22,7 +22,7 @@ public class ClassifierWatcher : IDisposable
         this.aiConfiguration = aiConfiguration.Value;
         watchFile = Path.Combine(
             this.aiConfiguration.OutputDirectory,
-            this.aiConfiguration.Classifier.Output
+            this.aiConfiguration.OutputFile
         );
         ConfigureFilters();
     }
@@ -30,7 +30,7 @@ public class ClassifierWatcher : IDisposable
     private void ConfigureFilters()
     {
         fileWatcher.Changed += HandleFileChange;
-        fileWatcher.Filter = aiConfiguration.Classifier.Output;
+        fileWatcher.Filter = aiConfiguration.OutputFile;
         fileWatcher.EnableRaisingEvents = true;
     }
 

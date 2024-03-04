@@ -14,11 +14,12 @@ public class AiProcessWrapper(string name, IServiceProvider provider)
 
     public void Run(Uri inputUrl, string outputPath)
     {
-        var bus = provider.GetRequiredService<IPublishEndpoint>();
+        var publishBus = provider.GetRequiredService<IPublishEndpoint>();
+        var sendBus = provider.GetRequiredService<ISendEndpoint>();
         var configuration = provider.GetRequiredService<IOptions<AiConfiguration>>();
         watcher = new ClassifierWatcher(configuration);
-        classifier = new ClassifierProcessor(watcher, configuration, bus);
-        detection = new DetectionProcessor(watcher);
+        classifier = new ClassifierProcessor(watcher, configuration, publishBus);
+        detection = new DetectionProcessor(watcher, configuration, sendBus);
 #pragma warning disable 4014
         classifier.Start(cancellationTokenSource.Token);
         detection.Start(cancellationTokenSource.Token);
