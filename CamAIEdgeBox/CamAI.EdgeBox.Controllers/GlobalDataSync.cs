@@ -7,8 +7,7 @@ public class GlobalDataSync(
     BrandService brandService,
     ShopService shopService,
     EdgeBoxService edgeBoxService,
-    CameraService cameraService,
-    EmployeeService employeeService
+    CameraService cameraService
 )
 {
     public void SyncData()
@@ -17,6 +16,5 @@ public class GlobalDataSync(
         GlobalData.Brand = brandService.GetBrand();
         GlobalData.Cameras = cameraService.GetCamera();
         GlobalData.EdgeBox = edgeBoxService.GetEdgeBox();
-        GlobalData.Employees = employeeService.GetEmployee();
     }
 }
