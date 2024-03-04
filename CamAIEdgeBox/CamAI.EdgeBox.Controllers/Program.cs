@@ -29,7 +29,6 @@ builder
     .AddScoped<AIService>()
     .AddScoped<ShopService>()
     .AddScoped<EdgeBoxService>()
-    .AddScoped<EmployeeService>()
     .AddScoped<GlobalDataSync>();
 
 builder.Services.Configure<AiConfiguration>(
@@ -46,13 +45,12 @@ GlobalFFOptions.Configure(x =>
 });
 StreamingEncoderProcessManager.Option.TimerInterval = streamConf.Interval;
 
-builder.Services.AddCors(
-    opts =>
-        opts.AddPolicy(
-            name: "AllowAll",
-            policy =>
-                policy.AllowAnyOrigin().AllowAnyMethod().AllowAnyHeader().WithExposedHeaders("auto")
-        )
+builder.Services.AddCors(opts =>
+    opts.AddPolicy(
+        name: "AllowAll",
+        policy =>
+            policy.AllowAnyOrigin().AllowAnyMethod().AllowAnyHeader().WithExposedHeaders("auto")
+    )
 );
 
 #pragma warning disable ASP0000
