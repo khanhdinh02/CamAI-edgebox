@@ -6,13 +6,14 @@ public class RtspExtension(Uri uri, string baseDir)
 {
     public string CaptureFrame(string outputFileName)
     {
+        outputFileName += ".png";
         var datetime = DateTime.Now;
-        var outputPath = Path.Combine(
-            baseDir,
+        var dateTimeDir = Path.Combine(
             datetime.Year.ToString(),
             datetime.Month.ToString(),
             datetime.Day.ToString()
         );
+        var outputPath = Path.Combine(baseDir, dateTimeDir);
 
         Directory.CreateDirectory(outputPath);
         var file = Path.Combine(outputPath, outputFileName);
@@ -26,6 +27,6 @@ public class RtspExtension(Uri uri, string baseDir)
             )
             .OutputToFile(file, false, opts => opts.WithFrameOutputCount(1))
             .ProcessAsynchronously();
-        return file;
+        return Path.Combine(dateTimeDir, outputFileName);
     }
 }

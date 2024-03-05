@@ -113,9 +113,7 @@ public class DetectionProcessor : IDisposable
                         {
                             EdgeBoxId = GlobalData.EdgeBox!.Id,
                             EvidenceType = EvidenceType.Image,
-                            // TODO: get edge box URI
-                            // TODO: implement API to get evidence
-                            Uri = new Uri("localhost/api/images" + x)
+                            FilePath = x
                         })
                         .ToList();
                     var incident = new Incident

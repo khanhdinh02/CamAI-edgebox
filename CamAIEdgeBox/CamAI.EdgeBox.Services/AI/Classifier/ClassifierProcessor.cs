@@ -36,29 +36,23 @@ public class ClassifierProcessor : IDisposable
 
             var total = 0;
             var maxPhone = 0;
-            var maxLaptop = 0;
             foreach (var item in items)
             {
                 var data = item.Output.Select(x => x.Data).ToList();
                 total += data.Count;
                 var actionGroup = data.GroupBy(x => x.Label).ToList();
                 maxPhone = Math.Max(maxPhone, actionGroup.Count(x => x.Key == ActionType.Phone));
-                maxLaptop = Math.Max(maxLaptop, actionGroup.Count(x => x.Key == ActionType.Laptop));
             }
 
             // TODO [Duy]: test the accuracy of this
             total /= items.Length;
             var result = new List<ClassifierResult>
             {
-                new() { ActionType = ActionType.Idle, Count = total - maxLaptop - maxPhone }
+                new() { ActionType = ActionType.Idle, Count = total - maxPhone }
             };
             if (maxPhone > 0)
                 result.Add(
                     new ClassifierResult { ActionType = ActionType.Phone, Count = maxPhone }
-                );
-            if (maxLaptop > 0)
-                result.Add(
-                    new ClassifierResult { ActionType = ActionType.Laptop, Count = maxLaptop }
                 );
 
             var countModel = new ClassifierModel
