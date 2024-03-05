@@ -1,5 +1,6 @@
 ﻿using System.Collections.Concurrent;
 using CamAI.EdgeBox.Models;
+using CamAI.EdgeBox.Services.Utils;
 using MassTransit;
 using Microsoft.Extensions.Options;
 
@@ -11,19 +12,21 @@ public class DetectionProcessor : IDisposable
     private readonly BlockingCollection<List<ClassifierOutputModel>> classifierOutputs =
         new(new ConcurrentQueue<List<ClassifierOutputModel>>(), 1000);
     private readonly DetectionConfiguration detection;
-
-    private readonly ISendEndpoint bus;
+    private readonly RtspExtension rtsp;
+    private readonly IPublishEndpoint bus;
 
     private readonly Dictionary<int, DetectionScoreModel> scoreCalculation = [];
 
     public DetectionProcessor(
         ClassifierWatcher watcher,
+        RtspExtension rtsp,
         IOptions<AiConfiguration> configuration,
-        ISendEndpoint bus
+        IPublishEndpoint bus
     )
     {
         watcher.Notifier += ReceiveData;
         detection = configuration.Value.Detection;
+        this.rtsp = rtsp;
         this.bus = bus;
     }
 
@@ -72,7 +75,7 @@ public class DetectionProcessor : IDisposable
 
             // remove calculation
             foreach (var d in detectionToRemove)
-                scoreCalculation.Remove(d.Id);
+                scoreCalculation.Remove(d.AiId);
 
             // add new calculation
             var scoreIds = scoreCalculation.Keys.ToList();
@@ -81,41 +84,54 @@ public class DetectionProcessor : IDisposable
             {
                 var model = new DetectionScoreModel
                 {
-                    Id = output.Id,
+                    AiId = output.Id,
                     Intervals = [new DetectionInterval(output.Data.Score)]
                 };
-                scoreCalculation.TryAdd(output.Id, model);
+                scoreCalculation.TryAdd(model.AiId, model);
             }
 
             // calculate incident
-            foreach (
-                var (id, calculation) in scoreCalculation.Where(x =>
-                    x.Value.Score() >= detection.MinScore
-                    && x.Value.TotalTime() >= detection.MinDuration
-                )
-            )
+            foreach (var (id, calculation) in scoreCalculation)
             {
-                var incident = new Incident
+                var interval = calculation.Intervals[^1];
+                if (
+                    (interval.Scores.Count == 4 || interval.Scores.Count % 20 == 0)
+                    && interval.MaxBreakTime == 0
+                )
                 {
-                    Time = DateTime.Now,
-                    IncidentType = IncidentType.Phone,
-                    Evidences =
-                    [
-                        new Evidence
+                    var captureName = rtsp.CaptureFrame(calculation.NewEvidenceName());
+                    calculation.Evidences.Add(captureName);
+                }
+
+                if (
+                    calculation.Score() >= detection.MinScore
+                    && calculation.TotalTime() >= detection.MinDuration
+                )
+                {
+                    var evidences = calculation
+                        .Evidences.Select(x => new Evidence
                         {
                             EdgeBoxId = GlobalData.EdgeBox!.Id,
                             EvidenceType = EvidenceType.Image,
-                            // TODO: get evidence uri
+                            // TODO: get edge box URI
                             // TODO: implement API to get evidence
-                            Uri = new Uri("localhost")
-                        }
-                    ]
-                };
+                            Uri = new Uri("localhost/api/images" + x)
+                        })
+                        .ToList();
+                    var incident = new Incident
+                    {
+                        // TODO: how about Id for incident to add more evidence in server
+                        Id = calculation.Id,
+                        Time = DateTime.Now,
+                        IncidentType = IncidentType.Phone,
+                        Evidences = evidences
+                    };
+                    // TODO: how about add more evidence to an incident
 
-                // TODO: extract evidence
 #pragma warning disable CS4014 // Because this call is not awaited, execution of the current method continues before the call is completed
-                bus.Send(incident, cancellationToken);
+                    bus.Publish(incident, cancellationToken);
 #pragma warning restore CS4014 // Because this call is not awaited, execution of the current method continues before the call is completed
+                }
             }
         }
     }
@@ -149,10 +165,9 @@ public class DetectionProcessor : IDisposable
 
     private void ReceiveData(int time, List<ClassifierOutputModel> output)
     {
-        // TODO: what if output count is still 0 after 10 seconds
+        // TODO: i could check time and insert empty array
         var phoneOutput = output.Where(x => x.Data.Label == ActionType.Phone).ToList();
-        if (phoneOutput.Count > 0)
-            classifierOutputs.Add(phoneOutput);
+        classifierOutputs.Add(phoneOutput);
     }
 
     public void Dispose()

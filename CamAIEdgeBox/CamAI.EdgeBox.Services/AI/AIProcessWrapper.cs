@@ -1,4 +1,6 @@
-﻿using MassTransit;
+﻿using CamAI.EdgeBox.Services.AI.Uniform;
+using CamAI.EdgeBox.Services.Utils;
+using MassTransit;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 
@@ -11,22 +13,29 @@ public class AiProcessWrapper(string name, IServiceProvider provider)
     private ClassifierWatcher? watcher;
     private ClassifierProcessor? classifier;
     private DetectionProcessor? detection;
+    private UniformProcessor? uniform;
 
     public void Run(Uri inputUrl, string outputPath)
     {
-        var publishBus = provider.GetRequiredService<IPublishEndpoint>();
-        var sendBus = provider.GetRequiredService<ISendEndpoint>();
-        var configuration = provider.GetRequiredService<IOptions<AiConfiguration>>();
-        watcher = new ClassifierWatcher(configuration);
-        classifier = new ClassifierProcessor(watcher, configuration, publishBus);
-        detection = new DetectionProcessor(watcher, configuration, sendBus);
-#pragma warning disable 4014
-        classifier.Start(cancellationTokenSource.Token);
-        detection.Start(cancellationTokenSource.Token);
         // TODO [Duy]: run AI with input and output
         // TODO: get running AI command str
         // TODO: create a process to run AI command
         // TODO: wait until AI is running
+
+        var publishBus = provider.GetRequiredService<IPublishEndpoint>();
+        var configuration = provider.GetRequiredService<IOptions<AiConfiguration>>();
+        var rtsp = new RtspExtension(inputUrl, configuration.Value.EvidenceOutputDir);
+
+        watcher = new ClassifierWatcher(configuration);
+
+        classifier = new ClassifierProcessor(watcher, configuration, publishBus);
+        detection = new DetectionProcessor(watcher, rtsp, configuration, publishBus);
+        uniform = new UniformProcessor(watcher, rtsp, configuration, publishBus);
+
+#pragma warning disable 4014
+        classifier.Start(cancellationTokenSource.Token);
+        detection.Start(cancellationTokenSource.Token);
+        uniform.Start(cancellationTokenSource.Token);
     }
 
     public void Kill()
@@ -34,6 +43,8 @@ public class AiProcessWrapper(string name, IServiceProvider provider)
         cancellationTokenSource.Cancel();
         cancellationTokenSource.Dispose();
         classifier?.Dispose();
+        detection?.Dispose();
+        uniform?.Dispose();
         watcher?.Dispose();
     }
 }

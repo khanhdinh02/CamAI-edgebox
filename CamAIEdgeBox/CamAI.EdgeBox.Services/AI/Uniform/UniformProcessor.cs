@@ -1,20 +1,37 @@
+using CamAI.EdgeBox.Services.Utils;
+using MassTransit;
+using MassTransit.Configuration;
+using Microsoft.Extensions.Options;
+
 namespace CamAI.EdgeBox.Services.AI.Uniform;
 
 public class UniformProcessor : IDisposable
 {
     private bool disposed;
+    private readonly UniformConfiguration uniform;
+    private readonly RtspExtension rtsp;
+    private readonly IPublishEndpoint bus;
 
-    public UniformProcessor(ClassifierWatcher watcher)
+    public UniformProcessor(
+        ClassifierWatcher watcher,
+        RtspExtension rtsp,
+        IOptions<AiConfiguration> configuration,
+        IPublishEndpoint bus
+    )
     {
+        uniform = configuration.Value.Uniform;
+        this.bus = bus;
+        this.rtsp = rtsp;
         watcher.Notifier += ReceiveData;
     }
+
+    public async Task Start(CancellationToken cancellationToken) { }
 
     // TODO: within last 300s, if there is less than 100 detected uniform than it is incident
 
     private void ReceiveData(int time, List<ClassifierOutputModel> output)
     {
         // TODO: filter and add data
-        // TODO: what if output count is still 0 after 10 seconds
         // if (output.Count > 0)
         //     classifierOutputs.Add(output);
     }

@@ -2,8 +2,10 @@ namespace CamAI.EdgeBox.Services.AI;
 
 public class DetectionScoreModel
 {
-    public int Id { get; set; }
-    public List<DetectionInterval> Intervals { get; set; } = [new DetectionInterval()];
+    public int AiId { get; init; }
+    public Guid Id { get; set; } = Guid.NewGuid();
+    public List<string> Evidences { get; } = [];
+    public List<DetectionInterval> Intervals { get; init; } = [new DetectionInterval()];
 
     public double Score() => Intervals.Select(x => x.IntervalScore()).Average();
 
@@ -15,6 +17,8 @@ public class DetectionScoreModel
                 return skipTime + x.Scores.Count;
             })
             .Sum();
+
+    public string NewEvidenceName() => Id.ToString("N") + Evidences.Count;
 }
 
 public class DetectionInterval
