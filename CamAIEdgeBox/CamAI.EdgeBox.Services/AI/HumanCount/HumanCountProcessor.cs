@@ -6,15 +6,15 @@ using Serilog;
 
 namespace CamAI.EdgeBox.Services.AI;
 
-public class ClassifierProcessor : IDisposable
+public class HumanCountProcessor : IDisposable
 {
     private bool disposed;
 
-    private readonly ConcurrentBag<ClassifierItem> classifierItems = [];
+    private readonly ConcurrentBag<HumanCountItem> humanCountItems = [];
     private readonly PeriodicTimer timer;
     private readonly IPublishEndpoint bus;
 
-    public ClassifierProcessor(
+    public HumanCountProcessor(
         ClassifierWatcher watcher,
         IOptions<AiConfiguration> configuration,
         IPublishEndpoint bus
@@ -29,37 +29,20 @@ public class ClassifierProcessor : IDisposable
     {
         while (await timer.WaitForNextTickAsync(cancellationToken))
         {
-            var items = classifierItems.ToArray();
+            var items = humanCountItems.ToArray();
             if (items.Length == 0)
                 continue;
-            classifierItems.Clear();
+            humanCountItems.Clear();
 
-            var total = 0;
-            var maxPhone = 0;
-            foreach (var item in items)
-            {
-                var data = item.Output.Select(x => x.Data).ToList();
-                total += data.Count;
-                var actionGroup = data.GroupBy(x => x.Label).ToList();
-                maxPhone = Math.Max(maxPhone, actionGroup.Count(x => x.Key == ActionType.Phone));
-            }
+            var total = items
+                .Select(item => item.Output.Select(x => x.Data).ToList())
+                .Select(data => data.Count)
+                .Average();
 
-            // TODO [Duy]: test the accuracy of this
-            total /= items.Length;
-            var result = new List<ClassifierResult>
-            {
-                new() { ActionType = ActionType.Idle, Count = total - maxPhone }
-            };
-            if (maxPhone > 0)
-                result.Add(
-                    new ClassifierResult { ActionType = ActionType.Phone, Count = maxPhone }
-                );
-
-            var countModel = new ClassifierModel
+            var countModel = new HumanCountModel
             {
                 Time = DateTime.Now,
-                Total = total,
-                Results = result,
+                Total = Convert.ToInt32(total),
                 ShopId = GlobalData.Shop!.Id
             };
             try
@@ -76,7 +59,7 @@ public class ClassifierProcessor : IDisposable
 
     private void ReceiveData(int time, List<ClassifierOutputModel> output)
     {
-        classifierItems.Add(new ClassifierItem(time, output));
+        humanCountItems.Add(new HumanCountItem(time, output));
     }
 
     public void Dispose()
@@ -95,4 +78,4 @@ public class ClassifierProcessor : IDisposable
     }
 }
 
-public record ClassifierItem(int Time, List<ClassifierOutputModel> Output);
+public record HumanCountItem(int Time, List<ClassifierOutputModel> Output);

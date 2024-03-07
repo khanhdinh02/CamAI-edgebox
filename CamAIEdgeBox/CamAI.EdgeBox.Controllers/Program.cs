@@ -66,6 +66,7 @@ using (var scope = provider.CreateScope())
     {
         try
         {
+            // TODO: get data from server
             var globalDataSync = scope.ServiceProvider.GetRequiredService<GlobalDataSync>();
             globalDataSync.SyncData();
             break;
@@ -104,10 +105,8 @@ app.MapControllers();
 
 using (var scope = app.Services.CreateScope())
 {
-    var globalDataSync = scope.ServiceProvider.GetRequiredService<GlobalDataSync>();
-    globalDataSync.SyncData();
-    // var aiService = scope.ServiceProvider.GetRequiredService<AIService>();
-    // aiService.RunAI();
+    var aiService = scope.ServiceProvider.GetRequiredService<AIService>();
+    aiService.RunAI();
 }
 
 app.MapGet("/", () => Results.Ok("Hello word"));

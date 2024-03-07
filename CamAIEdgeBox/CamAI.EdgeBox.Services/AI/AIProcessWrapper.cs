@@ -10,8 +10,8 @@ public class AiProcessWrapper(string name, IServiceProvider provider)
 {
     public string Name => name;
     private readonly CancellationTokenSource cancellationTokenSource = new();
+    private HumanCountProcessor? humanCount;
     private ClassifierWatcher? watcher;
-    private ClassifierProcessor? classifier;
     private DetectionProcessor? detection;
     private UniformProcessor? uniform;
 
@@ -28,12 +28,12 @@ public class AiProcessWrapper(string name, IServiceProvider provider)
 
         watcher = new ClassifierWatcher(configuration);
 
-        classifier = new ClassifierProcessor(watcher, configuration, publishBus);
+        humanCount = new HumanCountProcessor(watcher, configuration, publishBus);
         detection = new DetectionProcessor(watcher, rtsp, configuration, publishBus);
         uniform = new UniformProcessor(watcher, rtsp, configuration, publishBus);
 
 #pragma warning disable 4014
-        Task.Run(() => classifier.Start(cancellationTokenSource.Token));
+        Task.Run(() => humanCount.Start(cancellationTokenSource.Token));
         Task.Run(() => detection.Start(cancellationTokenSource.Token));
         Task.Run(() => uniform.Start(cancellationTokenSource.Token));
     }
@@ -42,7 +42,7 @@ public class AiProcessWrapper(string name, IServiceProvider provider)
     {
         cancellationTokenSource.Cancel();
         cancellationTokenSource.Dispose();
-        classifier?.Dispose();
+        humanCount?.Dispose();
         detection?.Dispose();
         uniform?.Dispose();
         watcher?.Dispose();
