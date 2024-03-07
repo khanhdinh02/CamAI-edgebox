@@ -9,13 +9,11 @@ public class CamAiEdgeBoxContext : DbContext
     public DbSet<Brand> Brands { get; set; } = null!;
     public DbSet<DbEdgeBox> EdgeBoxes { get; set; } = null!;
 
-    private string DbPath { get; }
-
-    public CamAiEdgeBoxContext()
-    {
-        var path = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData);
-        DbPath = Path.Join(path, $"edgeBox_{Environment.MachineName}.db");
-    }
+    private string DbPath => dbPath;
+    private readonly string dbPath = Path.Join(
+        Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
+        $"edgeBox_{Environment.MachineName}.db"
+    );
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder) =>
         optionsBuilder.UseSqlite($"Data Source={DbPath}");

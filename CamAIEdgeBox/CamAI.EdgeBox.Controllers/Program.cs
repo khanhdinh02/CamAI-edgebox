@@ -1,4 +1,5 @@
 using CamAI.EdgeBox.Controllers;
+using CamAI.EdgeBox.Controllers.BackgroundServices;
 using CamAI.EdgeBox.MassTransit;
 using CamAI.EdgeBox.Middlewares;
 using CamAI.EdgeBox.Models;
@@ -7,6 +8,7 @@ using CamAI.EdgeBox.Services;
 using CamAI.EdgeBox.Services.AI;
 using CamAI.EdgeBox.Services.Streaming;
 using FFMpegCore;
+using Microsoft.EntityFrameworkCore;
 using Serilog;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -31,6 +33,8 @@ builder
     .AddScoped<EdgeBoxService>()
     .AddScoped<GlobalDataSync>();
 
+builder.Services.AddMemoryCache();
+builder.Services.AddHostedService<CpuTrackingService>();
 builder.Services.Configure<AiConfiguration>(
     builder.Configuration.GetSection(AiConfiguration.Section)
 );
@@ -58,8 +62,22 @@ var provider = builder.Services.BuildServiceProvider();
 #pragma warning restore ASP0000
 using (var scope = provider.CreateScope())
 {
-    var globalDataSync = scope.ServiceProvider.GetRequiredService<GlobalDataSync>();
-    globalDataSync.SyncData();
+    while (true)
+    {
+        try
+        {
+            var globalDataSync = scope.ServiceProvider.GetRequiredService<GlobalDataSync>();
+            globalDataSync.SyncData();
+            break;
+        }
+        catch (Microsoft.Data.Sqlite.SqliteException)
+        {
+            await scope
+                .ServiceProvider.GetRequiredService<CamAiEdgeBoxContext>()
+                .Database.MigrateAsync();
+            scope.ServiceProvider.GetRequiredService<GlobalDataSync>().SyncData();
+        }
+    }
 }
 
 // TODO [Duy]: how to run masstransit configuration after sync data
@@ -75,11 +93,10 @@ var app = builder.Build();
 
 app.UseMiddleware<GlobalExceptionHandler>();
 
-if (app.Environment.IsDevelopment())
-{
-    app.UseSwagger();
-    app.UseSwaggerUI();
-}
+app.UseCors("AllowAll");
+
+app.UseSwagger();
+app.UseSwaggerUI();
 
 app.UseHttpsRedirection();
 
@@ -89,9 +106,11 @@ using (var scope = app.Services.CreateScope())
 {
     var globalDataSync = scope.ServiceProvider.GetRequiredService<GlobalDataSync>();
     globalDataSync.SyncData();
-    var aiService = scope.ServiceProvider.GetRequiredService<AIService>();
-    aiService.RunAI();
+    // var aiService = scope.ServiceProvider.GetRequiredService<AIService>();
+    // aiService.RunAI();
 }
+
+app.MapGet("/", () => Results.Ok("Hello word"));
 
 app.Run();
 
