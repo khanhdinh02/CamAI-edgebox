@@ -33,9 +33,9 @@ public class AiProcessWrapper(string name, IServiceProvider provider)
         uniform = new UniformProcessor(watcher, rtsp, configuration, publishBus);
 
 #pragma warning disable 4014
-        classifier.Start(cancellationTokenSource.Token);
-        detection.Start(cancellationTokenSource.Token);
-        uniform.Start(cancellationTokenSource.Token);
+        Task.Run(() => classifier.Start(cancellationTokenSource.Token));
+        Task.Run(() => detection.Start(cancellationTokenSource.Token));
+        Task.Run(() => uniform.Start(cancellationTokenSource.Token));
     }
 
     public void Kill()

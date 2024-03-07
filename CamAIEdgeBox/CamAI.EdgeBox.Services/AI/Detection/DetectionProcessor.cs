@@ -1,5 +1,4 @@
 ﻿using System.Collections.Concurrent;
-using CamAI.EdgeBox.Models;
 using CamAI.EdgeBox.Services.Utils;
 using MassTransit;
 using Microsoft.Extensions.Options;
@@ -100,7 +99,7 @@ public class DetectionProcessor : IDisposable
                 )
                 {
                     var captureName = rtsp.CaptureFrame(calculation.NewEvidenceName());
-                    calculation.Evidences.Add(captureName);
+                    calculation.Evidences.Add(new CalculationEvidence { Path = captureName });
                 }
 
                 if (
@@ -108,27 +107,27 @@ public class DetectionProcessor : IDisposable
                     && calculation.TotalTime() >= detection.MinDuration
                 )
                 {
-                    var evidences = calculation
-                        .Evidences.Select(x => new Evidence
-                        {
-                            EdgeBoxId = GlobalData.EdgeBox!.Id,
-                            EvidenceType = EvidenceType.Image,
-                            FilePath = x
-                        })
-                        .ToList();
+                    var evidences = new List<Evidence>();
+                    foreach (var evidence in calculation.Evidences.Where(x => !x.IsSent))
+                    {
+                        evidence.IsSent = true;
+                        evidences.Add(
+                            new Evidence
+                            {
+                                EvidenceType = EvidenceType.Image,
+                                FilePath = evidence.Path
+                            }
+                        );
+                    }
                     var incident = new Incident
                     {
-                        // TODO: how about Id for incident to add more evidence in server
                         Id = calculation.Id,
-                        Time = DateTime.Now,
+                        Time = calculation.Time,
                         IncidentType = IncidentType.Phone,
                         Evidences = evidences
                     };
-                    // TODO: how about add more evidence to an incident
 
-#pragma warning disable CS4014 // Because this call is not awaited, execution of the current method continues before the call is completed
-                    bus.Publish(incident, cancellationToken);
-#pragma warning restore CS4014 // Because this call is not awaited, execution of the current method continues before the call is completed
+                    await bus.Publish(incident, cancellationToken);
                 }
             }
         }
@@ -163,7 +162,6 @@ public class DetectionProcessor : IDisposable
 
     private void ReceiveData(int time, List<ClassifierOutputModel> output)
     {
-        // TODO: i could check time and insert empty array
         var phoneOutput = output.Where(x => x.Data.Label == ActionType.Phone).ToList();
         classifierOutputs.Add(phoneOutput);
     }

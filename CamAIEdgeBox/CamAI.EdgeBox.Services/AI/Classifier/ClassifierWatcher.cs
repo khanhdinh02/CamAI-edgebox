@@ -19,11 +19,9 @@ public class ClassifierWatcher : IDisposable
     public ClassifierWatcher(IOptions<AiConfiguration> aiConfiguration)
     {
         configuration = aiConfiguration.Value;
+        // TODO: config output directory
         fileWatcher = new FileSystemWatcher(configuration.OutputDirectory);
-        watchFile = Path.Combine(
-            configuration.OutputDirectory,
-            configuration.OutputFile
-        );
+        watchFile = Path.Combine(configuration.OutputDirectory, configuration.OutputFile);
         ConfigureFilters();
     }
 

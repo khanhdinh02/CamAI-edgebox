@@ -4,7 +4,8 @@ public class DetectionScoreModel
 {
     public int AiId { get; init; }
     public Guid Id { get; set; } = Guid.NewGuid();
-    public List<string> Evidences { get; } = [];
+    public List<CalculationEvidence> Evidences { get; } = [];
+    public DateTime Time { get; } = DateTime.Now;
     public List<DetectionInterval> Intervals { get; init; } = [new DetectionInterval()];
 
     public double Score() => Intervals.Select(x => x.IntervalScore()).Average();
@@ -19,6 +20,12 @@ public class DetectionScoreModel
             .Sum();
 
     public string NewEvidenceName() => Id.ToString("N") + Evidences.Count;
+}
+
+public class CalculationEvidence
+{
+    public string Path { get; set; } = null!;
+    public bool IsSent { get; set; } = false;
 }
 
 public class DetectionInterval

@@ -15,6 +15,7 @@ public class RtspExtension(Uri uri, string baseDir)
         );
         var outputPath = Path.Combine(baseDir, dateTimeDir);
 
+        // TODO: clean update image after one day
         Directory.CreateDirectory(outputPath);
         var file = Path.Combine(outputPath, outputFileName);
         FFMpegArguments
@@ -25,7 +26,11 @@ public class RtspExtension(Uri uri, string baseDir)
                     opts.WithCustomArgument("-y -rtsp_transport tcp");
                 }
             )
-            .OutputToFile(file, false, opts => opts.WithFrameOutputCount(1))
+            .OutputToFile(
+                file,
+                false,
+                opts => opts.WithFrameOutputCount(9).WithCustomArgument("-update 1")
+            )
             .ProcessAsynchronously();
         return Path.Combine(dateTimeDir, outputFileName);
     }
