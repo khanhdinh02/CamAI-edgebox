@@ -8,7 +8,7 @@ public class Camera : BaseEntity
     public string Name { get; set; } = null!;
 
     [StringLength(255)]
-    public string? Area { get; set; }
+    public string? Zone { get; set; }
 
     [StringLength(255)]
     public string Username { get; set; } = null!;

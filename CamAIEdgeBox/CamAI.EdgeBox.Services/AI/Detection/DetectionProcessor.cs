@@ -105,6 +105,8 @@ public class DetectionProcessor : IDisposable
                 if (
                     calculation.Score() >= detection.MinScore
                     && calculation.TotalTime() >= detection.MinDuration
+                    && DateTime.UtcNow - calculation.LastSent
+                        > TimeSpan.FromSeconds(detection.MinDuration)
                 )
                 {
                     var evidences = new List<Evidence>();
@@ -115,6 +117,7 @@ public class DetectionProcessor : IDisposable
                             new Evidence
                             {
                                 EvidenceType = EvidenceType.Image,
+                                // TODO: camera Id
                                 FilePath = evidence.Path
                             }
                         );
@@ -128,6 +131,7 @@ public class DetectionProcessor : IDisposable
                     };
 
                     await bus.Publish(incident, cancellationToken);
+                    calculation.LastSent = DateTime.UtcNow;
                 }
             }
         }

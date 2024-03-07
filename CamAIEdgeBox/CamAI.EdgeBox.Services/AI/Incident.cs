@@ -4,7 +4,7 @@ using MassTransit;
 
 namespace CamAI.EdgeBox.Services.AI;
 
-[Publisher("Incident")]
+[Publisher("Detection")]
 [MessageUrn("ReceivedIncident")]
 public class Incident
 {

@@ -6,6 +6,7 @@ public class DetectionScoreModel
     public Guid Id { get; set; } = Guid.NewGuid();
     public List<CalculationEvidence> Evidences { get; } = [];
     public DateTime Time { get; } = DateTime.Now;
+    public DateTime LastSent { get; set; } = DateTime.UtcNow;
     public List<DetectionInterval> Intervals { get; init; } = [new DetectionInterval()];
 
     public double Score() => Intervals.Select(x => x.IntervalScore()).Average();
