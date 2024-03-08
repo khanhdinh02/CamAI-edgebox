@@ -13,17 +13,23 @@ public class UpdateDataConsumer(BrandService brandService, ShopService shopServi
     : IConsumer<BrandUpdateMessage>,
         IConsumer<ShopUpdateMessage>
 {
+    private static readonly Mutex Mutex = new();
+
     public Task Consume(ConsumeContext<BrandUpdateMessage> context)
     {
         var brand = context.Message.ToBrand();
+        Mutex.WaitOne();
         brandService.UpsertBrand(brand);
+        Mutex.ReleaseMutex();
         return Task.CompletedTask;
     }
 
     public Task Consume(ConsumeContext<ShopUpdateMessage> context)
     {
         var shop = context.Message.ToShop();
+        Mutex.WaitOne();
         shopService.UpsertShop(shop);
+        Mutex.ReleaseMutex();
         return Task.CompletedTask;
     }
 }

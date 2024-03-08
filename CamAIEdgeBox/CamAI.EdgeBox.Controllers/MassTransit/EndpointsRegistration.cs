@@ -96,7 +96,8 @@ public static class ReceiveEndpointConfigurator
             {
                 e.ConcurrentMessageLimit = 5;
                 e.ConfigureConsumeTopology = false;
-
+                e.DiscardFaultedMessages();
+                e.DiscardSkippedMessages();
                 foreach (var (type, attr) in consumers)
                 {
                     e.ConfigureConsumer(context, type);
@@ -113,7 +114,7 @@ public static class ReceiveEndpointConfigurator
         );
     }
 
-    private static void RegisterConsumer(
+    public static void RegisterConsumer(
         IReceiveConfigurator cfg,
         IRegistrationContext context,
         string queueName,
@@ -126,6 +127,8 @@ public static class ReceiveEndpointConfigurator
             {
                 e.ConcurrentMessageLimit = 5;
                 e.ConfigureConsumeTopology = false;
+                e.DiscardFaultedMessages();
+                e.DiscardSkippedMessages();
 
                 foreach (var type in consumers)
                     e.ConfigureConsumer(context, type);

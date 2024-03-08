@@ -4,7 +4,7 @@ using CamAI.EdgeBox.Models;
 
 namespace CamAI.EdgeBox.MassTransit;
 
-[AttributeUsage(AttributeTargets.Class)]
+[AttributeUsage(AttributeTargets.Class, AllowMultiple = true)]
 public abstract class MessageQueueEndpointAttribute(string queueName) : Attribute
 {
     protected readonly string Template = queueName;
@@ -18,6 +18,7 @@ public abstract class MessageQueueEndpointAttribute(string queueName) : Attribut
         sb.Replace("{ShopName}", GlobalData.Shop?.Name);
         sb.Replace("{BrandId}", GlobalData.Brand?.Id.ToString("N"));
         sb.Replace("{ShopId}", GlobalData.Shop?.Id.ToString("N"));
+        sb.Replace("{EdgeBoxId}", GlobalData.EdgeBox?.Id.ToString("N"));
         sb.Replace(" ", "");
         return sb.ToString();
     }

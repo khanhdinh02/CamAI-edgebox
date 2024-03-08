@@ -3,14 +3,14 @@ using CamAI.EdgeBox.Services;
 
 namespace CamAI.EdgeBox.Controllers;
 
-public class GlobalDataSync(
+public class GlobalDataHelper(
     BrandService brandService,
     ShopService shopService,
     EdgeBoxService edgeBoxService,
     CameraService cameraService
 )
 {
-    public void SyncData()
+    public void GetData()
     {
         GlobalData.Shop = shopService.GetShop();
         GlobalData.Brand = brandService.GetBrand();
