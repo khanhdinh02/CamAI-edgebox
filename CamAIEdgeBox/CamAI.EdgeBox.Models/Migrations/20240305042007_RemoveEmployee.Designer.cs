@@ -3,6 +3,7 @@ using System;
 using CamAI.EdgeBox.Models;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -10,9 +11,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace CamAI.EdgeBox.Models.Migrations
 {
     [DbContext(typeof(CamAiEdgeBoxContext))]
-    partial class CamAiEdgeBoxContextModelSnapshot : ModelSnapshot
+    [Migration("20240305042007_RemoveEmployee")]
+    partial class RemoveEmployee
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder.HasAnnotation("ProductVersion", "8.0.1");
@@ -42,6 +45,10 @@ namespace CamAI.EdgeBox.Models.Migrations
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Area")
+                        .HasMaxLength(255)
                         .HasColumnType("TEXT");
 
                     b.Property<string>("Host")
@@ -78,10 +85,6 @@ namespace CamAI.EdgeBox.Models.Migrations
 
                     b.Property<string>("Username")
                         .IsRequired()
-                        .HasMaxLength(255)
-                        .HasColumnType("TEXT");
-
-                    b.Property<string>("Zone")
                         .HasMaxLength(255)
                         .HasColumnType("TEXT");
 

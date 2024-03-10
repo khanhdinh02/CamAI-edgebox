@@ -21,7 +21,7 @@ public static class AiProcessManager
             return;
 
         var aiProcess = new AiProcessWrapper(processName, provider);
-        aiProcess.Run(new Uri("http://localhost/"), "");
+        aiProcess.Run(new Uri("rtsp://admin:Admin123%40@localhost:554/Streaming/channels/101"), "");
 
         RunningProcess.Add(aiProcess);
     }

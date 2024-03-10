@@ -1,4 +1,7 @@
 ﻿using System.Reflection;
+using CamAI.EdgeBox.Consumers;
+using CamAI.EdgeBox.Controllers;
+using CamAI.EdgeBox.Models;
 using MassTransit;
 using Microsoft.Extensions.FileSystemGlobbing;
 
@@ -6,6 +9,57 @@ namespace CamAI.EdgeBox.MassTransit;
 
 public static class MassTransitConfiguration
 {
+    public static IBusControl CreateSyncBusControl(
+        this WebApplicationBuilder builder,
+        UpdateDataConsumer updateDataConsumer
+    )
+    {
+        var settings = builder.Configuration.GetSection("RabbitMq").Get<RabbitMqConfiguration>()!;
+        var busControl = Bus.Factory.CreateUsingRabbitMq(cfg =>
+        {
+            cfg.SetupHost(settings);
+
+            cfg.Send<RoutingKeyMessage>(configurator =>
+                configurator.UseRoutingKeyFormatter(sendContext => sendContext.Message.RoutingKey)
+            );
+
+            // register sync data request message
+            var publisher = typeof(SyncDataRequest).GetCustomAttribute<PublisherAttribute>()!;
+            cfg.Message<SyncDataRequest>(x =>
+            {
+                x.SetEntityName(publisher.QueueName);
+            });
+
+            var consumer = typeof(UpdateDataConsumer).GetCustomAttribute<ConsumerAttribute>()!;
+            cfg.AutoStart = true;
+            cfg.ReceiveEndpoint(
+                $"EdgeBox_{GlobalData.EdgeBox!.Id:N}",
+                e =>
+                {
+                    e.ConcurrentMessageLimit = 5;
+                    e.ConfigureConsumeTopology = false;
+                    e.DiscardFaultedMessages();
+                    e.DiscardSkippedMessages();
+
+                    ConsumerExtensions.Consumer(
+                        e,
+                        typeof(UpdateDataConsumer),
+                        _ => updateDataConsumer
+                    );
+                    e.Bind(
+                        consumer.ExchangeName,
+                        x =>
+                        {
+                            x.ExchangeType = consumer.ExchangeType;
+                            x.RoutingKey = GlobalData.EdgeBox.Id.ToString("N");
+                        }
+                    );
+                }
+            );
+        });
+        return busControl;
+    }
+
     public static void ConfigureMassTransit(this WebApplicationBuilder builder)
     {
         var settings = builder.Configuration.GetSection("RabbitMq").Get<RabbitMqConfiguration>();
@@ -27,7 +81,9 @@ public static class MassTransitConfiguration
                         cfg.SetupHost(settings);
 
                         cfg.Send<RoutingKeyMessage>(configurator =>
-                            configurator.UseRoutingKeyFormatter(sendContext => sendContext.Message.RoutingKey)
+                            configurator.UseRoutingKeyFormatter(sendContext =>
+                                sendContext.Message.RoutingKey
+                            )
                         );
                         cfg.RegisterPublisher(assemblies);
                         cfg.RegisterConsumer(context, assemblies);

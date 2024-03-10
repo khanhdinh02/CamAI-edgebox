@@ -1,3 +1,4 @@
+using CamAI.EdgeBox.Consumers;
 using CamAI.EdgeBox.Controllers;
 using CamAI.EdgeBox.Controllers.BackgroundServices;
 using CamAI.EdgeBox.MassTransit;
@@ -8,8 +9,58 @@ using CamAI.EdgeBox.Services;
 using CamAI.EdgeBox.Services.AI;
 using CamAI.EdgeBox.Services.Streaming;
 using FFMpegCore;
+using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore;
 using Serilog;
+
+async Task FetchServerData(WebApplicationBuilder builder1)
+{
+    var edgeBoxId = builder1.Configuration.GetRequiredSection("EdgeBoxId").Get<Guid>();
+    GlobalData.EdgeBox ??= new DbEdgeBox { Id = edgeBoxId };
+
+    builder1.Services.AddScoped<UpdateDataConsumer>();
+#pragma warning disable ASP0000
+    var provider = builder1.Services.BuildServiceProvider();
+#pragma warning restore ASP0000
+    using var scope = provider.CreateScope();
+    var consumer = scope.ServiceProvider.GetRequiredService<UpdateDataConsumer>();
+
+    // sync data from server
+    var busControl = builder1.CreateSyncBusControl(consumer);
+    await busControl.StartAsync();
+
+    var syncRequest = new SyncDataRequest { EdgeBoxId = edgeBoxId };
+    await busControl.Publish(syncRequest);
+    while (GlobalData.Shop == null)
+        Thread.Sleep(1000);
+    // TODO: wait for response from server
+    await busControl.StopAsync();
+}
+
+async Task FetchLocalData(WebApplicationBuilder webApplicationBuilder)
+{
+#pragma warning disable ASP0000
+    var provider = webApplicationBuilder.Services.BuildServiceProvider();
+#pragma warning restore ASP0000
+    using var scope = provider.CreateScope();
+
+    while (true)
+    {
+        try
+        {
+            var globalDataHelper = scope.ServiceProvider.GetRequiredService<GlobalDataHelper>();
+            globalDataHelper.GetData();
+            break;
+        }
+        catch (SqliteException)
+        {
+            await scope
+                .ServiceProvider.GetRequiredService<CamAiEdgeBoxContext>()
+                .Database.MigrateAsync();
+            scope.ServiceProvider.GetRequiredService<GlobalDataHelper>().GetData();
+        }
+    }
+}
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -31,7 +82,7 @@ builder
     .AddScoped<AIService>()
     .AddScoped<ShopService>()
     .AddScoped<EdgeBoxService>()
-    .AddScoped<GlobalDataSync>();
+    .AddScoped<GlobalDataHelper>();
 
 builder.Services.AddMemoryCache();
 builder.Services.AddHostedService<CpuTrackingService>();
@@ -57,38 +108,17 @@ builder.Services.AddCors(opts =>
     )
 );
 
-#pragma warning disable ASP0000
-var provider = builder.Services.BuildServiceProvider();
-#pragma warning restore ASP0000
-using (var scope = provider.CreateScope())
-{
-    while (true)
-    {
-        try
-        {
-            // TODO: get data from server
-            var globalDataSync = scope.ServiceProvider.GetRequiredService<GlobalDataSync>();
-            globalDataSync.SyncData();
-            break;
-        }
-        catch (Microsoft.Data.Sqlite.SqliteException)
-        {
-            await scope
-                .ServiceProvider.GetRequiredService<CamAiEdgeBoxContext>()
-                .Database.MigrateAsync();
-            scope.ServiceProvider.GetRequiredService<GlobalDataSync>().SyncData();
-        }
-    }
-}
-
-// TODO [Duy]: how to run masstransit configuration after sync data
-builder.ConfigureMassTransit();
-
 builder.Services.Configure<RouteOptions>(opts =>
 {
     opts.LowercaseUrls = true;
     opts.LowercaseQueryStrings = true;
 });
+
+await FetchLocalData(builder);
+if (GlobalData.EdgeBox == null)
+    await FetchServerData(builder);
+
+builder.ConfigureMassTransit();
 
 var app = builder.Build();
 

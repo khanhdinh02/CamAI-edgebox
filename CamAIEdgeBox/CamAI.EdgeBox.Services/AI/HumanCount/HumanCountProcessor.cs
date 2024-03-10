@@ -13,11 +13,13 @@ public class HumanCountProcessor : IDisposable
     private readonly ConcurrentBag<HumanCountItem> humanCountItems = [];
     private readonly PeriodicTimer timer;
     private readonly IPublishEndpoint bus;
-    private readonly ClassifierWatcher watcher;
 
-    public HumanCountProcessor(IOptions<AiConfiguration> configuration, IPublishEndpoint bus)
+    public HumanCountProcessor(
+        ClassifierWatcher watcher,
+        IOptions<AiConfiguration> configuration,
+        IPublishEndpoint bus
+    )
     {
-        watcher = new ClassifierWatcher(configuration);
         watcher.Notifier += ReceiveData;
         timer = new PeriodicTimer(TimeSpan.FromSeconds(configuration.Value.Classifier.Interval));
         this.bus = bus;
@@ -71,10 +73,7 @@ public class HumanCountProcessor : IDisposable
         if (disposed)
             return;
         if (disposing)
-        {
             timer.Dispose();
-            watcher.Dispose();
-        }
         disposed = true;
     }
 }

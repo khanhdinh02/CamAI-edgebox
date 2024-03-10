@@ -12,32 +12,30 @@ public class ClassifierWatcher : IDisposable
         new() { PropertyNameCaseInsensitive = true };
 
     private readonly FileSystemWatcher fileWatcher;
-    private readonly AiConfiguration aiConfiguration;
+    private readonly AiConfiguration configuration;
     public event ClassifierNotify? Notifier;
     private readonly string watchFile;
 
     public ClassifierWatcher(IOptions<AiConfiguration> aiConfiguration)
     {
-        fileWatcher = new FileSystemWatcher(aiConfiguration.Value.OutputDirectory);
-        this.aiConfiguration = aiConfiguration.Value;
-        watchFile = Path.Combine(
-            this.aiConfiguration.OutputDirectory,
-            this.aiConfiguration.Classifier.Output
-        );
+        configuration = aiConfiguration.Value;
+        // TODO: config output directory
+        fileWatcher = new FileSystemWatcher(configuration.OutputDirectory);
+        watchFile = Path.Combine(configuration.OutputDirectory, configuration.OutputFile);
         ConfigureFilters();
     }
 
     private void ConfigureFilters()
     {
         fileWatcher.Changed += HandleFileChange;
-        fileWatcher.Filter = aiConfiguration.Classifier.Output;
+        fileWatcher.Filter = configuration.OutputFile;
         fileWatcher.EnableRaisingEvents = true;
     }
 
     private void HandleFileChange(object sender, FileSystemEventArgs e)
     {
         var lastLine = Retry.Do(
-            () => File.ReadLines(watchFile).Last().Split(aiConfiguration.OutputSeparator),
+            () => File.ReadLines(watchFile).Last().Split(configuration.OutputSeparator),
             TimeSpan.FromSeconds(1)
         );
         if (!int.TryParse(lastLine[0], out var time))

@@ -8,7 +8,7 @@ public class Camera : BaseEntity
     public string Name { get; set; } = null!;
 
     [StringLength(255)]
-    public string? Area { get; set; }
+    public string? Zone { get; set; }
 
     [StringLength(255)]
     public string Username { get; set; } = null!;
@@ -22,5 +22,13 @@ public class Camera : BaseEntity
     public string Host { get; set; } = null!;
     public string Path { get; set; } = null!;
     public int Index { get; set; }
-    // TODO: add status
+
+    public CameraStatus Status { get; set; } = CameraStatus.New;
+}
+
+public enum CameraStatus
+{
+    New = 1,
+    Connected = 2,
+    Disconnected = 3,
 }
