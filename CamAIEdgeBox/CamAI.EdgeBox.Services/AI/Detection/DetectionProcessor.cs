@@ -161,7 +161,12 @@ public class DetectionProcessor : IDisposable
         var t = interval.Scores.Count;
         var score = interval.IntervalScore();
         var m = Convert.ToInt32(0.5 * t / (2 * Math.Log(7 - 6 * score) + 1));
-        return m < 3 ? 3 : m;
+        return m switch
+        {
+            < 3 => 3,
+            > 90 => 90,
+            _ => m
+        };
     }
 
     private void ReceiveData(int time, List<ClassifierOutputModel> output)
