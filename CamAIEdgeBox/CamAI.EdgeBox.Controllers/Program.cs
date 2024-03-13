@@ -33,7 +33,6 @@ async Task FetchServerData(WebApplicationBuilder builder1)
     await busControl.Publish(syncRequest);
     while (GlobalData.Shop == null)
         Thread.Sleep(1000);
-    // TODO: wait for response from server
     await busControl.StopAsync();
 }
 
@@ -79,7 +78,7 @@ builder.Services.AddScoped<UnitOfWork>();
 builder
     .Services.AddScoped<CameraService>()
     .AddScoped<BrandService>()
-    .AddScoped<AIService>()
+    .AddScoped<AiService>()
     .AddScoped<ShopService>()
     .AddScoped<EdgeBoxService>()
     .AddScoped<GlobalDataHelper>();
@@ -135,12 +134,10 @@ app.MapControllers();
 
 using (var scope = app.Services.CreateScope())
 {
-    var aiService = scope.ServiceProvider.GetRequiredService<AIService>();
-    aiService.RunAI();
+    var aiService = scope.ServiceProvider.GetRequiredService<AiService>();
+    aiService.RunAi();
 }
 
 app.MapGet("/", () => Results.Ok("Hello word"));
 
 app.Run();
-
-// TODO: Get all camera and run AI

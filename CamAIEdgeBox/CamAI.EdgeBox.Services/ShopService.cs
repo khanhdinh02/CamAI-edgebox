@@ -7,7 +7,7 @@ public class ShopService(UnitOfWork unitOfWork)
 {
     public Shop? GetShop()
     {
-        return unitOfWork.Shops.GetAll().FirstOrDefault();
+        return unitOfWork.Shops.GetAll(false).FirstOrDefault();
     }
 
     public Shop UpsertShop(Shop shop)

@@ -1,7 +1,6 @@
 ﻿using System.Collections.Concurrent;
 using CamAI.EdgeBox.Models;
 using MassTransit;
-using Microsoft.Extensions.Options;
 using Serilog;
 
 namespace CamAI.EdgeBox.Services.AI;
@@ -16,12 +15,12 @@ public class HumanCountProcessor : IDisposable
 
     public HumanCountProcessor(
         ClassifierWatcher watcher,
-        IOptions<AiConfiguration> configuration,
+        HumanCountConfiguration humanCountConfiguration,
         IPublishEndpoint bus
     )
     {
         watcher.Notifier += ReceiveData;
-        timer = new PeriodicTimer(TimeSpan.FromSeconds(configuration.Value.Classifier.Interval));
+        timer = new PeriodicTimer(TimeSpan.FromSeconds(humanCountConfiguration.Interval));
         this.bus = bus;
     }
 

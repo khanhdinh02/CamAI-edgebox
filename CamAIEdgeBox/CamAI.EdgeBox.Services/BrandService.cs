@@ -7,7 +7,7 @@ public class BrandService(UnitOfWork unitOfWork)
 {
     public Brand? GetBrand()
     {
-        return unitOfWork.Brands.GetAll().FirstOrDefault();
+        return unitOfWork.Brands.GetAll(false).FirstOrDefault();
     }
 
     public Brand UpsertBrand(Brand brand)
