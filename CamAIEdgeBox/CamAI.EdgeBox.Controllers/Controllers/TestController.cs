@@ -1,3 +1,5 @@
+using CamAI.EdgeBox.Models;
+using CamAI.EdgeBox.Services.Utils;
 using CamAI.EdgeBox.Services.Utils;
 using MassTransit;
 using Microsoft.AspNetCore.Mvc;
@@ -7,7 +9,7 @@ namespace CamAI.EdgeBox.Controllers.Controllers;
 
 [Route("api/[controller]")]
 [ApiController]
-public class TestController(IPublishEndpoint bus, ILogger<TestController> logger, IMemoryCache cache) : ControllerBase
+public class TestController(ILogger<TestController> logger, IMemoryCache cache) : ControllerBase
 {
     [HttpGet("{name}")]
     public async Task<ActionResult<string>> TestConnection([FromRoute] string name)
@@ -24,5 +26,20 @@ public class TestController(IPublishEndpoint bus, ILogger<TestController> logger
             @"C:\Users\Administrator\Downloads\ffmpeg-2024-02-29-git-4a134eb14a-full_build\bin"
         );
         rtsp.CaptureFrame("yes_please");
+    }
+
+    [HttpPost("camera/check")]
+    public void CheckCameraConnection()
+    {
+        var cameara = new Camera
+        {
+            Host = "127.0.0.1",
+            Port = 554,
+            Username = "admin",
+            Password = "Admin123@",
+            Path = "Streaming/channels/101",
+            Protocol = "rtsp"
+        };
+        cameara.CheckConnection();
     }
 }
