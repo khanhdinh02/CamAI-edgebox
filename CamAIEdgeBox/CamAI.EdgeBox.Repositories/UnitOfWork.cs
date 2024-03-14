@@ -1,4 +1,5 @@
 ﻿using CamAI.EdgeBox.Models;
+using Microsoft.EntityFrameworkCore;
 
 namespace CamAI.EdgeBox.Repositories;
 
@@ -17,6 +18,8 @@ public class UnitOfWork(CamAiEdgeBoxContext db)
     public EdgeBoxRepository EdgeBoxes => _edgeBoxRepository ??= new EdgeBoxRepository(db);
 
     public int Complete() => db.SaveChanges();
+
+    public void Detach(object entity) => db.Entry(entity).State = EntityState.Detached;
 
     public void Dispose()
     {
