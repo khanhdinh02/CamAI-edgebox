@@ -133,12 +133,6 @@ app.UseHttpsRedirection();
 
 app.MapControllers();
 
-using (var scope = app.Services.CreateScope())
-{
-    var aiService = scope.ServiceProvider.GetRequiredService<AIService>();
-    aiService.RunAI();
-}
-
 app.MapGet("/", () => Results.Ok("Hello word"));
 
 app.Run();
