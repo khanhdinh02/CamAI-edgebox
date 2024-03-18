@@ -1,7 +1,6 @@
 ﻿using System.Collections.Concurrent;
 using CamAI.EdgeBox.Services.Utils;
 using MassTransit;
-using Microsoft.Extensions.Options;
 
 namespace CamAI.EdgeBox.Services.AI;
 
@@ -19,12 +18,12 @@ public class DetectionProcessor : IDisposable
     public DetectionProcessor(
         ClassifierWatcher watcher,
         RtspExtension rtsp,
-        IOptions<AiConfiguration> configuration,
+        DetectionConfiguration detection,
         IPublishEndpoint bus
     )
     {
         watcher.Notifier += ReceiveData;
-        detection = configuration.Value.Detection;
+        this.detection = detection;
         this.rtsp = rtsp;
         this.bus = bus;
     }

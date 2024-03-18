@@ -5,6 +5,11 @@ namespace CamAI.EdgeBox.Services;
 
 public class ShopService(UnitOfWork unitOfWork)
 {
+    public Shop? GetShop()
+    {
+        return unitOfWork.Shops.GetAll(false).FirstOrDefault();
+    }
+
     public Shop UpsertShop(Shop shop)
     {
         var foundShop = unitOfWork.Shops.GetAll(false).FirstOrDefault();

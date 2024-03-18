@@ -7,7 +7,7 @@ public class EdgeBoxService(UnitOfWork unitOfWork)
 {
     public DbEdgeBox? GetEdgeBox()
     {
-        return unitOfWork.EdgeBoxes.GetAll().FirstOrDefault();
+        return unitOfWork.EdgeBoxes.GetAll(false).FirstOrDefault();
     }
 
     public DbEdgeBox UpsertEdgeBox(DbEdgeBox edgeBox)

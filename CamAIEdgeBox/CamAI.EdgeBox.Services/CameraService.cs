@@ -16,7 +16,7 @@ public class CameraService(
 {
     private readonly StreamingConfiguration streamingConfiguration = streamingConfiguration.Value;
 
-    public List<Camera> GetCamera() => unitOfWork.Cameras.GetAll();
+    public List<Camera> GetCamera() => unitOfWork.Cameras.GetAll(false);
 
     public Camera GetCamera(Guid id) =>
         unitOfWork.Cameras.GetById(id)

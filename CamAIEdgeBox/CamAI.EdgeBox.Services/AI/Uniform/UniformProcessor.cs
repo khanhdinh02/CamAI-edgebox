@@ -1,7 +1,5 @@
 using CamAI.EdgeBox.Services.Utils;
 using MassTransit;
-using MassTransit.Configuration;
-using Microsoft.Extensions.Options;
 
 namespace CamAI.EdgeBox.Services.AI.Uniform;
 
@@ -15,11 +13,11 @@ public class UniformProcessor : IDisposable
     public UniformProcessor(
         ClassifierWatcher watcher,
         RtspExtension rtsp,
-        IOptions<AiConfiguration> configuration,
+        UniformConfiguration uniformConfiguration,
         IPublishEndpoint bus
     )
     {
-        uniform = configuration.Value.Uniform;
+        uniform = uniformConfiguration;
         this.bus = bus;
         this.rtsp = rtsp;
         watcher.Notifier += ReceiveData;
