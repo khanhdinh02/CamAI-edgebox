@@ -30,7 +30,7 @@ public class BaseRepository<T>(CamAiEdgeBoxContext context)
         return entity;
     }
 
-    public virtual List<T> GetAll(bool tracking = true)
+    public virtual List<T> GetAll(bool tracking = false)
     {
         IQueryable<T> query = Context.Set<T>();
         if (!tracking)

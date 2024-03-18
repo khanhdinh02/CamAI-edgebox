@@ -23,7 +23,8 @@ public class BrandService(UnitOfWork unitOfWork)
             unitOfWork.Brands.Update(brand);
         }
         unitOfWork.Complete();
-        GlobalData.Brand = brand;
-        return brand;
+        unitOfWork.Detach(brand);
+        GlobalData.Brand = unitOfWork.Brands.GetAll(false).First();
+        return GlobalData.Brand;
     }
 }
