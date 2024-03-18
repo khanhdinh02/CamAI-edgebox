@@ -3,6 +3,7 @@ using System;
 using CamAI.EdgeBox.Models;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -10,9 +11,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace CamAI.EdgeBox.Models.Migrations
 {
     [DbContext(typeof(CamAiEdgeBoxContext))]
-    partial class CamAiEdgeBoxContextModelSnapshot : ModelSnapshot
+    [Migration("20240314093942_PrimaryKey")]
+    partial class PrimaryKey
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder.HasAnnotation("ProductVersion", "8.0.1");
@@ -82,6 +85,7 @@ namespace CamAI.EdgeBox.Models.Migrations
                         .HasColumnType("TEXT");
 
                     b.Property<int>("Zone")
+                        .HasMaxLength(255)
                         .HasColumnType("INTEGER");
 
                     b.HasKey("Id");

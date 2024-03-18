@@ -7,8 +7,7 @@ public class Camera : BaseEntity
     [StringLength(255)]
     public string Name { get; set; } = null!;
 
-    [StringLength(255)]
-    public string? Zone { get; set; }
+    public Zone Zone { get; set; }
 
     [StringLength(255)]
     public string Username { get; set; } = null!;
@@ -31,4 +30,10 @@ public enum CameraStatus
     New = 1,
     Connected = 2,
     Disconnected = 3,
+}
+
+public enum Zone
+{
+    Cashier = 0,
+    Customer = 1
 }
