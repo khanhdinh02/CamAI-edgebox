@@ -1,17 +1,14 @@
+using CamAI.EdgeBox.Services.AI.Detection;
+
 namespace CamAI.EdgeBox.Services.AI;
 
-public class DetectionScoreModel
+public class PhoneModel : AiIncidentModel
 {
-    public int AiId { get; init; }
-    public Guid Id { get; set; } = Guid.NewGuid();
-    public List<CalculationEvidence> Evidences { get; } = [];
-    public DateTime Time { get; } = DateTime.Now;
-    public DateTime LastSent { get; set; } = DateTime.UtcNow;
     public List<DetectionInterval> Intervals { get; init; } = [new DetectionInterval()];
 
-    public double Score() => Intervals.Select(x => x.IntervalScore()).Average();
+    public double Score => Intervals.Select(x => x.IntervalScore()).Average();
 
-    public int TotalTime() =>
+    public int TotalTime =>
         Intervals
             .Select(x =>
             {
@@ -19,14 +16,6 @@ public class DetectionScoreModel
                 return skipTime + x.Scores.Count;
             })
             .Sum();
-
-    public string NewEvidenceName() => Id.ToString("N") + Evidences.Count;
-}
-
-public class CalculationEvidence
-{
-    public string Path { get; set; } = null!;
-    public bool IsSent { get; set; } = false;
 }
 
 public class DetectionInterval

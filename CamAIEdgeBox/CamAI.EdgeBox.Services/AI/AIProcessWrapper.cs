@@ -15,7 +15,7 @@ public class AiProcessWrapper(string name, IServiceProvider provider)
     private Process? aiProcess;
     private HumanCountProcessor? humanCount;
     private ClassifierWatcher? watcher;
-    private DetectionProcessor? detection;
+    private PhoneProcessor? detection;
     private UniformProcessor? uniform;
 
     public void Run(Camera camera)
@@ -23,12 +23,13 @@ public class AiProcessWrapper(string name, IServiceProvider provider)
         var publishBus = provider.GetRequiredService<IPublishEndpoint>();
         var configuration = provider.GetRequiredService<IOptions<AiConfiguration>>().Value;
         var cameraUri = camera.GetUri();
-        var rtsp = new RtspExtension(cameraUri, configuration.EvidenceOutputDir);
+        var rtsp = new RtspExtension(camera.Id, cameraUri, configuration.EvidenceOutputDir);
 
         // TODO: get directory from cameraUri
         var aiOutputPath = Path.Combine(configuration.BaseDirectory, "records/101");
         CleanDirectory(aiOutputPath);
 
+        // TODO: get base project directory
         aiProcess = CreateNewAiProcess("/mnt/c/project/camai/Human-Activity-Monitor", cameraUri);
         aiProcess.Start();
         WaitForAiOutput(aiOutputPath);
@@ -40,7 +41,7 @@ public class AiProcessWrapper(string name, IServiceProvider provider)
         );
 
         humanCount = new HumanCountProcessor(watcher, configuration.HumanCount, publishBus);
-        detection = new DetectionProcessor(watcher, rtsp, configuration.Detection, publishBus);
+        detection = new PhoneProcessor(watcher, rtsp, configuration.Phone, publishBus);
         uniform = new UniformProcessor(watcher, rtsp, configuration.Uniform, publishBus);
 
 #pragma warning disable 4014

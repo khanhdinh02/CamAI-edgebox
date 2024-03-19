@@ -2,8 +2,10 @@ using FFMpegCore;
 
 namespace CamAI.EdgeBox.Services.Utils;
 
-public class RtspExtension(Uri uri, string baseDir)
+public class RtspExtension(Guid cameraId, Uri uri, string baseDir)
 {
+    public Guid CameraId => cameraId;
+
     public string CaptureFrame(string outputFileName)
     {
         outputFileName += ".png";
