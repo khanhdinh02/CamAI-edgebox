@@ -7,6 +7,8 @@ namespace CamAI.EdgeBox.Services.Utils;
 
 public static class CameraExtension
 {
+    public static string ToName(this Camera camera) => camera.Id.ToString("N");
+
     public static Uri GetUri(this Camera camera)
     {
         var encodedUsername = HttpUtility.UrlEncode(camera.Username);

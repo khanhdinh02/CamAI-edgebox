@@ -68,8 +68,6 @@ public class CameraService(
         unitOfWork.Complete();
     }
 
-    // TODO: run ai for camera
-
     public void DeleteCamera(Guid id)
     {
         var camera = unitOfWork.Cameras.GetById(id);

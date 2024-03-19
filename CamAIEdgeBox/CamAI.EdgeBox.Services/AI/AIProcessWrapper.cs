@@ -8,9 +8,9 @@ using Microsoft.Extensions.Options;
 
 namespace CamAI.EdgeBox.Services.AI;
 
-public class AiProcessWrapper(string name, IServiceProvider provider)
+public class AiProcessWrapper(Camera camera, IServiceProvider provider)
 {
-    public string Name => name;
+    public string Name => camera.ToName();
     private readonly CancellationTokenSource cancellationTokenSource = new();
     private Process? aiProcess;
     private HumanCountProcessor? humanCount;
@@ -18,15 +18,15 @@ public class AiProcessWrapper(string name, IServiceProvider provider)
     private PhoneProcessor? detection;
     private UniformProcessor? uniform;
 
-    public void Run(Camera camera)
+    public void Run()
     {
         var publishBus = provider.GetRequiredService<IPublishEndpoint>();
         var configuration = provider.GetRequiredService<IOptions<AiConfiguration>>().Value;
         var cameraUri = camera.GetUri();
         var rtsp = new RtspExtension(camera.Id, cameraUri, configuration.EvidenceOutputDir);
 
-        // TODO: get directory from cameraUri
-        var aiOutputPath = Path.Combine(configuration.BaseDirectory, "records/101");
+        var recordOutputPath = camera.Path.Split("/")[^1];
+        var aiOutputPath = Path.Combine(configuration.BaseDirectory, "records", recordOutputPath);
         CleanDirectory(aiOutputPath);
 
         // TODO: get base project directory
