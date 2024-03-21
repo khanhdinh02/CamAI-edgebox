@@ -27,10 +27,10 @@ public static class IncidentProcessorUtil
         var incident = new Incident
         {
             Id = model.Id,
-            Time = model.StartTime,
+            StartTime = model.StartTime,
+            EndTime = model.EndTime,
             IncidentType = IncidentType.Phone,
-            Evidences = evidences,
-            Duration = model.EndTime - model.StartTime
+            Evidences = evidences
         };
 
         await bus.Publish(incident, cancellationToken);

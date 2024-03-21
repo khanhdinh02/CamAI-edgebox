@@ -1,6 +1,5 @@
 ﻿using System.Text.Json;
 using CamAI.EdgeBox.Services.Utils;
-using Microsoft.Extensions.Options;
 
 namespace CamAI.EdgeBox.Services.AI;
 
