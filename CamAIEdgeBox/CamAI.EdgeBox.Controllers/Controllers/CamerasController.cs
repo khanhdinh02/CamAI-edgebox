@@ -6,11 +6,7 @@ namespace CamAI.EdgeBox.Controllers.Controllers;
 
 [Route("api/[controller]")]
 [ApiController]
-public class CamerasController(
-    CameraService cameraService,
-    AIService aiService,
-    ILogger<CamerasController> logger
-) : Controller
+public class CamerasController(CameraService cameraService) : Controller
 {
     [HttpGet]
     public List<Camera> GetCameras() => GlobalData.Cameras;
@@ -35,16 +31,7 @@ public class CamerasController(
     [HttpPut("{id}/connection")]
     public void CheckConnection([FromRoute] Guid id)
     {
-        var cameras = GetCamera(id);
-        // curl --head --silent --connect-timeout 15 -i -X OPTIONS username:userpassword@192.168.1.15:554/Streaming/Channels/101
-        // https://stackoverflow.com/questions/49002614/is-it-possible-to-do-a-simple-health-check-of-rtsp-stream-with-curl-tool
-        // TODO [Duy]: Update status after checking connection
-    }
-
-    [HttpPut("/connection")]
-    public void CheckConnection()
-    {
-        var cameras = GlobalData.Cameras;
+        cameraService.CheckCameraConnection(id);
     }
 
     [HttpGet("{id}/stream/start")]
@@ -67,17 +54,5 @@ public class CamerasController(
             "application/octet-stream",
             enableRangeProcessing: true
         );
-    }
-
-    [HttpGet("test/ai")]
-    public void RunAI()
-    {
-        aiService.RunAI();
-    }
-
-    [HttpGet("test/ai/kill")]
-    public void KillAi()
-    {
-        aiService.KillAI();
     }
 }

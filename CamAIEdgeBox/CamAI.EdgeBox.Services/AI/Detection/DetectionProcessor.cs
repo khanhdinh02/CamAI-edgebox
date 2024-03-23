@@ -1,7 +1,6 @@
 ﻿using System.Collections.Concurrent;
 using CamAI.EdgeBox.Services.Utils;
 using MassTransit;
-using Microsoft.Extensions.Options;
 
 namespace CamAI.EdgeBox.Services.AI;
 
@@ -19,12 +18,12 @@ public class DetectionProcessor : IDisposable
     public DetectionProcessor(
         ClassifierWatcher watcher,
         RtspExtension rtsp,
-        IOptions<AiConfiguration> configuration,
+        DetectionConfiguration detection,
         IPublishEndpoint bus
     )
     {
         watcher.Notifier += ReceiveData;
-        detection = configuration.Value.Detection;
+        this.detection = detection;
         this.rtsp = rtsp;
         this.bus = bus;
     }
@@ -161,7 +160,12 @@ public class DetectionProcessor : IDisposable
         var t = interval.Scores.Count;
         var score = interval.IntervalScore();
         var m = Convert.ToInt32(0.5 * t / (2 * Math.Log(7 - 6 * score) + 1));
-        return m < 3 ? 3 : m;
+        return m switch
+        {
+            < 3 => 3,
+            > 90 => 90,
+            _ => m
+        };
     }
 
     private void ReceiveData(int time, List<ClassifierOutputModel> output)

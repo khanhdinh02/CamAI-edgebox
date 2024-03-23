@@ -14,7 +14,6 @@ public class ImagesController(IOptions<AiConfiguration> configuration) : Control
     [HttpGet]
     public FileStreamResult GetFile([FromQuery(Name = "path")] string filePath)
     {
-        // TODO: test this
         var file = Path.Combine(basePath, filePath);
         var fileStream = new FileStream(file, FileMode.Open, FileAccess.Read);
         return File(fileStream, MediaTypeNames.Image.Png);

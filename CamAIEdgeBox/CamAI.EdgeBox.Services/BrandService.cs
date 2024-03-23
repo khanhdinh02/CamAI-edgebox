@@ -7,7 +7,7 @@ public class BrandService(UnitOfWork unitOfWork)
 {
     public Brand? GetBrand()
     {
-        return unitOfWork.Brands.GetAll().FirstOrDefault();
+        return unitOfWork.Brands.GetAll(false).FirstOrDefault();
     }
 
     public Brand UpsertBrand(Brand brand)
@@ -23,7 +23,8 @@ public class BrandService(UnitOfWork unitOfWork)
             unitOfWork.Brands.Update(brand);
         }
         unitOfWork.Complete();
-        GlobalData.Brand = brand;
-        return brand;
+        unitOfWork.Detach(brand);
+        GlobalData.Brand = unitOfWork.Brands.GetAll(false).First();
+        return GlobalData.Brand;
     }
 }

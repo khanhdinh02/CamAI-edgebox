@@ -1,19 +1,22 @@
 ﻿using CamAI.EdgeBox.Models;
 using CamAI.EdgeBox.Repositories;
+using CamAI.EdgeBox.Services.Contracts;
 using CamAI.EdgeBox.Services.Streaming;
 using CamAI.EdgeBox.Services.Utils;
+using MassTransit;
 using Microsoft.Extensions.Options;
 
 namespace CamAI.EdgeBox.Services;
 
 public class CameraService(
     IOptions<StreamingConfiguration> streamingConfiguration,
+    IPublishEndpoint bus,
     UnitOfWork unitOfWork
 )
 {
     private readonly StreamingConfiguration streamingConfiguration = streamingConfiguration.Value;
 
-    public List<Camera> GetCamera() => unitOfWork.Cameras.GetAll();
+    public List<Camera> GetCamera() => unitOfWork.Cameras.GetAll(false);
 
     public Camera GetCamera(Guid id) =>
         unitOfWork.Cameras.GetById(id)
@@ -21,22 +24,50 @@ public class CameraService(
 
     public Camera AddCamera(Camera camera)
     {
+        UpdateCameraConnectionStatus(camera);
         var result = unitOfWork.Cameras.Add(camera);
         if (unitOfWork.Complete() > 0)
+        {
             GlobalData.Cameras = unitOfWork.Cameras.GetAll();
+            bus.Publish(CameraChangeMessage.ToUpsertMessage(camera));
+        }
         return result;
     }
 
     public Camera UpdateCamera(Guid id, Camera camera)
     {
         camera.Id = id;
+        UpdateCameraConnectionStatus(camera);
         unitOfWork.Cameras.Update(camera);
         if (unitOfWork.Complete() > 0)
+        {
             GlobalData.Cameras = unitOfWork.Cameras.GetAll();
+            bus.Publish(CameraChangeMessage.ToUpsertMessage(camera));
+        }
         return camera;
     }
 
-    // TODO: check camera health
+    private static void UpdateCameraConnectionStatus(Camera camera)
+    {
+        try
+        {
+            camera.CheckConnection();
+            camera.Status = CameraStatus.Connected;
+        }
+        catch (Exception)
+        {
+            camera.Status = CameraStatus.Disconnected;
+        }
+    }
+
+    public void CheckCameraConnection(Guid id)
+    {
+        var camera = GetCamera(id);
+        UpdateCameraConnectionStatus(camera);
+        unitOfWork.Cameras.Update(camera);
+        unitOfWork.Complete();
+    }
+
     // TODO: run ai for camera
 
     public void DeleteCamera(Guid id)
@@ -47,7 +78,10 @@ public class CameraService(
 
         unitOfWork.Cameras.Delete(camera);
         if (unitOfWork.Complete() > 0)
+        {
             GlobalData.Cameras = unitOfWork.Cameras.GetAll();
+            bus.Publish(CameraChangeMessage.ToDeleteMessage(id));
+        }
     }
 
     public FileStream GetM3U8File(Guid id)

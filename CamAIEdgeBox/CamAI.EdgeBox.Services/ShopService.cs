@@ -7,7 +7,7 @@ public class ShopService(UnitOfWork unitOfWork)
 {
     public Shop? GetShop()
     {
-        return unitOfWork.Shops.GetAll().FirstOrDefault();
+        return unitOfWork.Shops.GetAll(false).FirstOrDefault();
     }
 
     public Shop UpsertShop(Shop shop)
@@ -23,7 +23,8 @@ public class ShopService(UnitOfWork unitOfWork)
             unitOfWork.Shops.Update(shop);
         }
         unitOfWork.Complete();
-        GlobalData.Shop = shop;
-        return shop;
+        unitOfWork.Detach(shop);
+        GlobalData.Shop = unitOfWork.Shops.GetAll(false).First();
+        return GlobalData.Shop;
     }
 }
