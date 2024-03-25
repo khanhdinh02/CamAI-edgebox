@@ -40,7 +40,7 @@ public class HumanCountProcessor : IDisposable
 
             var countModel = new HumanCountModel
             {
-                Time = DateTime.Now,
+                Time = DateTime.UtcNow,
                 Total = Convert.ToInt32(total),
                 ShopId = GlobalData.Shop!.Id
             };

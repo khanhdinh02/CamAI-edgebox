@@ -14,6 +14,7 @@ public class PhoneProcessor : IDisposable
     private readonly RtspExtension rtsp;
     private readonly IPublishEndpoint bus;
 
+    // dictionary for AI id and model
     private readonly Dictionary<int, PhoneModel> calculations = [];
 
     public PhoneProcessor(

@@ -1,10 +1,12 @@
+using CamAI.EdgeBox.Models;
 using FFMpegCore;
 
 namespace CamAI.EdgeBox.Services.Utils;
 
-public class RtspExtension(Guid cameraId, Uri uri, string baseDir)
+public class RtspExtension(Camera camera, string baseDir)
 {
-    public Guid CameraId => cameraId;
+    public Guid CameraId => camera.Id;
+    private readonly Uri uri = camera.GetUri();
 
     public string CaptureFrame(string outputFileName)
     {

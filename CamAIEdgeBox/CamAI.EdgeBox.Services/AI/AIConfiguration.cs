@@ -10,11 +10,18 @@ public class AiConfiguration
     public HumanCountConfiguration HumanCount { get; set; } = null!;
     public PhoneConfiguration Phone { get; set; } = null!;
     public UniformConfiguration Uniform { get; set; } = null!;
+    public InteractionConfiguration Interaction { get; set; } = null!;
 }
 
 public class HumanCountConfiguration
 {
     public int Interval { get; set; }
+}
+
+public class InteractionConfiguration
+{
+    public int MinDuration { get; set; }
+    public int MaxBreak { get; set; }
 }
 
 public class PhoneConfiguration
