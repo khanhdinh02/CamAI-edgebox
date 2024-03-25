@@ -25,20 +25,13 @@ public static class IncidentProcessorUtil
                 }
             );
         }
-        var incidentType = model switch
-        {
-            PhoneModel => IncidentType.Phone,
-            UniformModel => IncidentType.Uniform,
-            InteractionModel => IncidentType.Interaction,
-            _ => IncidentType.Phone
-        };
 
         var incident = new Incident
         {
             Id = model.Id,
             StartTime = model.StartTime,
             EndTime = model.EndTime,
-            IncidentType = incidentType,
+            IncidentType = model.Type,
             Evidences = evidences
         };
 

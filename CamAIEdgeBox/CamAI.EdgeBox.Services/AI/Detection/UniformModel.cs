@@ -4,6 +4,7 @@ namespace CamAI.EdgeBox.Services.AI.Uniform;
 
 public class UniformModel : AiIncidentModel
 {
+    public override IncidentType Type => IncidentType.Uniform;
     public int PositiveCount { get; set; }
     public int NegativeCount { get; set; }
 

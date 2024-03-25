@@ -4,6 +4,7 @@ namespace CamAI.EdgeBox.Services.AI;
 
 public class PhoneModel : AiIncidentModel
 {
+    public override IncidentType Type => IncidentType.Phone;
     public List<DetectionInterval> Intervals { get; init; } = [new DetectionInterval()];
 
     public double Score => Intervals.Select(x => x.IntervalScore()).Average();
