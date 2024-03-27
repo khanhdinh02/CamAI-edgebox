@@ -16,11 +16,18 @@ public class CamerasController(CameraService cameraService) : Controller
         GlobalData.Cameras.Find(x => x.Id == id) ?? throw new Exception("Camera not found");
 
     [HttpPost]
-    public Camera AddCamera([FromBody] Camera cameraDto) => cameraService.AddCamera(cameraDto);
+    public Camera AddCamera([FromBody] Camera cameraDto)
+    {
+        cameraDto.Id = Guid.NewGuid();
+        return cameraService.UpsertCamera(cameraDto);
+    }
 
     [HttpPut("{id}")]
-    public Camera UpdateCamera([FromRoute] Guid id, [FromBody] Camera cameraDto) =>
-        cameraService.UpdateCamera(id, cameraDto);
+    public Camera UpdateCamera([FromRoute] Guid id, [FromBody] Camera cameraDto)
+    {
+        cameraDto.Id = id;
+        return cameraService.UpsertCamera(cameraDto);
+    }
 
     [HttpDelete("{id}")]
     public void DeleteCamera([FromRoute] Guid id)

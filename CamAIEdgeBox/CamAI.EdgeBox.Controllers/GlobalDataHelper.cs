@@ -4,13 +4,13 @@ using CamAI.EdgeBox.Services;
 
 namespace CamAI.EdgeBox.Controllers;
 
-public class GlobalDataHelper(UnitOfWork unitOfWork)
+public static class GlobalDataHelper
 {
-    public void GetData()
+    public static void GetData()
     {
-        GlobalData.Shop = unitOfWork.Shops.GetAll(false).FirstOrDefault();
-        GlobalData.Brand = unitOfWork.Brands.GetAll(false).FirstOrDefault();
-        GlobalData.Cameras = unitOfWork.Cameras.GetAll(false);
-        GlobalData.EdgeBox = unitOfWork.EdgeBoxes.GetAll(false).FirstOrDefault();
+        GlobalData.Shop = ShopRepository.Get();
+        GlobalData.Brand = BrandRepository.Get();
+        GlobalData.Cameras = CameraRepository.GetAll();
+        GlobalData.EdgeBox = EdgeBoxRepository.Get();
     }
 }

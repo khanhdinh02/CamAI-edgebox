@@ -10,40 +10,22 @@ namespace CamAI.EdgeBox.Services;
 
 public class CameraService(
     IOptions<StreamingConfiguration> streamingConfiguration,
-    IPublishEndpoint bus,
-    UnitOfWork unitOfWork
+    IPublishEndpoint bus
 )
 {
     private readonly StreamingConfiguration streamingConfiguration = streamingConfiguration.Value;
 
-    public List<Camera> GetCamera() => unitOfWork.Cameras.GetAll(false);
+    public List<Camera> GetCamera() => CameraRepository.GetAll();
 
     public Camera GetCamera(Guid id) =>
-        unitOfWork.Cameras.GetById(id)
-        ?? throw new NullReferenceException($"Not found camera {id}");
+        CameraRepository.GetById(id) ?? throw new NullReferenceException($"Not found camera {id}");
 
-    public Camera AddCamera(Camera camera)
+    public Camera UpsertCamera(Camera camera)
     {
         UpdateCameraConnectionStatus(camera);
-        var result = unitOfWork.Cameras.Add(camera);
-        if (unitOfWork.Complete() > 0)
-        {
-            GlobalData.Cameras = unitOfWork.Cameras.GetAll();
-            bus.Publish(CameraChangeMessage.ToUpsertMessage(camera));
-        }
-        return result;
-    }
-
-    public Camera UpdateCamera(Guid id, Camera camera)
-    {
-        camera.Id = id;
-        UpdateCameraConnectionStatus(camera);
-        unitOfWork.Cameras.Update(camera);
-        if (unitOfWork.Complete() > 0)
-        {
-            GlobalData.Cameras = unitOfWork.Cameras.GetAll();
-            bus.Publish(CameraChangeMessage.ToUpsertMessage(camera));
-        }
+        CameraRepository.UpsertCamera(camera);
+        GlobalData.Cameras = CameraRepository.GetAll();
+        bus.Publish(CameraChangeMessage.ToUpsertMessage(camera));
         return camera;
     }
 
@@ -64,29 +46,22 @@ public class CameraService(
     {
         var camera = GetCamera(id);
         UpdateCameraConnectionStatus(camera);
-        unitOfWork.Cameras.Update(camera);
-        unitOfWork.Complete();
+        CameraRepository.UpsertCamera(camera);
     }
 
     public void DeleteCamera(Guid id)
     {
-        var camera = unitOfWork.Cameras.GetById(id);
+        var camera = CameraRepository.GetById(id);
         if (camera == null)
             return;
 
-        unitOfWork.Cameras.Delete(camera);
-        if (unitOfWork.Complete() > 0)
-        {
-            GlobalData.Cameras = unitOfWork.Cameras.GetAll();
-            bus.Publish(CameraChangeMessage.ToDeleteMessage(id));
-        }
+        CameraRepository.DeleteCamera(id);
+        GlobalData.Cameras = CameraRepository.GetAll();
+        bus.Publish(CameraChangeMessage.ToDeleteMessage(id));
     }
 
     public FileStream GetM3U8File(Guid id)
     {
-        var camera =
-            unitOfWork.Cameras.GetById(id) ?? throw new NullReferenceException("Camera not found");
-
         var cameraName = id.ToString("N");
         var cameraDir = Path.Combine(streamingConfiguration.Directory, cameraName);
         if (!Directory.Exists(cameraDir))
@@ -94,7 +69,7 @@ public class CameraService(
 
         var m3u8File = StreamingEncoderProcessManager.RunEncoder(
             cameraName,
-            camera.GetUri(),
+            GetCamera(id).GetUri(),
             cameraDir
         );
         return File.OpenRead(Path.Combine(streamingConfiguration.Directory, m3u8File));

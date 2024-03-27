@@ -6,7 +6,7 @@ namespace CamAI.EdgeBox.Controllers.Controllers;
 
 [Route("api/[controller]")]
 [ApiController]
-public class DbEdgeBoxesController(EdgeBoxService edgeBoxService) : Controller
+public class DbEdgeBoxesController : Controller
 {
     [HttpGet]
     public DbEdgeBox? GetEdgeBox()
@@ -17,7 +17,7 @@ public class DbEdgeBoxesController(EdgeBoxService edgeBoxService) : Controller
     [HttpPut]
     public DbEdgeBox UpsertEdgeBox([FromBody] DbEdgeBox edgeBoxDto)
     {
-        var edgeBox = edgeBoxService.UpsertEdgeBox(edgeBoxDto);
+        var edgeBox = EdgeBoxService.UpsertEdgeBox(edgeBoxDto);
         return edgeBox;
     }
 }

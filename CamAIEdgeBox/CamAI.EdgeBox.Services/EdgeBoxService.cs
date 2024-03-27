@@ -4,13 +4,8 @@ using Microsoft.Extensions.Logging;
 
 namespace CamAI.EdgeBox.Services;
 
-public class EdgeBoxService(UnitOfWork unitOfWork, ILogger<EdgeBoxService> logger)
+public class EdgeBoxService(ILogger<EdgeBoxService> logger)
 {
-    public DbEdgeBox? GetEdgeBox()
-    {
-        return unitOfWork.EdgeBoxes.GetAll().FirstOrDefault();
-    }
-
     /// <summary>
     ///
     /// </summary>
@@ -23,8 +18,8 @@ public class EdgeBoxService(UnitOfWork unitOfWork, ILogger<EdgeBoxService> logge
             if (edgeBox.EdgeBoxStatus == EdgeBoxStatus.Active)
                 return 1;
             edgeBox.EdgeBoxStatus = EdgeBoxStatus.Active;
-            unitOfWork.EdgeBoxes.Update(edgeBox);
-            return unitOfWork.Complete();
+            EdgeBoxRepository.UpsertEdgeBox(edgeBox);
+            return 1;
         }
         catch (Exception ex)
         {
@@ -33,19 +28,9 @@ public class EdgeBoxService(UnitOfWork unitOfWork, ILogger<EdgeBoxService> logge
         }
     }
 
-    public DbEdgeBox UpsertEdgeBox(DbEdgeBox edgeBox)
+    public static DbEdgeBox UpsertEdgeBox(DbEdgeBox edgeBox)
     {
-        var foundEdgeBox = unitOfWork.EdgeBoxes.GetAll(false).FirstOrDefault();
-        if (foundEdgeBox == null)
-            // insert
-            unitOfWork.EdgeBoxes.Add(edgeBox);
-        else
-        {
-            // update
-            edgeBox.Id = foundEdgeBox.Id;
-            unitOfWork.EdgeBoxes.Update(edgeBox);
-        }
-        unitOfWork.Complete();
+        EdgeBoxRepository.UpsertEdgeBox(edgeBox);
         GlobalData.EdgeBox = edgeBox;
         return edgeBox;
     }

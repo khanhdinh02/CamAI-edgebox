@@ -6,7 +6,7 @@ namespace CamAI.EdgeBox.Controllers.Controllers;
 
 [Route("api/[controller]")]
 [ApiController]
-public class BrandsController(BrandService brandService) : Controller
+public class BrandsController : Controller
 {
     [HttpGet]
     public Brand? GetBrand()
@@ -17,7 +17,7 @@ public class BrandsController(BrandService brandService) : Controller
     [HttpPut]
     public Brand UpsertBrand([FromBody] Brand brandDto)
     {
-        var brand = brandService.UpsertBrand(brandDto);
+        var brand = BrandService.UpsertBrand(brandDto);
         return brand;
     }
 }
