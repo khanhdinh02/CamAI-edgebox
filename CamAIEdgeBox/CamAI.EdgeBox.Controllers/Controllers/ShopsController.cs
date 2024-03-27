@@ -6,7 +6,7 @@ namespace CamAI.EdgeBox.Controllers.Controllers;
 
 [Route("api/[controller]")]
 [ApiController]
-public class ShopsController(ShopService shopService) : Controller
+public class ShopsController : Controller
 {
     [HttpGet]
     public Shop? GetShop()
@@ -17,7 +17,7 @@ public class ShopsController(ShopService shopService) : Controller
     [HttpPut]
     public Shop UpsertShop([FromBody] Shop shopDto)
     {
-        var shop = shopService.UpsertShop(shopDto);
+        var shop = ShopService.UpsertShop(shopDto);
         return shop;
     }
 }

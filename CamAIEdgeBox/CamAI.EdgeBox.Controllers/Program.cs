@@ -31,34 +31,9 @@ async Task FetchServerData(WebApplicationBuilder builder1)
 
     var syncRequest = new SyncDataRequest { EdgeBoxId = edgeBoxId };
     await busControl.Publish(syncRequest);
-    while (GlobalData.Shop == null)
+    while (GlobalData.Shop == null || GlobalData.Brand == null)
         Thread.Sleep(1000);
     await busControl.StopAsync();
-}
-
-async Task FetchLocalData(WebApplicationBuilder webApplicationBuilder)
-{
-#pragma warning disable ASP0000
-    var provider = webApplicationBuilder.Services.BuildServiceProvider();
-#pragma warning restore ASP0000
-    using var scope = provider.CreateScope();
-
-    while (true)
-    {
-        try
-        {
-            var globalDataHelper = scope.ServiceProvider.GetRequiredService<GlobalDataHelper>();
-            globalDataHelper.GetData();
-            break;
-        }
-        catch (SqliteException)
-        {
-            await scope
-                .ServiceProvider.GetRequiredService<CamAiEdgeBoxContext>()
-                .Database.MigrateAsync();
-            scope.ServiceProvider.GetRequiredService<GlobalDataHelper>().GetData();
-        }
-    }
 }
 
 var builder = WebApplication.CreateBuilder(args);
@@ -73,15 +48,7 @@ builder.Host.UseSerilog(
         logConfig.ReadFrom.Configuration(context.Configuration).Enrich.FromLogContext()
 );
 
-builder.Services.AddDbContext<CamAiEdgeBoxContext>();
-builder.Services.AddScoped<UnitOfWork>();
-builder
-    .Services.AddScoped<CameraService>()
-    .AddScoped<BrandService>()
-    .AddScoped<AiService>()
-    .AddScoped<ShopService>()
-    .AddScoped<EdgeBoxService>()
-    .AddScoped<GlobalDataHelper>();
+builder.Services.AddScoped<CameraService>().AddScoped<AiService>().AddScoped<EdgeBoxService>();
 
 builder.Services.AddMemoryCache();
 builder.Services.AddHostedService<CpuTrackingService>();
@@ -113,8 +80,8 @@ builder.Services.Configure<RouteOptions>(opts =>
     opts.LowercaseQueryStrings = true;
 });
 
-await FetchLocalData(builder);
-if (GlobalData.EdgeBox == null)
+GlobalDataHelper.GetData();
+if (GlobalData.EdgeBox == null || GlobalData.Shop == null || GlobalData.Brand == null)
     await FetchServerData(builder);
 
 builder.ConfigureMassTransit();
@@ -134,8 +101,8 @@ app.MapControllers();
 
 using (var scope = app.Services.CreateScope())
 {
-    if (GlobalData.EdgeBox?.EdgeBoxStatus != EdgeBoxStatus.Active)
-        return;
+    // if (GlobalData.EdgeBox?.EdgeBoxStatus != EdgeBoxStatus.Active)
+    //     return;
     var aiService = scope.ServiceProvider.GetRequiredService<AiService>();
     aiService.RunAi();
 }

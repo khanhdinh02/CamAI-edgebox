@@ -3,28 +3,12 @@ using CamAI.EdgeBox.Repositories;
 
 namespace CamAI.EdgeBox.Services;
 
-public class BrandService(UnitOfWork unitOfWork)
+public static class BrandService
 {
-    public Brand? GetBrand()
+    public static Brand UpsertBrand(Brand brand)
     {
-        return unitOfWork.Brands.GetAll(false).FirstOrDefault();
-    }
-
-    public Brand UpsertBrand(Brand brand)
-    {
-        var foundBrand = unitOfWork.Brands.GetAll(false).FirstOrDefault();
-        if (foundBrand == null)
-            // insert
-            unitOfWork.Brands.Add(brand);
-        else
-        {
-            // update
-            brand.Id = foundBrand.Id;
-            unitOfWork.Brands.Update(brand);
-        }
-        unitOfWork.Complete();
-        unitOfWork.Detach(brand);
-        GlobalData.Brand = unitOfWork.Brands.GetAll(false).First();
-        return GlobalData.Brand;
+        BrandRepository.UpsertBrand(brand);
+        GlobalData.Brand = brand;
+        return brand;
     }
 }
