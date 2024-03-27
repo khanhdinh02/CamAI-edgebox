@@ -1,29 +1,31 @@
 ﻿using System.Collections.Concurrent;
+using CamAI.EdgeBox.Services.AI.Detection;
 using CamAI.EdgeBox.Services.Utils;
 using MassTransit;
 
 namespace CamAI.EdgeBox.Services.AI;
 
-public class DetectionProcessor : IDisposable
+public class PhoneProcessor : IDisposable
 {
     private bool disposed;
     private readonly BlockingCollection<List<ClassifierOutputModel>> classifierOutputs =
         new(new ConcurrentQueue<List<ClassifierOutputModel>>(), 1000);
-    private readonly DetectionConfiguration detection;
+    private readonly PhoneConfiguration phone;
     private readonly RtspExtension rtsp;
     private readonly IPublishEndpoint bus;
 
-    private readonly Dictionary<int, DetectionScoreModel> scoreCalculation = [];
+    // dictionary for AI id and model
+    private readonly Dictionary<int, PhoneModel> calculations = [];
 
-    public DetectionProcessor(
+    public PhoneProcessor(
         ClassifierWatcher watcher,
         RtspExtension rtsp,
-        DetectionConfiguration detection,
+        PhoneConfiguration phone,
         IPublishEndpoint bus
     )
     {
         watcher.Notifier += ReceiveData;
-        this.detection = detection;
+        this.phone = phone;
         this.rtsp = rtsp;
         this.bus = bus;
     }
@@ -34,9 +36,9 @@ public class DetectionProcessor : IDisposable
         {
             var outputs = classifierOutputs.Take(cancellationToken);
 
-            var detectionToRemove = new List<DetectionScoreModel>();
+            var phoneToRemove = new List<PhoneModel>();
             // update calculation
-            foreach (var (id, calculation) in scoreCalculation)
+            foreach (var (id, calculation) in calculations)
             {
                 var output = outputs.Find(x => x.Id == id);
                 var interval = calculation.Intervals[^1];
@@ -66,73 +68,48 @@ public class DetectionProcessor : IDisposable
                     {
                         interval.BreakTime = +1;
                         if (interval.BreakTime >= interval.MaxBreakTime)
-                            detectionToRemove.Add(calculation);
+                        {
+                            calculation.EndTime = DateTime.UtcNow;
+                            phoneToRemove.Add(calculation);
+                        }
                     }
                 }
             }
 
-            // remove calculation
-            foreach (var d in detectionToRemove)
-                scoreCalculation.Remove(d.AiId);
-
             // add new calculation
-            var scoreIds = scoreCalculation.Keys.ToList();
+            var scoreIds = calculations.Keys.ToList();
             var newOutputs = outputs.Where(x => !scoreIds.Contains(x.Id));
             foreach (var output in newOutputs)
             {
-                var model = new DetectionScoreModel
+                var model = new PhoneModel
                 {
                     AiId = output.Id,
                     Intervals = [new DetectionInterval(output.Data.Score)]
                 };
-                scoreCalculation.TryAdd(model.AiId, model);
+                calculations.TryAdd(model.AiId, model);
             }
 
             // calculate incident
-            foreach (var (id, calculation) in scoreCalculation)
+            foreach (var (id, calculation) in calculations)
             {
                 var interval = calculation.Intervals[^1];
                 if (
                     (interval.Scores.Count == 4 || interval.Scores.Count % 20 == 0)
                     && interval.MaxBreakTime == 0
                 )
-                {
-                    var captureName = rtsp.CaptureFrame(calculation.NewEvidenceName());
-                    calculation.Evidences.Add(new CalculationEvidence { Path = captureName });
-                }
+                    rtsp.CaptureEvidence(calculation);
 
                 if (
-                    calculation.Score() >= detection.MinScore
-                    && calculation.TotalTime() >= detection.MinDuration
-                    && DateTime.UtcNow - calculation.LastSent
-                        > TimeSpan.FromSeconds(detection.MinDuration)
+                    calculation.Score >= phone.MinScore
+                    && calculation.TotalTime >= phone.MinDuration
+                    && calculation.ShouldBeSend()
                 )
-                {
-                    var evidences = new List<Evidence>();
-                    foreach (var evidence in calculation.Evidences.Where(x => !x.IsSent))
-                    {
-                        evidence.IsSent = true;
-                        evidences.Add(
-                            new Evidence
-                            {
-                                EvidenceType = EvidenceType.Image,
-                                // TODO: camera Id
-                                FilePath = evidence.Path
-                            }
-                        );
-                    }
-                    var incident = new Incident
-                    {
-                        Id = calculation.Id,
-                        Time = calculation.Time,
-                        IncidentType = IncidentType.Phone,
-                        Evidences = evidences
-                    };
-
-                    await bus.Publish(incident, cancellationToken);
-                    calculation.LastSent = DateTime.UtcNow;
-                }
+                    await bus.SendIncident(calculation, cancellationToken);
             }
+
+            // remove calculation
+            foreach (var d in phoneToRemove)
+                calculations.Remove(d.AiId);
         }
     }
 

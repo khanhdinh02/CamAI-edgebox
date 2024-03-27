@@ -27,7 +27,7 @@ public class TestController(
     public void TestCaptureFrame()
     {
         var rtsp = new RtspExtension(
-            new Uri("rtsp://admin:Admin123%40@localhost:554/Streaming/channels/101"),
+            GlobalData.Cameras.First(),
             @"C:\Users\Administrator\Downloads\ffmpeg-2024-02-29-git-4a134eb14a-full_build\bin"
         );
         rtsp.CaptureFrame("yes_please");

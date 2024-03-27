@@ -5,7 +5,6 @@ namespace CamAI.EdgeBox.Services;
 
 public class AiService(IServiceProvider provider)
 {
-    private const string CashierProcessName = "Cashier";
     private Timer timer;
 
     private void SetUpTimer(TimeOnly runAtTime, Action action)
@@ -35,17 +34,16 @@ public class AiService(IServiceProvider provider)
 
     private void StartAiProcess()
     {
-        // TODO: wait until have camera options
         var shop = GlobalData.Shop!;
-        var camera = GlobalData.Cameras.First();
-        AiProcessManager.Run(CashierProcessName, camera, provider);
+        foreach (var camera in GlobalData.Cameras)
+            AiProcessManager.Run(camera, provider);
         SetUpTimer(shop.CloseTime, KillAi);
     }
 
     private void KillAi()
     {
         var shop = GlobalData.Shop!;
-        AiProcessManager.Kill(CashierProcessName);
+        AiProcessManager.KillAll();
         SetUpTimer(shop.OpenTime, StartAiProcess);
     }
 }
