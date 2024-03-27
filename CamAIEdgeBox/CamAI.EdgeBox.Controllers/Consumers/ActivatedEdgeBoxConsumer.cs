@@ -8,8 +8,18 @@ using Constants = CamAI.EdgeBox.Services.MassTransit.Constants;
 
 namespace CamAI.EdgeBox.Consumers;
 
-[Consumer(queueName: $"ActivateConsumer", exchangeName: Constants.ActivateEdgeBox, exchangeType: ExchangeType.Direct, routingKey: "{EdgeBoxId}")]
-public class ActivatedEdgeBoxConsumer(ILogger<ActivatedEdgeBoxConsumer> logger, EdgeBoxService edgeBoxService, IPublishEndpoint bus) : IConsumer<ActivatedEdgeBoxMessage>
+[Consumer(
+    queueName: "ActivateConsumer_{MachineName}",
+    exchangeName: Constants.ActivateEdgeBox,
+    exchangeType: ExchangeType.Direct,
+    routingKey: "{EdgeBoxId}"
+)]
+public class ActivatedEdgeBoxConsumer(
+    ILogger<ActivatedEdgeBoxConsumer> logger,
+    EdgeBoxService edgeBoxService,
+    IPublishEndpoint bus,
+    AiService aiService
+) : IConsumer<ActivatedEdgeBoxMessage>
 {
     public Task Consume(ConsumeContext<ActivatedEdgeBoxMessage> context)
     {
@@ -20,7 +30,10 @@ public class ActivatedEdgeBoxConsumer(ILogger<ActivatedEdgeBoxConsumer> logger, 
             IsActivatedSuccessfully = true
         };
         if (edgeBoxService.ActivateEdgeBox() == 0)
+        {
+            aiService.RunAi();
             confirmedEdgeBoxActivationMessage.IsActivatedSuccessfully = false;
+        }
         return bus.Publish(confirmedEdgeBoxActivationMessage);
     }
 }

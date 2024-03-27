@@ -134,6 +134,8 @@ app.MapControllers();
 
 using (var scope = app.Services.CreateScope())
 {
+    if (GlobalData.EdgeBox?.EdgeBoxStatus != EdgeBoxStatus.Active)
+        return;
     var aiService = scope.ServiceProvider.GetRequiredService<AiService>();
     aiService.RunAi();
 }
