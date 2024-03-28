@@ -18,6 +18,7 @@ async Task FetchServerData(WebApplicationBuilder builder1)
     var edgeBoxId = builder1.Configuration.GetRequiredSection("EdgeBoxId").Get<Guid>();
     GlobalData.EdgeBox ??= new DbEdgeBox { Id = edgeBoxId };
 
+    Log.Information("Configuring bus for global data");
     builder1.Services.AddScoped<UpdateDataConsumer>();
 #pragma warning disable ASP0000
     var provider = builder1.Services.BuildServiceProvider();
@@ -28,12 +29,14 @@ async Task FetchServerData(WebApplicationBuilder builder1)
     // sync data from server
     var busControl = builder1.CreateSyncBusControl(consumer);
     await busControl.StartAsync();
+    Log.Information("Bus for global data started");
 
     var syncRequest = new SyncDataRequest { EdgeBoxId = edgeBoxId };
     await busControl.Publish(syncRequest);
     while (GlobalData.Shop == null || GlobalData.Brand == null)
         Thread.Sleep(1000);
     await busControl.StopAsync();
+    Log.Information("Bus for global data stopped");
 }
 
 var builder = WebApplication.CreateBuilder(args);

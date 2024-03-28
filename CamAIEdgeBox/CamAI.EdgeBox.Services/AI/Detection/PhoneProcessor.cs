@@ -2,6 +2,7 @@
 using CamAI.EdgeBox.Services.AI.Detection;
 using CamAI.EdgeBox.Services.Utils;
 using MassTransit;
+using Serilog;
 
 namespace CamAI.EdgeBox.Services.AI;
 
@@ -24,6 +25,7 @@ public class PhoneProcessor : IDisposable
         IPublishEndpoint bus
     )
     {
+        Log.Information("Create phone processor");
         watcher.Notifier += ReceiveData;
         this.phone = phone;
         this.rtsp = rtsp;
@@ -32,6 +34,7 @@ public class PhoneProcessor : IDisposable
 
     public async Task Start(CancellationToken cancellationToken)
     {
+        Log.Information("Running phone processor");
         while (!classifierOutputs.IsCompleted)
         {
             var outputs = classifierOutputs.Take(cancellationToken);

@@ -1,5 +1,6 @@
 ﻿using CamAI.EdgeBox.Models;
 using CamAI.EdgeBox.Services.AI;
+using Serilog;
 
 namespace CamAI.EdgeBox.Services;
 
@@ -26,6 +27,13 @@ public class AiService(IServiceProvider provider)
     {
         var shop = GlobalData.Shop!;
         var currentTime = TimeOnly.FromDateTime(DateTime.Now);
+        Log.Information("Running AI for shop {ShopId}", shop.Id);
+        Log.Information(
+            "Shop open time {OpenTime}, close time {CloseTime}. Current time {Now}",
+            shop.OpenTime,
+            shop.CloseTime,
+            currentTime
+        );
         if (shop.OpenTime < currentTime && currentTime < shop.CloseTime)
             StartAiProcess();
         else
@@ -34,6 +42,7 @@ public class AiService(IServiceProvider provider)
 
     private void StartAiProcess()
     {
+        Log.Information("Start AI Process");
         var shop = GlobalData.Shop!;
         foreach (var camera in GlobalData.Cameras)
             AiProcessManager.Run(camera, provider);
@@ -42,6 +51,7 @@ public class AiService(IServiceProvider provider)
 
     private void KillAi()
     {
+        Log.Information("Kill AI Process");
         var shop = GlobalData.Shop!;
         AiProcessManager.KillAll();
         SetUpTimer(shop.OpenTime, StartAiProcess);

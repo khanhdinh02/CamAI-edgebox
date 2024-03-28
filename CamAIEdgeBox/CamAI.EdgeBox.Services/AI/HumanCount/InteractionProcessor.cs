@@ -1,6 +1,7 @@
 using System.Collections.Concurrent;
 using CamAI.EdgeBox.Services.AI.Detection;
 using MassTransit;
+using Serilog;
 
 namespace CamAI.EdgeBox.Services.AI;
 
@@ -21,6 +22,7 @@ public class InteractionProcessor : IDisposable
         IPublishEndpoint bus
     )
     {
+        Log.Information("Create interaction processor");
         watcher.Notifier += ReceiveData;
         this.interaction = interaction;
         this.bus = bus;
@@ -28,6 +30,7 @@ public class InteractionProcessor : IDisposable
 
     public async Task Start(CancellationToken cancellationToken)
     {
+        Log.Information("Running interaction processor");
         while (!classifierOutputs.IsCompleted)
         {
             var outputs = classifierOutputs.Take(cancellationToken);

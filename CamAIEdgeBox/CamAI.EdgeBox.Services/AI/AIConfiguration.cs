@@ -7,6 +7,8 @@ public class AiConfiguration
     public string OutputSeparator { get; set; } = null!;
     public string OutputFile { get; set; } = null!;
     public string EvidenceOutputDir { get; set; } = null!;
+    public string ProcessFileName { get; set; } = null!;
+    public string ProcessArgument { get; set; } = null!;
     public HumanCountConfiguration HumanCount { get; set; } = null!;
     public PhoneConfiguration Phone { get; set; } = null!;
     public UniformConfiguration Uniform { get; set; } = null!;

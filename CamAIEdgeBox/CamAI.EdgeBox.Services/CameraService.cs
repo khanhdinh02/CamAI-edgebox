@@ -25,6 +25,7 @@ public class CameraService(
         UpdateCameraConnectionStatus(camera);
         CameraRepository.UpsertCamera(camera);
         GlobalData.Cameras = CameraRepository.GetAll();
+        // TODO: run ai for this camera if success
         bus.Publish(CameraChangeMessage.ToUpsertMessage(camera));
         return camera;
     }
@@ -46,6 +47,7 @@ public class CameraService(
     {
         var camera = GetCamera(id);
         UpdateCameraConnectionStatus(camera);
+        // TODO: run ai for this camera if success
         CameraRepository.UpsertCamera(camera);
     }
 
