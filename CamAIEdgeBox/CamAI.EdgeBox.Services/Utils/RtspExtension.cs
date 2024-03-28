@@ -36,6 +36,6 @@ public class RtspExtension(Camera camera, string baseDir)
                 opts => opts.WithFrameOutputCount(9).WithCustomArgument("-update 1")
             )
             .ProcessAsynchronously();
-        return Path.Combine(dateTimeDir, outputFileName);
+        return Path.Combine(outputPath, outputFileName);
     }
 }
