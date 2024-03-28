@@ -35,11 +35,7 @@ public class HumanCountProcessor : IDisposable
                 continue;
             humanCountItems.Clear();
 
-            var total = items
-                .Select(item => item.Output.Select(x => x.Data).ToList())
-                .Select(data => data.Count)
-                .Average();
-
+            var total = items.Select(x => x.Count).Average();
             var countModel = new HumanCountModel
             {
                 Time = DateTime.UtcNow,
@@ -60,7 +56,7 @@ public class HumanCountProcessor : IDisposable
 
     private void ReceiveData(int time, List<ClassifierOutputModel> output)
     {
-        humanCountItems.Add(new HumanCountItem(time, output));
+        humanCountItems.Add(new HumanCountItem(time, output.Count));
     }
 
     public void Dispose()
@@ -79,4 +75,4 @@ public class HumanCountProcessor : IDisposable
     }
 }
 
-public record HumanCountItem(int Time, List<ClassifierOutputModel> Output);
+public record HumanCountItem(int Time, int Count);
