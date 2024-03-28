@@ -2,6 +2,7 @@ using System.Collections.Concurrent;
 using CamAI.EdgeBox.Services.AI.Detection;
 using CamAI.EdgeBox.Services.Utils;
 using MassTransit;
+using Serilog;
 
 namespace CamAI.EdgeBox.Services.AI.Uniform;
 
@@ -22,6 +23,7 @@ public class UniformProcessor : IDisposable
         IPublishEndpoint bus
     )
     {
+        Log.Information("Create uniform processor");
         this.uniform = uniform;
         this.bus = bus;
         this.rtsp = rtsp;
@@ -30,6 +32,7 @@ public class UniformProcessor : IDisposable
 
     public async Task Start(CancellationToken cancellationToken)
     {
+        Log.Information("Running uniform processor");
         while (!classifierOutputs.IsCompleted)
         {
             var outputs = classifierOutputs.Take(cancellationToken);

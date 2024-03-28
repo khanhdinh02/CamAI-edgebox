@@ -1,5 +1,6 @@
 ﻿using CamAI.EdgeBox.Models;
 using CamAI.EdgeBox.Services.Utils;
+using Serilog;
 
 namespace CamAI.EdgeBox.Services.AI;
 
@@ -9,9 +10,17 @@ public static class AiProcessManager
 
     public static void Run(Camera camera, IServiceProvider provider)
     {
+        Log.Information("Receive request to run AI process for camera id {CameraId}", camera.Id);
         if (RunningProcess.Exists(x => x.Name == camera.ToName()))
+        {
+            Log.Information(
+                "There is already running AI process for camera id {CameraId}",
+                camera.Id
+            );
             return;
+        }
 
+        Log.Information("Create new AI process for camera id {CameraId}", camera.Id);
         var aiProcess = new AiProcessWrapper(camera, provider);
         aiProcess.Run();
 
@@ -30,6 +39,7 @@ public static class AiProcessManager
 
     public static void KillAll()
     {
+        Log.Information("Killing all running AI process");
         foreach (var process in RunningProcess)
         {
             RunningProcess.Remove(process);

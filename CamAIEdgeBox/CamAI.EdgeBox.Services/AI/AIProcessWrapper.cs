@@ -1,10 +1,12 @@
 ﻿using System.Diagnostics;
+using System.Text;
 using CamAI.EdgeBox.Models;
 using CamAI.EdgeBox.Services.AI.Uniform;
 using CamAI.EdgeBox.Services.Utils;
 using MassTransit;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
+using Serilog;
 
 namespace CamAI.EdgeBox.Services.AI;
 
@@ -21,6 +23,7 @@ public class AiProcessWrapper(Camera camera, IServiceProvider provider)
 
     public void Run()
     {
+        Log.Information("Running AI Process");
         var publishBus = provider.GetRequiredService<IPublishEndpoint>();
         var configuration = provider.GetRequiredService<IOptions<AiConfiguration>>().Value;
         var rtsp = new RtspExtension(camera, configuration.EvidenceOutputDir);
@@ -29,11 +32,7 @@ public class AiProcessWrapper(Camera camera, IServiceProvider provider)
         var aiOutputPath = Path.Combine(configuration.BaseDirectory, "records", recordOutputPath);
         CleanDirectory(aiOutputPath);
 
-        // TODO: get base project directory
-        aiProcess = CreateNewAiProcess(
-            "/mnt/c/project/camai/Human-Activity-Monitor",
-            camera.GetUri()
-        );
+        aiProcess = CreateNewAiProcess(configuration, camera.GetUri());
         aiProcess.Start();
         WaitForAiOutput(aiOutputPath);
 
@@ -55,24 +54,37 @@ public class AiProcessWrapper(Camera camera, IServiceProvider provider)
         Task.Run(() => interaction.Start(cancellationTokenSource.Token));
     }
 
-    private static Process CreateNewAiProcess(string aiBaseDir, Uri cameraUri)
+    private static Process CreateNewAiProcess(AiConfiguration configuration, Uri cameraUri)
     {
+        Log.Information("Create new AI Process");
         var process = new Process();
-        process.StartInfo.FileName = "wsl";
+        process.StartInfo.FileName = configuration.ProcessFileName;
         // TODO: disable show video
-        process.StartInfo.Arguments =
-            $"cd {aiBaseDir} && /bin/python3 {aiBaseDir}/src/run.py video.path={cameraUri} video.speed=1";
+
+        var argumentsBuilder = new StringBuilder(configuration.ProcessArgument);
+        argumentsBuilder.Replace("{BaseDirectory}", configuration.BaseDirectory);
+        argumentsBuilder.Replace("{CameraUri}", cameraUri.ToString());
+        process.StartInfo.Arguments = argumentsBuilder.ToString();
+
+        Log.Information(
+            "Running process command {FileName} {Arguments}",
+            process.StartInfo.FileName,
+            process.StartInfo.Arguments
+        );
         return process;
     }
 
     private static void WaitForAiOutput(string aiOutputPath)
     {
+        Log.Information("Waiting for AI Output");
         while (!Directory.EnumerateFiles(aiOutputPath, "*", SearchOption.TopDirectoryOnly).Any())
             Thread.Sleep(1000);
+        Log.Information("AI output detected");
     }
 
     private static void CleanDirectory(string path)
     {
+        Log.Information("Clean AI output directory");
         var files = Directory.EnumerateFiles(path, "*", SearchOption.TopDirectoryOnly);
         foreach (var file in files)
             File.Delete(file);

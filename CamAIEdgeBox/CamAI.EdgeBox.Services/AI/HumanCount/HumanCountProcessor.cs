@@ -19,6 +19,7 @@ public class HumanCountProcessor : IDisposable
         IPublishEndpoint bus
     )
     {
+        Log.Information("Create human count processor");
         watcher.Notifier += ReceiveData;
         timer = new PeriodicTimer(TimeSpan.FromSeconds(humanCountConfiguration.Interval));
         this.bus = bus;
@@ -26,6 +27,7 @@ public class HumanCountProcessor : IDisposable
 
     public async Task Start(CancellationToken cancellationToken)
     {
+        Log.Information("Running human count processor");
         while (await timer.WaitForNextTickAsync(cancellationToken))
         {
             var items = humanCountItems.ToArray();
