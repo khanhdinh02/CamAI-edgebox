@@ -62,14 +62,14 @@ public class PhoneProcessor : IDisposable
                 {
                     // skip and break time
                     interval.SkipCount += 1;
-                    if (interval is { SkipCount: >= 3, MaxBreakTime: 0 })
+                    if (interval.SkipCount >= 3)
                     {
-                        interval.MaxBreakTime = CalculateMaxBreakTime(interval);
-                        interval.BreakTime = interval.SkipCount;
-                    }
-                    else
-                    {
-                        interval.BreakTime = +1;
+                        if (interval.MaxBreakTime == 0)
+                        {
+                            interval.MaxBreakTime = CalculateMaxBreakTime(interval);
+                            interval.BreakTime = interval.SkipCount;
+                        }
+                        interval.BreakTime += 1;
                         if (interval.BreakTime >= interval.MaxBreakTime)
                         {
                             calculation.EndTime = DateTime.UtcNow;
@@ -107,7 +107,10 @@ public class PhoneProcessor : IDisposable
                     && calculation.TotalTime >= phone.MinDuration
                     && calculation.ShouldBeSend()
                 )
+                {
+                    Log.Information("Send new phone incident");
                     await bus.SendIncident(calculation, cancellationToken);
+                }
             }
 
             // remove calculation
@@ -150,7 +153,7 @@ public class PhoneProcessor : IDisposable
 
     private void ReceiveData(int time, List<ClassifierOutputModel> output)
     {
-        var phoneOutput = output.Where(x => x.Data.Label == ActionType.Phone).ToList();
+        var phoneOutput = output.Where(x => x.Data.Action == ActionType.Phone).ToList();
         classifierOutputs.Add(phoneOutput);
     }
 

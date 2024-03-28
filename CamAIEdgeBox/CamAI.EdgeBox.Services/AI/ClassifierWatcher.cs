@@ -1,4 +1,5 @@
-﻿using System.Text.Json;
+﻿using System.Text;
+using System.Text.Json;
 using CamAI.EdgeBox.Services.Utils;
 using Serilog;
 
@@ -43,8 +44,12 @@ public class ClassifierWatcher : IDisposable
         if (!int.TryParse(lastLine[0], out var time))
             return;
 
+        var lineStr = new StringBuilder(lastLine[1]);
+        lineStr.Replace('\'', '"');
+        lineStr.Replace("True", "true");
+        lineStr.Replace("False", "false");
         var result = JsonSerializer.Deserialize<List<ClassifierOutputModel>>(
-            lastLine[1].Replace('\'', '"'),
+            lineStr.ToString(),
             Options
         );
         Notifier?.Invoke(time, result!);
@@ -74,8 +79,9 @@ public class ClassifierOutputModel
 
 public class ClassifierData
 {
-    public string Label { get; set; } = null!;
+    public string Action { get; set; } = null!;
     public double Score { get; set; }
+    public bool Uniform { get; set; }
 }
 
 public delegate void ClassifierNotify(int time, List<ClassifierOutputModel> output);

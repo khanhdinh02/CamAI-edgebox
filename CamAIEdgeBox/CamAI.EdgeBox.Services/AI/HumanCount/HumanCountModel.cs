@@ -15,8 +15,6 @@ public class HumanCountModel
 
 public static class ActionType
 {
-    public const string Idle = "idle";
-    public const string Walking = "walking";
+    public const string Working = "working";
     public const string Phone = "phone";
-    public const string Laptop = "laptop";
 }

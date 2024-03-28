@@ -1,6 +1,7 @@
 using CamAI.EdgeBox.Services.AI.Uniform;
 using CamAI.EdgeBox.Services.Utils;
 using MassTransit;
+using Serilog;
 
 namespace CamAI.EdgeBox.Services.AI.Detection;
 
@@ -40,6 +41,7 @@ public static class IncidentProcessorUtil
 
     public static void CaptureEvidence(this RtspExtension rtsp, AiIncidentModel model)
     {
+        Log.Information("Capture new evidence for model {Type}", model.Type);
         var captureName = rtsp.CaptureFrame(model.NewEvidenceName());
         model.Evidences.Add(new CalculationEvidence { Path = captureName });
     }
