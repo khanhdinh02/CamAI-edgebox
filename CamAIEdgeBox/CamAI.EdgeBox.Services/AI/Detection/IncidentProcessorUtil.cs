@@ -22,7 +22,7 @@ public static class IncidentProcessorUtil
                 {
                     EvidenceType = EvidenceType.Image,
                     CameraId = evidence.CameraId,
-                    FilePath = evidence.Path
+                    Content = await File.ReadAllBytesAsync(evidence.Path, cancellationToken)
                 }
             );
         }
