@@ -18,7 +18,7 @@ public class AiProcessWrapper(Camera camera, IServiceProvider provider)
     private ClassifierWatcher? watcher;
     private HumanCountProcessor? humanCount;
     private InteractionProcessor? interaction;
-    private PhoneProcessor? detection;
+    private PhoneProcessor? phone;
     private UniformProcessor? uniform;
 
     public void Run()
@@ -43,7 +43,7 @@ public class AiProcessWrapper(Camera camera, IServiceProvider provider)
         );
 
         humanCount = new HumanCountProcessor(watcher, configuration.HumanCount, publishBus);
-        detection = new PhoneProcessor(watcher, rtsp, configuration.Phone, publishBus);
+        phone = new PhoneProcessor(watcher, rtsp, configuration.Phone, publishBus);
         uniform = new UniformProcessor(watcher, rtsp, configuration.Uniform, publishBus);
         interaction = new InteractionProcessor(watcher, configuration.Interaction, publishBus);
 
@@ -92,11 +92,12 @@ public class AiProcessWrapper(Camera camera, IServiceProvider provider)
 
     public void Kill()
     {
+        Log.Information("Kill process {Name}", Name);
         cancellationTokenSource.Cancel();
         cancellationTokenSource.Dispose();
         aiProcess?.Kill();
         humanCount?.Dispose();
-        detection?.Dispose();
+        phone?.Dispose();
         uniform?.Dispose();
         watcher?.Dispose();
     }

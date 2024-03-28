@@ -1,4 +1,3 @@
-using CamAI.EdgeBox.Services.AI.Uniform;
 using CamAI.EdgeBox.Services.Utils;
 using MassTransit;
 using Serilog;
@@ -43,11 +42,16 @@ public static class IncidentProcessorUtil
     {
         Log.Information("Capture new evidence for model {Type}", model.Type);
         var captureName = rtsp.CaptureFrame(model.NewEvidenceName());
-        model.Evidences.Add(new CalculationEvidence { Path = captureName });
+        model.Evidences.Add(
+            new CalculationEvidence { Path = captureName, CameraId = rtsp.CameraId }
+        );
     }
 
-    public static bool ShouldBeSend(this AiIncidentModel model) =>
+    public static bool ShouldBeSend(this AiIncidentModel model)
+    {
         // send if there is new evidence or end of incident
-        model.Evidences.Exists(x => !x.IsSent)
-        || model.EndTime != null;
+        var evidence = model.Evidences.Where(x => !x.IsSent).ToList();
+        return (evidence.Count != 0 && evidence.Max(x => x.Time).AddSeconds(5) < DateTime.UtcNow)
+            || model.EndTime != null;
+    }
 }
