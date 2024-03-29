@@ -1,7 +1,6 @@
 using CamAI.EdgeBox.Models;
 using CamAI.EdgeBox.Services.Contracts;
 using CamAI.EdgeBox.Services.Utils;
-using CamAI.EdgeBox.Services.Utils;
 using MassTransit;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Caching.Memory;

@@ -40,26 +40,4 @@ public class CamerasController(CameraService cameraService) : Controller
     {
         cameraService.CheckCameraConnection(id);
     }
-
-    [HttpGet("{id}/stream/start")]
-    public IActionResult GetM3U8File([FromRoute] Guid id)
-    {
-        Response.Headers.Append("Access-Control-Allow-Origin", "*");
-        return File(
-            cameraService.GetM3U8File(id),
-            "application/octet-stream",
-            enableRangeProcessing: true
-        );
-    }
-
-    [HttpGet("{id}/stream/{tsFileName}")]
-    public IActionResult GetTsFile([FromRoute] Guid id, [FromRoute] string tsFileName)
-    {
-        Response.Headers.Append("Access-Control-Allow-Origin", "*");
-        return File(
-            cameraService.GetTsFile(id, tsFileName),
-            "application/octet-stream",
-            enableRangeProcessing: true
-        );
-    }
 }
