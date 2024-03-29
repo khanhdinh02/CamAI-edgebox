@@ -49,7 +49,7 @@ public class AiProcessWrapper(Camera camera, IServiceProvider provider)
 
 #pragma warning disable 4014
         Task.Run(() => humanCount.Start(cancellationTokenSource.Token));
-        Task.Run(() => detection.Start(cancellationTokenSource.Token));
+        Task.Run(() => phone.Start(cancellationTokenSource.Token));
         Task.Run(() => uniform.Start(cancellationTokenSource.Token));
         Task.Run(() => interaction.Start(cancellationTokenSource.Token));
     }
