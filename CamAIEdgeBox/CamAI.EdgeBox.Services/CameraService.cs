@@ -1,20 +1,13 @@
 ﻿using CamAI.EdgeBox.Models;
 using CamAI.EdgeBox.Repositories;
 using CamAI.EdgeBox.Services.Contracts;
-using CamAI.EdgeBox.Services.Streaming;
 using CamAI.EdgeBox.Services.Utils;
 using MassTransit;
-using Microsoft.Extensions.Options;
 
 namespace CamAI.EdgeBox.Services;
 
-public class CameraService(
-    IOptions<StreamingConfiguration> streamingConfiguration,
-    IPublishEndpoint bus
-)
+public class CameraService(IPublishEndpoint bus)
 {
-    private readonly StreamingConfiguration streamingConfiguration = streamingConfiguration.Value;
-
     public List<Camera> GetCamera() => CameraRepository.GetAll();
 
     public Camera GetCamera(Guid id) =>
@@ -60,29 +53,5 @@ public class CameraService(
         CameraRepository.DeleteCamera(id);
         GlobalData.Cameras = CameraRepository.GetAll();
         bus.Publish(CameraChangeMessage.ToDeleteMessage(id));
-    }
-
-    public FileStream GetM3U8File(Guid id)
-    {
-        var cameraName = id.ToString("N");
-        var cameraDir = Path.Combine(streamingConfiguration.Directory, cameraName);
-        if (!Directory.Exists(cameraDir))
-            Directory.CreateDirectory(cameraDir);
-
-        var m3u8File = StreamingEncoderProcessManager.RunEncoder(
-            cameraName,
-            GetCamera(id).GetUri(),
-            cameraDir
-        );
-        return File.OpenRead(Path.Combine(streamingConfiguration.Directory, m3u8File));
-    }
-
-    public FileStream GetTsFile(Guid id, string tsFileName)
-    {
-        var cameraName = id.ToString("N");
-        StreamingEncoderProcessManager.UpdateTimer(cameraName);
-        return File.OpenRead(
-            Path.Combine(streamingConfiguration.Directory, cameraName, tsFileName)
-        );
     }
 }
