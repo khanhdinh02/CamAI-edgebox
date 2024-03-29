@@ -67,7 +67,6 @@ GlobalFFOptions.Configure(x =>
 {
     x.BinaryFolder = streamConf.FFMpegPath;
 });
-StreamingEncoderProcessManager.Option.TimerInterval = streamConf.Interval;
 
 builder.Services.AddCors(opts =>
     opts.AddPolicy(
@@ -104,6 +103,7 @@ app.MapControllers();
 
 using (var scope = app.Services.CreateScope())
 {
+    // TODO: activate edge box first
     // if (GlobalData.EdgeBox?.EdgeBoxStatus != EdgeBoxStatus.Active)
     //     return;
     var aiService = scope.ServiceProvider.GetRequiredService<AiService>();
