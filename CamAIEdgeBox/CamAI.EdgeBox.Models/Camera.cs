@@ -21,6 +21,7 @@ public class Camera : BaseEntity
     public string Host { get; set; } = null!;
     public string Path { get; set; } = null!;
     public int Index { get; set; }
+    public bool WillRunAI { get; set; }
 
     public CameraStatus Status { get; set; } = CameraStatus.New;
 }

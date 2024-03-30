@@ -29,11 +29,14 @@ public class ActivatedEdgeBoxConsumer(
             EdgeBoxId = GlobalData.EdgeBox!.Id,
             IsActivatedSuccessfully = true
         };
+
         if (edgeBoxService.ActivateEdgeBox() == 0)
-        {
-            aiService.RunAi();
             confirmedEdgeBoxActivationMessage.IsActivatedSuccessfully = false;
-        }
-        return bus.Publish(confirmedEdgeBoxActivationMessage);
+        bus.Publish(confirmedEdgeBoxActivationMessage);
+
+        if (confirmedEdgeBoxActivationMessage.IsActivatedSuccessfully)
+            aiService.RunAi();
+
+        return Task.CompletedTask;
     }
 }
