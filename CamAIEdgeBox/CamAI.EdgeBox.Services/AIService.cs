@@ -25,26 +25,42 @@ public class AiService(IServiceProvider provider)
 
     public void RunAi()
     {
-        var shop = GlobalData.Shop!;
-        var currentTime = TimeOnly.FromDateTime(DateTime.Now);
-        Log.Information("Running AI for shop {ShopId}", shop.Id);
-        Log.Information(
-            "Shop open time {OpenTime}, close time {CloseTime}. Current time {Now}",
-            shop.OpenTime,
-            shop.CloseTime,
-            currentTime
-        );
-        if (shop.OpenTime < currentTime && currentTime < shop.CloseTime)
-            StartAiProcess();
+        // check for edge box activation
+        if (GlobalData.EdgeBox?.EdgeBoxStatus != EdgeBoxStatus.Active)
+            return;
+        if (IsShopOpen())
+        {
+            Log.Information("Running AI for shop {ShopId}", GlobalData.Shop!.Id);
+            StartAllAiProcess();
+        }
         else
             KillAi();
     }
 
-    private void StartAiProcess()
+    public void RunAi(Camera camera)
+    {
+        // check for edge box activation and camera will run ai
+        if (GlobalData.EdgeBox?.EdgeBoxStatus != EdgeBoxStatus.Active || !camera.WillRunAI)
+            return;
+
+        if (IsShopOpen())
+        {
+            Log.Information("Running AI for a camera {CameraId}", camera.Id);
+            StartAiProcess(camera);
+        }
+    }
+
+    private void StartAiProcess(Camera camera)
     {
         Log.Information("Start AI Process");
+        AiProcessManager.Run(camera, provider);
+    }
+
+    private void StartAllAiProcess()
+    {
+        Log.Information("Start all AI Process");
         var shop = GlobalData.Shop!;
-        foreach (var camera in GlobalData.Cameras)
+        foreach (var camera in GlobalData.Cameras.Where(x => x.WillRunAI))
             AiProcessManager.Run(camera, provider);
         SetUpTimer(shop.CloseTime, KillAi);
     }
@@ -54,6 +70,21 @@ public class AiService(IServiceProvider provider)
         Log.Information("Kill AI Process");
         var shop = GlobalData.Shop!;
         AiProcessManager.KillAll();
-        SetUpTimer(shop.OpenTime, StartAiProcess);
+        SetUpTimer(shop.OpenTime, StartAllAiProcess);
+    }
+
+    private static bool IsShopOpen()
+    {
+        var shop = GlobalData.Shop!;
+        var currentTime = TimeOnly.FromDateTime(DateTime.Now);
+
+        Log.Information(
+            "Shop open time {OpenTime}, close time {CloseTime}. Current time {Now}",
+            shop.OpenTime,
+            shop.CloseTime,
+            currentTime
+        );
+
+        return shop.OpenTime < currentTime && currentTime < shop.CloseTime;
     }
 }

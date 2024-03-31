@@ -4,13 +4,10 @@ using CamAI.EdgeBox.Controllers.BackgroundServices;
 using CamAI.EdgeBox.MassTransit;
 using CamAI.EdgeBox.Middlewares;
 using CamAI.EdgeBox.Models;
-using CamAI.EdgeBox.Repositories;
 using CamAI.EdgeBox.Services;
 using CamAI.EdgeBox.Services.AI;
 using CamAI.EdgeBox.Services.Streaming;
 using FFMpegCore;
-using Microsoft.Data.Sqlite;
-using Microsoft.EntityFrameworkCore;
 using Serilog;
 
 async Task FetchServerData(WebApplicationBuilder builder1)
@@ -103,9 +100,6 @@ app.MapControllers();
 
 using (var scope = app.Services.CreateScope())
 {
-    // TODO: activate edge box first
-    // if (GlobalData.EdgeBox?.EdgeBoxStatus != EdgeBoxStatus.Active)
-    //     return;
     var aiService = scope.ServiceProvider.GetRequiredService<AiService>();
     aiService.RunAi();
 }

@@ -6,7 +6,7 @@ using MassTransit;
 
 namespace CamAI.EdgeBox.Services;
 
-public class CameraService(IPublishEndpoint bus)
+public class CameraService(IPublishEndpoint bus, AiService aiService)
 {
     public List<Camera> GetCamera() => CameraRepository.GetAll();
 
@@ -18,8 +18,8 @@ public class CameraService(IPublishEndpoint bus)
         UpdateCameraConnectionStatus(camera);
         CameraRepository.UpsertCamera(camera);
         GlobalData.Cameras = CameraRepository.GetAll();
-        // TODO: run ai for this camera if success
         bus.Publish(CameraChangeMessage.ToUpsertMessage(camera));
+        aiService.RunAi(camera);
         return camera;
     }
 
@@ -40,8 +40,8 @@ public class CameraService(IPublishEndpoint bus)
     {
         var camera = GetCamera(id);
         UpdateCameraConnectionStatus(camera);
-        // TODO: run ai for this camera if success
         CameraRepository.UpsertCamera(camera);
+        aiService.RunAi(camera);
     }
 
     public void DeleteCamera(Guid id)
