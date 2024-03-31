@@ -9,6 +9,9 @@ public static class CameraExtension
 {
     public static string ToName(this Camera camera) => camera.Id.ToString("N");
 
+    public static bool CanRunAI(this Camera camera) =>
+        camera is { WillRunAI: true, Status: CameraStatus.Connected };
+
     public static Uri GetUri(this Camera camera)
     {
         var encodedUsername = HttpUtility.UrlEncode(camera.Username);

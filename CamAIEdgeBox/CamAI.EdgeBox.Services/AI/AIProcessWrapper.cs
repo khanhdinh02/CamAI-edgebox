@@ -21,6 +21,24 @@ public class AiProcessWrapper(Camera camera, IServiceProvider provider)
     private PhoneProcessor? phone;
     private UniformProcessor? uniform;
 
+    public bool IsRunning
+    {
+        get
+        {
+            if (aiProcess == null)
+                return false;
+            try
+            {
+                Process.GetProcessById(aiProcess.Id);
+                return true;
+            }
+            catch
+            {
+                return false;
+            }
+        }
+    }
+
     public void Run()
     {
         Log.Information("Running AI Process");

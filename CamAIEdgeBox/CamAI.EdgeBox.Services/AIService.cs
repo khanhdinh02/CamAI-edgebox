@@ -1,5 +1,6 @@
 ﻿using CamAI.EdgeBox.Models;
 using CamAI.EdgeBox.Services.AI;
+using CamAI.EdgeBox.Services.Utils;
 using Serilog;
 
 namespace CamAI.EdgeBox.Services;
@@ -27,7 +28,11 @@ public class AiService(IServiceProvider provider)
     {
         // check for edge box activation
         if (GlobalData.EdgeBox?.EdgeBoxStatus != EdgeBoxStatus.Active)
+        {
+            Log.Information("Edge box is not activated yet");
             return;
+        }
+
         if (IsShopOpen())
         {
             Log.Information("Running AI for shop {ShopId}", GlobalData.Shop!.Id);
@@ -40,14 +45,40 @@ public class AiService(IServiceProvider provider)
     public void RunAi(Camera camera)
     {
         // check for edge box activation and camera will run ai
-        if (GlobalData.EdgeBox?.EdgeBoxStatus != EdgeBoxStatus.Active || !camera.WillRunAI)
+        if (GlobalData.EdgeBox?.EdgeBoxStatus != EdgeBoxStatus.Active)
+        {
+            Log.Information("Edge box is not activated yet");
             return;
+        }
+
+        if (!camera.CanRunAI())
+        {
+            Log.Information(
+                "Camera status {Status}, will run AI {WillRunAI}. Either of them is not satisfied",
+                camera.Status,
+                camera.WillRunAI
+            );
+
+            return;
+        }
 
         if (IsShopOpen())
         {
             Log.Information("Running AI for a camera {CameraId}", camera.Id);
             StartAiProcess(camera);
         }
+        else
+        {
+            Log.Information(
+                "Shop is not open yet, cannot run AI process for camera {CameraId}",
+                camera.Id
+            );
+        }
+    }
+
+    public (int NumOfExpectedAI, int NumOfRunningAI) GetRunningAIStatus()
+    {
+        return (GlobalData.Cameras.Count(x => x.CanRunAI()), AiProcessManager.NumOfRunningProcess);
     }
 
     private void StartAiProcess(Camera camera)
@@ -60,7 +91,11 @@ public class AiService(IServiceProvider provider)
     {
         Log.Information("Start all AI Process");
         var shop = GlobalData.Shop!;
-        foreach (var camera in GlobalData.Cameras.Where(x => x.WillRunAI))
+        foreach (
+            var camera in GlobalData.Cameras.Where(x =>
+                x is { WillRunAI: true, Status: CameraStatus.Connected }
+            )
+        )
             AiProcessManager.Run(camera, provider);
         SetUpTimer(shop.CloseTime, KillAi);
     }
