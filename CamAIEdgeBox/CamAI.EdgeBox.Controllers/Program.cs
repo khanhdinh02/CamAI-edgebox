@@ -79,6 +79,7 @@ builder.Services.Configure<RouteOptions>(opts =>
     opts.LowercaseQueryStrings = true;
 });
 
+// get data
 GlobalDataHelper.GetData();
 if (GlobalData.EdgeBox == null || GlobalData.Shop == null || GlobalData.Brand == null)
     await FetchServerData(builder);
