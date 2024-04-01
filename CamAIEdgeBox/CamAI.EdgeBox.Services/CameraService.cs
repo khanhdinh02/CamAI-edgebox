@@ -13,6 +13,17 @@ public class CameraService(IPublishEndpoint bus, AiService aiService)
     public Camera GetCamera(Guid id) =>
         CameraRepository.GetById(id) ?? throw new NullReferenceException($"Not found camera {id}");
 
+    public Camera UpsertCameraFromServerData(Camera camera)
+    {
+        var oldStatus = camera.Status;
+        UpdateCameraConnectionStatus(camera);
+        CameraRepository.UpsertCamera(camera);
+        GlobalData.Cameras = CameraRepository.GetAll();
+        if (oldStatus != camera.Status)
+            bus.Publish(CameraChangeMessage.ToUpsertMessage(camera));
+        return camera;
+    }
+
     public Camera UpsertCamera(Camera camera)
     {
         UpdateCameraConnectionStatus(camera);
