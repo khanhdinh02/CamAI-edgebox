@@ -23,10 +23,4 @@ public class StreamingConsumer(CameraService cameraService) : IConsumer<Streamin
         var camera = cameraService.GetCamera(message.CameraId);
         StreamingProcessManager.RunEncoder(camera, message.HttpRelayUri!);
     }
-
-    private void EndStreaming(StreamingMessage message)
-    {
-        var camera = cameraService.GetCamera(message.CameraId);
-        StreamingProcessManager.Kill(camera);
-    }
 }

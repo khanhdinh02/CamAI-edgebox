@@ -3,6 +3,7 @@ using CamAI.EdgeBox.Repositories;
 using CamAI.EdgeBox.Services.Contracts;
 using CamAI.EdgeBox.Services.Utils;
 using MassTransit;
+using Action = CamAI.EdgeBox.Services.Contracts.Action;
 
 namespace CamAI.EdgeBox.Services;
 
@@ -13,23 +14,12 @@ public class CameraService(IPublishEndpoint bus, AiService aiService)
     public Camera GetCamera(Guid id) =>
         CameraRepository.GetById(id) ?? throw new NullReferenceException($"Not found camera {id}");
 
-    public Camera UpsertCameraFromServerData(Camera camera)
-    {
-        var oldStatus = camera.Status;
-        UpdateCameraConnectionStatus(camera);
-        CameraRepository.UpsertCamera(camera);
-        GlobalData.Cameras = CameraRepository.GetAll();
-        if (oldStatus != camera.Status)
-            bus.Publish(CameraChangeMessage.ToUpsertMessage(camera));
-        return camera;
-    }
-
     public Camera UpsertCamera(Camera camera)
     {
         UpdateCameraConnectionStatus(camera);
         CameraRepository.UpsertCamera(camera);
         GlobalData.Cameras = CameraRepository.GetAll();
-        bus.Publish(CameraChangeMessage.ToUpsertMessage(camera));
+        bus.Publish(new CameraChangeMessage { Camera = camera, Action = Action.Upsert });
         aiService.RunAi(camera);
         return camera;
     }
@@ -50,6 +40,11 @@ public class CameraService(IPublishEndpoint bus, AiService aiService)
     public void CheckCameraConnection(Guid id)
     {
         var camera = GetCamera(id);
+        CheckCameraConnection(camera);
+    }
+
+    public void CheckCameraConnection(Camera camera)
+    {
         UpdateCameraConnectionStatus(camera);
         CameraRepository.UpsertCamera(camera);
         aiService.RunAi(camera);
@@ -63,6 +58,36 @@ public class CameraService(IPublishEndpoint bus, AiService aiService)
 
         CameraRepository.DeleteCamera(id);
         GlobalData.Cameras = CameraRepository.GetAll();
-        bus.Publish(CameraChangeMessage.ToDeleteMessage(id));
+        bus.Publish(
+            new CameraChangeMessage
+            {
+                Camera = new Camera { Id = id },
+                Action = Action.Delete
+            }
+        );
+    }
+}
+
+public static class StaticCameraService
+{
+    public static Camera UpsertCameraFromServerData(Camera camera)
+    {
+        UpdateCameraConnectionStatus(camera);
+        CameraRepository.UpsertCamera(camera);
+        GlobalData.Cameras = CameraRepository.GetAll();
+        return camera;
+    }
+
+    private static void UpdateCameraConnectionStatus(Camera camera)
+    {
+        try
+        {
+            camera.CheckConnection();
+            camera.Status = CameraStatus.Connected;
+        }
+        catch (Exception)
+        {
+            camera.Status = CameraStatus.Disconnected;
+        }
     }
 }

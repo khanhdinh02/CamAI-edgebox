@@ -9,10 +9,10 @@ using Constants = CamAI.EdgeBox.Services.MassTransit.Constants;
 namespace CamAI.EdgeBox.Consumers;
 
 [Consumer("{BrandName}.{ShopName}", Constants.UpdateData, "{BrandId}.{ShopId}", ExchangeType.Topic)]
-public class UpdateDataConsumer(CameraService cameraService)
+public class UpdateDataConsumer
     : IConsumer<BrandUpdateMessage>,
         IConsumer<ShopUpdateMessage>,
-        IConsumer<CameraUpdateConsumer>
+        IConsumer<CameraUpdateMessage>
 {
     public Task Consume(ConsumeContext<BrandUpdateMessage> context)
     {
@@ -28,10 +28,10 @@ public class UpdateDataConsumer(CameraService cameraService)
         return Task.CompletedTask;
     }
 
-    public Task Consume(ConsumeContext<CameraUpdateConsumer> context)
+    public Task Consume(ConsumeContext<CameraUpdateMessage> context)
     {
         foreach (var camera in context.Message.Cameras)
-            cameraService.UpsertCameraFromServerData(camera);
+            StaticCameraService.UpsertCameraFromServerData(camera);
         return Task.CompletedTask;
     }
 }

@@ -3,8 +3,8 @@ using MassTransit;
 
 namespace CamAI.EdgeBox.Consumers.Messages;
 
-[MessageUrn(nameof(CameraUpdateConsumer))]
-public class CameraUpdateConsumer
+[MessageUrn(nameof(CameraUpdateMessage))]
+public class CameraUpdateMessage
 {
     public List<Camera> Cameras { get; set; } = null!;
 }

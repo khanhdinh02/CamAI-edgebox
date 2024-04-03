@@ -101,6 +101,10 @@ app.MapControllers();
 
 using (var scope = app.Services.CreateScope())
 {
+    var cameraService = scope.ServiceProvider.GetRequiredService<CameraService>();
+    foreach (var camera in cameraService.GetCamera())
+        cameraService.CheckCameraConnection(camera);
+
     var aiService = scope.ServiceProvider.GetRequiredService<AiService>();
     aiService.RunAi();
 }
