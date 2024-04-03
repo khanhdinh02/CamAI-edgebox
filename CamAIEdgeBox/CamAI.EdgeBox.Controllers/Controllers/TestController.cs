@@ -31,25 +31,4 @@ public class TestController(
         );
         rtsp.CaptureFrame("yes_please");
     }
-
-    [HttpPost("camera/check")]
-    public void CheckCameraConnection()
-    {
-        var cameara = new Camera
-        {
-            Host = "127.0.0.1",
-            Port = 554,
-            Username = "admin",
-            Password = "Admin123@",
-            Path = "Streaming/channels/101",
-            Protocol = "rtsp"
-        };
-        cameara.CheckConnection();
-    }
-
-    [HttpPut("camera/sync")]
-    public void SyncCamera()
-    {
-        bus.Publish(CameraChangeMessage.ToUpsertMessage(GlobalData.Cameras[0]));
-    }
 }
