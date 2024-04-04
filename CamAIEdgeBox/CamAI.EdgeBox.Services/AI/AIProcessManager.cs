@@ -46,4 +46,7 @@ public static class AiProcessManager
             process.Kill();
         }
     }
+
+    public static int NumOfProcess => RunningProcess.Count;
+    public static int NumOfRunningProcess => RunningProcess.Count(x => x.IsRunning);
 }

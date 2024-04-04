@@ -9,4 +9,5 @@ public static class Constants
     public const string Interaction = "Interaction";
     public const string ActivateEdgeBox = "ActivateEdgeBox";
     public const string Streaming = "Streaming";
+    public const string HealthCheck = "HealthCheck";
 }
