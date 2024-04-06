@@ -101,6 +101,8 @@ public static class ReceiveEndpointConfigurator
                 foreach (var (type, attr) in consumers)
                 {
                     e.ConfigureConsumer(context, type);
+                    if (attr.TimeToLive != 0)
+                        e.SetQueueArgument("x-message-ttl", attr.TimeToLive * 60 * 1000);
                     e.Bind(
                         attr.ExchangeName,
                         x =>
