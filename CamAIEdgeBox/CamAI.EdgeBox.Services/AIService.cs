@@ -7,7 +7,7 @@ namespace CamAI.EdgeBox.Services;
 
 public class AiService(IServiceProvider provider)
 {
-    private Timer timer;
+    private readonly System.Timers.Timer timer = new();
 
     private void SetUpTimer(TimeOnly runAtTime, Action action)
     {
@@ -16,12 +16,10 @@ public class AiService(IServiceProvider provider)
         if (currentTime > runAtTime)
             nextRunTime += TimeSpan.FromDays(1);
 
-        timer = new Timer(
-            _ => action.Invoke(),
-            null,
-            nextRunTime - currentTime.ToTimeSpan(),
-            Timeout.InfiniteTimeSpan
-        );
+        timer.Interval = (nextRunTime - currentTime.ToTimeSpan()).TotalMilliseconds;
+        timer.Elapsed += (_, _) => action();
+        timer.AutoReset = false;
+        timer.Start();
     }
 
     public void RunAi()
@@ -45,7 +43,7 @@ public class AiService(IServiceProvider provider)
     public void RunAi(Camera camera)
     {
         // check for edge box activation and camera will run ai
-        if (GlobalData.EdgeBox?.EdgeBoxStatus != EdgeBoxStatus.Active)
+        if (GlobalData.EdgeBox!.EdgeBoxStatus != EdgeBoxStatus.Active)
         {
             Log.Information("Edge box is not activated yet");
             return;
@@ -79,6 +77,17 @@ public class AiService(IServiceProvider provider)
     public (int NumOfExpectedAI, int NumOfRunningAI) GetRunningAIStatus()
     {
         return (GlobalData.Cameras.Count(x => x.CanRunAI()), AiProcessManager.NumOfRunningProcess);
+    }
+
+    public void KillAll()
+    {
+        AiProcessManager.KillAll();
+    }
+
+    public void DisableAi()
+    {
+        AiProcessManager.KillAll();
+        timer.Stop();
     }
 
     private void StartAiProcess(Camera camera)

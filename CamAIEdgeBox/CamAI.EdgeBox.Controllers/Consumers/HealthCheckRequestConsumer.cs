@@ -8,7 +8,7 @@ using MassTransit;
 
 namespace CamAI.EdgeBox.Consumers;
 
-[Consumer("{EdgeBoxId}_HealthCheck", Constants.HealthCheck)]
+[Consumer("{EdgeBoxId}_HealthCheck", Constants.HealthCheck, timeToLive: 5)]
 public class HealthCheckRequestConsumer(AiService aiService, IPublishEndpoint bus)
     : IConsumer<HealthCheckRequestMessage>
 {
