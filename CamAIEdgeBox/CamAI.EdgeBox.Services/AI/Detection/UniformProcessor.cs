@@ -90,8 +90,9 @@ public class UniformProcessor : IDisposable
 
     private void ReceiveData(int time, List<ClassifierOutputModel> output)
     {
-        // TODO: filter data only in cashier track box and add data
-        classifierOutputs.Add(output.Where(x => !x.Data.Uniform).ToList());
+        classifierOutputs.Add(
+            output.Where(x => x.Data is { Uniform: false, Zone: AiZone.Worker }).ToList()
+        );
     }
 
     public void Dispose()

@@ -20,6 +20,7 @@ public class AiProcessWrapper(Camera camera, IServiceProvider provider)
     private InteractionProcessor? interaction;
     private PhoneProcessor? phone;
     private UniformProcessor? uniform;
+    private RtspExtension? rtsp;
 
     public bool IsRunning
     {
@@ -44,7 +45,7 @@ public class AiProcessWrapper(Camera camera, IServiceProvider provider)
         Log.Information("Running AI Process");
         var publishBus = provider.GetRequiredService<IPublishEndpoint>();
         var configuration = provider.GetRequiredService<IOptions<AiConfiguration>>().Value;
-        var rtsp = new RtspExtension(camera, configuration.EvidenceOutputDir);
+        rtsp = new RtspExtension(camera, configuration.EvidenceOutputDir);
 
         var recordOutputPath = camera.Path.Split("/")[^1];
         var aiOutputPath = Path.Combine(configuration.BaseDirectory, "records", recordOutputPath);
@@ -77,7 +78,6 @@ public class AiProcessWrapper(Camera camera, IServiceProvider provider)
         Log.Information("Create new AI Process");
         var process = new Process();
         process.StartInfo.FileName = configuration.ProcessFileName;
-        // TODO: disable show video
 
         var argumentsBuilder = new StringBuilder(configuration.ProcessArgument);
         argumentsBuilder.Replace("{BaseDirectory}", configuration.BaseDirectory);
@@ -118,5 +118,6 @@ public class AiProcessWrapper(Camera camera, IServiceProvider provider)
         phone?.Dispose();
         uniform?.Dispose();
         watcher?.Dispose();
+        rtsp?.CleanUpEvidence();
     }
 }
