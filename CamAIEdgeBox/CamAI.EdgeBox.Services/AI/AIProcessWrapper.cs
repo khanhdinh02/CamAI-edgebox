@@ -1,4 +1,4 @@
-﻿using System.Diagnostics;
+using System.Diagnostics;
 using System.Text;
 using CamAI.EdgeBox.Models;
 using CamAI.EdgeBox.Services.AI.Uniform;
@@ -95,7 +95,10 @@ public class AiProcessWrapper(Camera camera, IServiceProvider provider)
     private static void WaitForAiOutput(string aiOutputPath)
     {
         Log.Information("Waiting for AI Output");
-        while (!Directory.EnumerateFiles(aiOutputPath, "*", SearchOption.TopDirectoryOnly).Any())
+        while (
+            !Directory.Exists(aiOutputPath)
+            || !Directory.EnumerateFiles(aiOutputPath, "*", SearchOption.TopDirectoryOnly).Any()
+        )
             Thread.Sleep(1000);
         Log.Information("AI output detected");
     }
@@ -103,6 +106,8 @@ public class AiProcessWrapper(Camera camera, IServiceProvider provider)
     private static void CleanDirectory(string path)
     {
         Log.Information("Clean AI output directory");
+        if (!Directory.Exists(path))
+            return;
         var files = Directory.EnumerateFiles(path, "*", SearchOption.TopDirectoryOnly);
         foreach (var file in files)
             File.Delete(file);
