@@ -79,9 +79,21 @@ public class ClassifierOutputModel
 
 public class ClassifierData
 {
-    public string Action { get; set; } = null!;
-    public double Score { get; set; }
+    public AiAction Action { get; set; } = null!;
     public bool Uniform { get; set; }
+    public string Zone { get; set; } = null!;
+}
+
+public class AiAction
+{
+    public string Type { get; set; } = null!;
+    public double Conf { get; set; }
+}
+
+public static class AiZone
+{
+    public const string Worker = "worker";
+    public const string Customer = "customer";
 }
 
 public delegate void ClassifierNotify(int time, List<ClassifierOutputModel> output);

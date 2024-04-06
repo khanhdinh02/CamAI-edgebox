@@ -51,12 +51,12 @@ public class PhoneProcessor : IDisposable
                     if (interval.MaxBreakTime == 0)
                     {
                         // if the AI output is not from a break, continue update the scores
-                        interval.Scores = CalculateNewScores(output.Data.Score, interval);
+                        interval.Scores = CalculateNewScores(output.Data.Action.Conf, interval);
                         interval.SkipCount = 0;
                     }
                     else
                         // if the AI output is from a break, add a new interval
-                        calculation.Intervals.Add(new DetectionInterval(output.Data.Score));
+                        calculation.Intervals.Add(new DetectionInterval(output.Data.Action.Conf));
                 }
                 else
                 {
@@ -87,7 +87,7 @@ public class PhoneProcessor : IDisposable
                 var model = new PhoneModel
                 {
                     AiId = output.Id,
-                    Intervals = [new DetectionInterval(output.Data.Score)]
+                    Intervals = [new DetectionInterval(output.Data.Action.Conf)]
                 };
                 calculations.TryAdd(model.AiId, model);
             }
@@ -153,7 +153,7 @@ public class PhoneProcessor : IDisposable
 
     private void ReceiveData(int time, List<ClassifierOutputModel> output)
     {
-        var phoneOutput = output.Where(x => x.Data.Action == ActionType.Phone).ToList();
+        var phoneOutput = output.Where(x => x.Data.Action.Type == ActionType.Phone).ToList();
         classifierOutputs.Add(phoneOutput);
     }
 

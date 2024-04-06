@@ -19,7 +19,6 @@ public class RtspExtension(Camera camera, string baseDir)
         );
         var outputPath = Path.Combine(baseDir, dateTimeDir);
 
-        // TODO: clean update image after one day
         Directory.CreateDirectory(outputPath);
         var file = Path.Combine(outputPath, outputFileName);
         FFMpegArguments
@@ -38,4 +37,6 @@ public class RtspExtension(Camera camera, string baseDir)
             .ProcessAsynchronously();
         return Path.Combine(outputPath, outputFileName);
     }
+
+    public void CleanUpEvidence() => IOUtil.DeleteDirectory(baseDir);
 }

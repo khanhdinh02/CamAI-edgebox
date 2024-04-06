@@ -56,7 +56,9 @@ public class HumanCountProcessor : IDisposable
 
     private void ReceiveData(int time, List<ClassifierOutputModel> output)
     {
-        humanCountItems.Add(new HumanCountItem(time, output.Count));
+        humanCountItems.Add(
+            new HumanCountItem(time, output.Count(x => x.Data.Zone == AiZone.Worker))
+        );
     }
 
     public void Dispose()
