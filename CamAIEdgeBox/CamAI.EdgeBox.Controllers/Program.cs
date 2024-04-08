@@ -1,3 +1,4 @@
+using System.Text.Json.Serialization;
 using CamAI.EdgeBox.Consumers;
 using CamAI.EdgeBox.Controllers;
 using CamAI.EdgeBox.Controllers.BackgroundServices;
@@ -38,7 +39,12 @@ async Task FetchServerData(WebApplicationBuilder builder1)
 
 var builder = WebApplication.CreateBuilder(args);
 
-builder.Services.AddControllers();
+builder
+    .Services.AddControllers()
+    .AddJsonOptions(config =>
+    {
+        config.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
+    });
 
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
@@ -94,8 +100,6 @@ app.UseCors("AllowAll");
 
 app.UseSwagger();
 app.UseSwaggerUI();
-
-app.UseHttpsRedirection();
 
 app.MapControllers();
 

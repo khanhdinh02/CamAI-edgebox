@@ -21,12 +21,12 @@ public static class StreamingProcessManager
 
     public static void Kill(Camera camera)
     {
-        Log.Information("Kill process camera {CameraId}", camera.Id);
+        Log.Information("Kill streaming process for camera {CameraId}", camera.Id);
         var process = RunningProcess.Find(x => x.Name == camera.Id.ToString("N"));
         if (process == null)
             return;
 
-        Log.Information("Found process for camera {CameraId}, killing it", camera.Id);
+        Log.Information("Found streaming process for camera {CameraId}, killing it", camera.Id);
         process.Dispose();
         RunningProcess.Remove(process);
     }
