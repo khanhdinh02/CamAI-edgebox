@@ -51,6 +51,7 @@ public class InteractionProcessor : IDisposable
                 {
                     calculation.Count += calculation.BreakCount;
                     calculation.BreakCount = 0;
+                    calculation.Count += 1;
                 }
             }
 
@@ -59,7 +60,6 @@ public class InteractionProcessor : IDisposable
             var newOutputs = outputs.Where(x => !scoreIds.Contains(x.Id));
             foreach (var output in newOutputs)
             {
-                // TODO: add person type, zone
                 var model = new InteractionModel { AiId = output.Id, };
                 calculations.TryAdd(model.AiId, model);
             }
@@ -77,7 +77,7 @@ public class InteractionProcessor : IDisposable
 
     private void ReceiveData(int time, List<ClassifierOutputModel> output)
     {
-        classifierOutputs.Add(output);
+        classifierOutputs.Add(output.Where(x => x.Data.Zone == AiZone.Customer).ToList());
     }
 
     public void Dispose()
