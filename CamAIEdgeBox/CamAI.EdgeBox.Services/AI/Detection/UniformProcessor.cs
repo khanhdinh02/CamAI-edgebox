@@ -12,13 +12,13 @@ public class UniformProcessor : IDisposable
     private readonly BlockingCollection<List<ClassifierOutputModel>> classifierOutputs =
         new(new ConcurrentQueue<List<ClassifierOutputModel>>(), 1000);
     private readonly UniformConfiguration uniform;
-    private readonly RtspExtension rtsp;
+    private readonly AiProcessWrapper.AiProcessUtil aiProcessUtil;
     private readonly IPublishEndpoint bus;
     private readonly Dictionary<int, UniformModel> uniformCalculation = [];
 
     public UniformProcessor(
         ClassifierWatcher watcher,
-        RtspExtension rtsp,
+        AiProcessWrapper.AiProcessUtil aiProcessUtil,
         UniformConfiguration uniform,
         IPublishEndpoint bus
     )
@@ -26,7 +26,7 @@ public class UniformProcessor : IDisposable
         Log.Information("Create uniform processor");
         this.uniform = uniform;
         this.bus = bus;
-        this.rtsp = rtsp;
+        this.aiProcessUtil = aiProcessUtil;
         watcher.Notifier += ReceiveData;
     }
 
@@ -49,7 +49,7 @@ public class UniformProcessor : IDisposable
                     calculation.NegativeCount += 1;
                     if (calculation.PositiveRatio < uniform.Ratio)
                     {
-                        calculation.EndTime = DateTime.UtcNow;
+                        calculation.EndTime = DateTime.Now;
                         uniformToRemove.Add(calculation);
                     }
                 }
@@ -73,9 +73,12 @@ public class UniformProcessor : IDisposable
                 // capture evidence
                 if (
                     calculation.Evidences.Count < 6
-                    && (calculation.TotalCount == 4 || calculation.TotalCount % 30 == 0)
+                    && (
+                        calculation.TotalCount == 4
+                        || (calculation.TotalCount != 0 && calculation.TotalCount % 30 == 0)
+                    )
                 )
-                    rtsp.CaptureEvidence(calculation);
+                    aiProcessUtil.CaptureEvidence(calculation);
 
                 // send incident
                 if (calculation.TotalCount > uniform.MinDuration && calculation.ShouldBeSend())
@@ -84,7 +87,10 @@ public class UniformProcessor : IDisposable
 
             // remove calculation
             foreach (var d in uniformToRemove)
+            {
+                d.CleanUpEvidence();
                 uniformCalculation.Remove(d.AiId);
+            }
         }
     }
 

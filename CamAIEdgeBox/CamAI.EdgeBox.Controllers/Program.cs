@@ -103,7 +103,7 @@ using (var scope = app.Services.CreateScope())
 {
     var cameraService = scope.ServiceProvider.GetRequiredService<CameraService>();
     foreach (var camera in cameraService.GetCamera())
-        cameraService.CheckCameraConnection(camera);
+        cameraService.CheckCameraConnection(camera, runAi: false);
 
     var aiService = scope.ServiceProvider.GetRequiredService<AiService>();
     aiService.RunAi();

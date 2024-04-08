@@ -35,15 +35,27 @@ public static class IncidentProcessorUtil
             Evidences = evidences
         };
 
+        Log.Information(
+            "Send new incident {Type}, incident id {IncidentId}",
+            incident.IncidentType,
+            incident.Id
+        );
         await bus.Publish(incident, cancellationToken);
     }
 
-    public static void CaptureEvidence(this RtspExtension rtsp, AiIncidentModel model)
+    public static void CaptureEvidence(
+        this AiProcessWrapper.AiProcessUtil util,
+        AiIncidentModel model
+    )
     {
-        Log.Information("Capture new evidence for model {Type}", model.Type);
-        var captureName = rtsp.CaptureFrame(model.NewEvidenceName());
+        Log.Information(
+            "Capture new evidence for model {Type}, AI id {AiId}",
+            model.Type,
+            model.AiId
+        );
+        var captureName = util.CaptureFrame(model.NewEvidenceName());
         model.Evidences.Add(
-            new CalculationEvidence { Path = captureName, CameraId = rtsp.CameraId }
+            new CalculationEvidence { Path = captureName, CameraId = util.CameraId }
         );
     }
 
@@ -51,7 +63,13 @@ public static class IncidentProcessorUtil
     {
         // send if there is new evidence or end of incident
         var evidence = model.Evidences.Where(x => !x.IsSent).ToList();
-        return (evidence.Count != 0 && evidence.Max(x => x.Time).AddSeconds(5) < DateTime.UtcNow)
+        return (evidence.Count != 0 && evidence.Max(x => x.Time).AddSeconds(5) < DateTime.Now)
             || model.EndTime != null;
+    }
+
+    public static void CleanUpEvidence(this AiIncidentModel model)
+    {
+        foreach (var evidence in model.Evidences)
+            File.Delete(evidence.Path);
     }
 }

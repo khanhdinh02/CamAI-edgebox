@@ -15,12 +15,12 @@ public class AiProcessWrapper(Camera camera, IServiceProvider provider)
     public string Name => camera.ToName();
     private readonly CancellationTokenSource cancellationTokenSource = new();
     private Process? aiProcess;
+    private AiProcessUtil? aiProcessUtil;
     private ClassifierWatcher? watcher;
     private HumanCountProcessor? humanCount;
     private InteractionProcessor? interaction;
     private PhoneProcessor? phone;
     private UniformProcessor? uniform;
-    private RtspExtension? rtsp;
 
     public bool IsRunning
     {
@@ -45,7 +45,6 @@ public class AiProcessWrapper(Camera camera, IServiceProvider provider)
         Log.Information("Running AI Process");
         var publishBus = provider.GetRequiredService<IPublishEndpoint>();
         var configuration = provider.GetRequiredService<IOptions<AiConfiguration>>().Value;
-        rtsp = new RtspExtension(camera, configuration.EvidenceOutputDir);
 
         var recordOutputPath = camera.Path.Split("/")[^1];
         var aiOutputPath = Path.Combine(configuration.BaseDirectory, "records", recordOutputPath);
@@ -54,6 +53,7 @@ public class AiProcessWrapper(Camera camera, IServiceProvider provider)
         aiProcess = CreateNewAiProcess(configuration, camera.GetUri());
         aiProcess.Start();
         WaitForAiOutput(aiOutputPath);
+        aiProcessUtil = new AiProcessUtil(configuration, camera, aiProcess!);
 
         watcher = new ClassifierWatcher(
             aiOutputPath,
@@ -62,8 +62,8 @@ public class AiProcessWrapper(Camera camera, IServiceProvider provider)
         );
 
         humanCount = new HumanCountProcessor(watcher, configuration.HumanCount, publishBus);
-        phone = new PhoneProcessor(watcher, rtsp, configuration.Phone, publishBus);
-        uniform = new UniformProcessor(watcher, rtsp, configuration.Uniform, publishBus);
+        phone = new PhoneProcessor(watcher, aiProcessUtil, configuration.Phone, publishBus);
+        uniform = new UniformProcessor(watcher, aiProcessUtil, configuration.Uniform, publishBus);
         interaction = new InteractionProcessor(watcher, configuration.Interaction, publishBus);
 
 #pragma warning disable 4014
@@ -77,6 +77,7 @@ public class AiProcessWrapper(Camera camera, IServiceProvider provider)
     {
         Log.Information("Create new AI Process");
         var process = new Process();
+        process.StartInfo.RedirectStandardInput = true;
         process.StartInfo.FileName = configuration.ProcessFileName;
 
         var argumentsBuilder = new StringBuilder(configuration.ProcessArgument);
@@ -123,6 +124,31 @@ public class AiProcessWrapper(Camera camera, IServiceProvider provider)
         phone?.Dispose();
         uniform?.Dispose();
         watcher?.Dispose();
-        rtsp?.CleanUpEvidence();
+        aiProcessUtil?.CleanUpEvidence();
+    }
+
+    public class AiProcessUtil(AiConfiguration configuration, Camera camera, Process aiProcess)
+    {
+        public Guid CameraId => camera.Id;
+
+        public string CaptureFrame(string outputFileName)
+        {
+            outputFileName += ".png";
+            var datetime = DateTime.Now;
+            var dateTimeDir = Path.Combine(
+                datetime.Year.ToString(),
+                datetime.Month.ToString(),
+                datetime.Day.ToString()
+            );
+            var outputPath = Path.Combine(configuration.EvidenceOutputDir, dateTimeDir);
+
+            Directory.CreateDirectory(outputPath);
+            var file = Path.Combine(outputPath, outputFileName).Replace('\\', '/');
+            Log.Information("Capture evidence to path {Path}", file);
+            aiProcess.StandardInput.WriteLine($"capture {file}");
+            return file;
+        }
+
+        public void CleanUpEvidence() => IOUtil.DeleteDirectory(configuration.EvidenceOutputDir);
     }
 }

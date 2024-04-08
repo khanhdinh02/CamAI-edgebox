@@ -11,10 +11,10 @@ public class CpuTrackingService(IServiceProvider provider) : BackgroundService
         while (!stoppingToken.IsCancellationRequested)
         {
             using var scope = provider.CreateScope();
-            var startTime = DateTime.UtcNow;
+            var startTime = DateTime.Now;
             var startCpuUsage = Process.GetCurrentProcess().TotalProcessorTime;
             await Task.Delay(500, stoppingToken);
-            var endTime = DateTime.UtcNow;
+            var endTime = DateTime.Now;
             var endCpuUsage = Process.GetCurrentProcess().TotalProcessorTime;
             var cpuUsedMs = (endCpuUsage - startCpuUsage).TotalMilliseconds;
             var totalMsPassed = (endTime - startTime).TotalMilliseconds;

@@ -43,7 +43,7 @@ public class InteractionProcessor : IDisposable
                     calculation.BreakCount += 1;
                     if (calculation.BreakCount > interaction.MaxBreak)
                     {
-                        calculation.EndTime = DateTime.UtcNow;
+                        calculation.EndTime = DateTime.Now;
                         personToRemove.Add(calculation);
                     }
                 }
