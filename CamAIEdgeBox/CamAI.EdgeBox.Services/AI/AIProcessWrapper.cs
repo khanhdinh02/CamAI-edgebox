@@ -77,6 +77,7 @@ public class AiProcessWrapper(Camera camera, IServiceProvider provider)
     {
         Log.Information("Create new AI Process");
         var process = new Process();
+        process.StartInfo.WorkingDirectory = configuration.BaseDirectory;
         process.StartInfo.RedirectStandardInput = true;
         process.StartInfo.FileName = configuration.ProcessFileName;
 
