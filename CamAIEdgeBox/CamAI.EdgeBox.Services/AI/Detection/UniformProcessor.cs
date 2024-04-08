@@ -73,7 +73,10 @@ public class UniformProcessor : IDisposable
                 // capture evidence
                 if (
                     calculation.Evidences.Count < 6
-                    && (calculation.TotalCount == 4 || calculation.TotalCount % 30 == 0)
+                    && (
+                        calculation.TotalCount == 4
+                        || (calculation.TotalCount != 0 && calculation.TotalCount % 30 == 0)
+                    )
                 )
                     aiProcessUtil.CaptureEvidence(calculation);
 

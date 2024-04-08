@@ -96,7 +96,10 @@ public class PhoneProcessor : IDisposable
             {
                 var interval = calculation.Intervals[^1];
                 if (
-                    (interval.Scores.Count == 4 || interval.Scores.Count % 20 == 0)
+                    (
+                        interval.Scores.Count == 4
+                        || (interval.Scores.Count != 0 && interval.Scores.Count % 20 == 0)
+                    )
                     && interval.MaxBreakTime == 0
                 )
                     aiProcessUtil.CaptureEvidence(calculation);

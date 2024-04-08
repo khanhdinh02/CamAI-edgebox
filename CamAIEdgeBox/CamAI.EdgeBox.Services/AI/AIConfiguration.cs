@@ -34,7 +34,6 @@ public class PhoneConfiguration
 
 public class UniformConfiguration
 {
-    public int MinUniformCount { get; set; }
     public int MinDuration { get; set; }
     public float Ratio { get; set; }
 }
