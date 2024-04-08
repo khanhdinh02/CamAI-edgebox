@@ -49,7 +49,7 @@ public class UniformProcessor : IDisposable
                     calculation.NegativeCount += 1;
                     if (calculation.PositiveRatio < uniform.Ratio)
                     {
-                        calculation.EndTime = DateTime.UtcNow;
+                        calculation.EndTime = DateTime.Now;
                         uniformToRemove.Add(calculation);
                     }
                 }
@@ -84,7 +84,10 @@ public class UniformProcessor : IDisposable
 
             // remove calculation
             foreach (var d in uniformToRemove)
+            {
+                d.CleanUpEvidence();
                 uniformCalculation.Remove(d.AiId);
+            }
         }
     }
 

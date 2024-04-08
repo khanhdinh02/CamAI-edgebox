@@ -38,7 +38,7 @@ public class HumanCountProcessor : IDisposable
             var total = items.Select(x => x.Count).Average();
             var countModel = new HumanCountModel
             {
-                Time = DateTime.UtcNow,
+                Time = DateTime.Now,
                 Total = Convert.ToInt32(total),
                 ShopId = GlobalData.Shop!.Id
             };

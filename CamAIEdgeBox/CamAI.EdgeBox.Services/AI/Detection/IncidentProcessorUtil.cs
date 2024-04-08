@@ -63,7 +63,13 @@ public static class IncidentProcessorUtil
     {
         // send if there is new evidence or end of incident
         var evidence = model.Evidences.Where(x => !x.IsSent).ToList();
-        return (evidence.Count != 0 && evidence.Max(x => x.Time).AddSeconds(5) < DateTime.UtcNow)
+        return (evidence.Count != 0 && evidence.Max(x => x.Time).AddSeconds(5) < DateTime.Now)
             || model.EndTime != null;
+    }
+
+    public static void CleanUpEvidence(this AiIncidentModel model)
+    {
+        foreach (var evidence in model.Evidences)
+            File.Delete(evidence.Path);
     }
 }

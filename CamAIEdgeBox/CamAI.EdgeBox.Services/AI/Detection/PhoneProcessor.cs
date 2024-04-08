@@ -71,7 +71,7 @@ public class PhoneProcessor : IDisposable
                         interval.BreakTime += 1;
                         if (interval.BreakTime >= interval.MaxBreakTime)
                         {
-                            calculation.EndTime = DateTime.UtcNow;
+                            calculation.EndTime = DateTime.Now;
                             phoneToRemove.Add(calculation);
                         }
                     }
@@ -111,7 +111,10 @@ public class PhoneProcessor : IDisposable
 
             // remove calculation
             foreach (var d in phoneToRemove)
+            {
+                d.CleanUpEvidence();
                 calculations.Remove(d.AiId);
+            }
         }
     }
 
