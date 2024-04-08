@@ -1,6 +1,3 @@
-using CamAI.EdgeBox.Models;
-using CamAI.EdgeBox.Services.Contracts;
-using CamAI.EdgeBox.Services.Utils;
 using MassTransit;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Caching.Memory;
@@ -20,15 +17,5 @@ public class TestController(
     {
         logger.LogInformation($"CPU usage: {cache.Get("CpuUsage")}");
         return $"Hello {name} from edge box";
-    }
-
-    [HttpGet("capture")]
-    public void TestCaptureFrame()
-    {
-        var rtsp = new RtspExtension(
-            GlobalData.Cameras.First(),
-            @"C:\Users\Administrator\Downloads\ffmpeg-2024-02-29-git-4a134eb14a-full_build\bin"
-        );
-        rtsp.CaptureFrame("yes_please");
     }
 }

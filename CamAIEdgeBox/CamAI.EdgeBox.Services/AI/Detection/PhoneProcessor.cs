@@ -1,6 +1,5 @@
 ﻿using System.Collections.Concurrent;
 using CamAI.EdgeBox.Services.AI.Detection;
-using CamAI.EdgeBox.Services.Utils;
 using MassTransit;
 using Serilog;
 
@@ -12,7 +11,7 @@ public class PhoneProcessor : IDisposable
     private readonly BlockingCollection<List<ClassifierOutputModel>> classifierOutputs =
         new(new ConcurrentQueue<List<ClassifierOutputModel>>(), 1000);
     private readonly PhoneConfiguration phone;
-    private readonly RtspExtension rtsp;
+    private readonly AiProcessWrapper.AiProcessUtil aiProcessUtil;
     private readonly IPublishEndpoint bus;
 
     // dictionary for AI id and model
@@ -20,7 +19,7 @@ public class PhoneProcessor : IDisposable
 
     public PhoneProcessor(
         ClassifierWatcher watcher,
-        RtspExtension rtsp,
+        AiProcessWrapper.AiProcessUtil aiProcessUtil,
         PhoneConfiguration phone,
         IPublishEndpoint bus
     )
@@ -28,7 +27,7 @@ public class PhoneProcessor : IDisposable
         Log.Information("Create phone processor");
         watcher.Notifier += ReceiveData;
         this.phone = phone;
-        this.rtsp = rtsp;
+        this.aiProcessUtil = aiProcessUtil;
         this.bus = bus;
     }
 
@@ -100,17 +99,14 @@ public class PhoneProcessor : IDisposable
                     (interval.Scores.Count == 4 || interval.Scores.Count % 20 == 0)
                     && interval.MaxBreakTime == 0
                 )
-                    rtsp.CaptureEvidence(calculation);
+                    aiProcessUtil.CaptureEvidence(calculation);
 
                 if (
                     calculation.Score >= phone.MinScore
                     && calculation.TotalTime >= phone.MinDuration
                     && calculation.ShouldBeSend()
                 )
-                {
-                    Log.Information("Send new phone incident");
                     await bus.SendIncident(calculation, cancellationToken);
-                }
             }
 
             // remove calculation
@@ -153,7 +149,9 @@ public class PhoneProcessor : IDisposable
 
     private void ReceiveData(int time, List<ClassifierOutputModel> output)
     {
-        var phoneOutput = output.Where(x => x.Data.Action.Type == ActionType.Phone).ToList();
+        var phoneOutput = output
+            .Where(x => x.Data is { Zone: AiZone.Worker, Action.Type: ActionType.Phone })
+            .ToList();
         classifierOutputs.Add(phoneOutput);
     }
 

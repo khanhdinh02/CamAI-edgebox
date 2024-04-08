@@ -12,13 +12,13 @@ public class UniformProcessor : IDisposable
     private readonly BlockingCollection<List<ClassifierOutputModel>> classifierOutputs =
         new(new ConcurrentQueue<List<ClassifierOutputModel>>(), 1000);
     private readonly UniformConfiguration uniform;
-    private readonly RtspExtension rtsp;
+    private readonly AiProcessWrapper.AiProcessUtil aiProcessUtil;
     private readonly IPublishEndpoint bus;
     private readonly Dictionary<int, UniformModel> uniformCalculation = [];
 
     public UniformProcessor(
         ClassifierWatcher watcher,
-        RtspExtension rtsp,
+        AiProcessWrapper.AiProcessUtil aiProcessUtil,
         UniformConfiguration uniform,
         IPublishEndpoint bus
     )
@@ -26,7 +26,7 @@ public class UniformProcessor : IDisposable
         Log.Information("Create uniform processor");
         this.uniform = uniform;
         this.bus = bus;
-        this.rtsp = rtsp;
+        this.aiProcessUtil = aiProcessUtil;
         watcher.Notifier += ReceiveData;
     }
 
@@ -75,7 +75,7 @@ public class UniformProcessor : IDisposable
                     calculation.Evidences.Count < 6
                     && (calculation.TotalCount == 4 || calculation.TotalCount % 30 == 0)
                 )
-                    rtsp.CaptureEvidence(calculation);
+                    aiProcessUtil.CaptureEvidence(calculation);
 
                 // send incident
                 if (calculation.TotalCount > uniform.MinDuration && calculation.ShouldBeSend())

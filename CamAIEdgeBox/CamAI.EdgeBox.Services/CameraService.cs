@@ -37,17 +37,19 @@ public class CameraService(IPublishEndpoint bus, AiService aiService)
         }
     }
 
-    public void CheckCameraConnection(Guid id)
+    public void CheckCameraConnection(Guid id, bool runAi = true)
     {
         var camera = GetCamera(id);
-        CheckCameraConnection(camera);
+        CheckCameraConnection(camera, runAi);
     }
 
-    public void CheckCameraConnection(Camera camera)
+    public void CheckCameraConnection(Camera camera, bool runAi = true)
     {
         UpdateCameraConnectionStatus(camera);
         CameraRepository.UpsertCamera(camera);
-        aiService.RunAi(camera);
+        GlobalData.Cameras = CameraRepository.GetAll();
+        if (runAi)
+            aiService.RunAi(camera);
     }
 
     public void DeleteCamera(Guid id)

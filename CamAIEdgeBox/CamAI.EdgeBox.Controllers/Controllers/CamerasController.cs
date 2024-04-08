@@ -25,6 +25,9 @@ public class CamerasController(CameraService cameraService) : Controller
     [HttpPut("{id}")]
     public Camera UpdateCamera([FromRoute] Guid id, [FromBody] Camera cameraDto)
     {
+        // Check if camera exist
+        cameraService.GetCamera(id);
+
         cameraDto.Id = id;
         return cameraService.UpsertCamera(cameraDto);
     }
