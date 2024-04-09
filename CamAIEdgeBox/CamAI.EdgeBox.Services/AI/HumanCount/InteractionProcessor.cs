@@ -9,15 +9,16 @@ public class InteractionProcessor : IDisposable
 {
     private bool disposed;
 
-    // TODO: with employee or without employee
     private readonly BlockingCollection<List<ClassifierOutputModel>> classifierOutputs =
-        new(new ConcurrentQueue<List<ClassifierOutputModel>>(), 1000);
+        new(new ConcurrentQueue<List<ClassifierOutputModel>>(), 7);
     private readonly InteractionConfiguration interaction;
     private readonly IPublishEndpoint bus;
+    private readonly AiProcessWrapper.AiProcessUtil aiProcessUtil;
     private readonly Dictionary<int, InteractionModel> calculations = [];
 
     public InteractionProcessor(
         ClassifierWatcher watcher,
+        AiProcessWrapper.AiProcessUtil aiProcessUtil,
         InteractionConfiguration interaction,
         IPublishEndpoint bus
     )
@@ -25,6 +26,7 @@ public class InteractionProcessor : IDisposable
         Log.Information("Create interaction processor");
         watcher.Notifier += ReceiveData;
         this.interaction = interaction;
+        this.aiProcessUtil = aiProcessUtil;
         this.bus = bus;
     }
 
@@ -66,12 +68,23 @@ public class InteractionProcessor : IDisposable
 
             // send message
             foreach (var (id, calculation) in calculations)
+            {
+                if (
+                    calculation.Count != 0
+                    && calculation.Count % (interaction.MinDuration / 2) == 0
+                )
+                    aiProcessUtil.CaptureEvidence(calculation);
+
                 if (calculation.Count > interaction.MinDuration && calculation.EndTime != null)
                     await bus.SendIncident(calculation, cancellationToken);
+            }
 
             // remove calculation
             foreach (var d in personToRemove)
+            {
+                d.CleanUpEvidence();
                 calculations.Remove(d.AiId);
+            }
         }
     }
 

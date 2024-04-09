@@ -10,7 +10,7 @@ public class UniformProcessor : IDisposable
 {
     private bool disposed;
     private readonly BlockingCollection<List<ClassifierOutputModel>> classifierOutputs =
-        new(new ConcurrentQueue<List<ClassifierOutputModel>>(), 1000);
+        new(new ConcurrentQueue<List<ClassifierOutputModel>>(), 7);
     private readonly UniformConfiguration uniform;
     private readonly AiProcessWrapper.AiProcessUtil aiProcessUtil;
     private readonly IPublishEndpoint bus;

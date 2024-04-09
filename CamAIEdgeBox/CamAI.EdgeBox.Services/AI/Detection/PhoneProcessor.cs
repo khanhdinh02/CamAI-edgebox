@@ -9,7 +9,7 @@ public class PhoneProcessor : IDisposable
 {
     private bool disposed;
     private readonly BlockingCollection<List<ClassifierOutputModel>> classifierOutputs =
-        new(new ConcurrentQueue<List<ClassifierOutputModel>>(), 1000);
+        new(new ConcurrentQueue<List<ClassifierOutputModel>>(), 7);
     private readonly PhoneConfiguration phone;
     private readonly AiProcessWrapper.AiProcessUtil aiProcessUtil;
     private readonly IPublishEndpoint bus;

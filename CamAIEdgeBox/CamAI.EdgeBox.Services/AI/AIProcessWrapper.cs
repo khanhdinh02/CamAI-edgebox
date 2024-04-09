@@ -64,7 +64,12 @@ public class AiProcessWrapper(Camera camera, IServiceProvider provider)
         humanCount = new HumanCountProcessor(watcher, configuration.HumanCount, publishBus);
         phone = new PhoneProcessor(watcher, aiProcessUtil, configuration.Phone, publishBus);
         uniform = new UniformProcessor(watcher, aiProcessUtil, configuration.Uniform, publishBus);
-        interaction = new InteractionProcessor(watcher, configuration.Interaction, publishBus);
+        interaction = new InteractionProcessor(
+            watcher,
+            aiProcessUtil,
+            configuration.Interaction,
+            publishBus
+        );
 
 #pragma warning disable 4014
         Task.Run(() => humanCount.Start(cancellationTokenSource.Token));
