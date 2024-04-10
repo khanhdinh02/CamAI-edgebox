@@ -2,6 +2,7 @@
 using System.Text;
 using System.Web;
 using CamAI.EdgeBox.Models;
+using FFMpegCore;
 
 namespace CamAI.EdgeBox.Services.Utils;
 
@@ -17,7 +18,7 @@ public static class CameraExtension
         var encodedUsername = HttpUtility.UrlEncode(camera.Username);
         var encodedPassword = HttpUtility.UrlEncode(camera.Password);
         return new Uri(
-            $"{camera.Protocol}://{encodedUsername}:{encodedPassword}@{camera.Host}/{camera.Path}"
+            $"{camera.Protocol}://{encodedUsername}:{encodedPassword}@{camera.Host}:{camera.Port}/{camera.Path}"
         );
     }
 
@@ -28,24 +29,18 @@ public static class CameraExtension
     /// <exception cref="Exception"></exception>
     public static void CheckConnection(this Camera camera)
     {
-        // init client
-        using var client = new TcpClient(camera.Host, camera.Port);
-        var nwStream = client.GetStream();
-
-        // send describe request
-        var describeRequestBytes = Encoding.ASCII.GetBytes(CreateRtspDescribeRequest(camera));
-        nwStream.Write(describeRequestBytes, 0, describeRequestBytes.Length);
-
-        // receive response
-        nwStream.ReadTimeout = 2000;
-        var bytesToRead = new byte[client.ReceiveBufferSize];
-        var bytesRead = nwStream.Read(bytesToRead, 0, client.ReceiveBufferSize);
-        var response = Encoding.ASCII.GetString(bytesToRead, 0, bytesRead);
-
-        // read response
-        using var reader = new StringReader(response);
-        var header = reader.ReadLine()!;
-        if (!header.Contains("200"))
+        var result = FFMpegArguments
+            .FromUrlInput(camera.GetUri(), opts => opts.WithCustomArgument("-timeout 3000"))
+            .OutputToFile(
+                "-",
+                false,
+                options =>
+                {
+                    options.WithCustomArgument("-frames:v 1 -f null");
+                }
+            )
+            .ProcessSynchronously();
+        if (!result)
             throw new CameraConnectionException(camera);
     }
 
