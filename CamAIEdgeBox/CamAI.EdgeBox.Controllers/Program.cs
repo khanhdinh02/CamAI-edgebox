@@ -91,7 +91,8 @@ GlobalFFOptions.Configure(x =>
 builder.Services.AddCors(opts =>
     opts.AddPolicy(
         name: "AllowAll",
-        policy => policy.WithOrigins().AllowAnyMethod().AllowAnyHeader().WithExposedHeaders("auto")
+        policy =>
+            policy.AllowAnyOrigin().AllowAnyMethod().AllowAnyHeader().WithExposedHeaders("auto")
     )
 );
 
