@@ -58,13 +58,6 @@ if (!System.Net.NetworkInformation.NetworkInterface.GetIsNetworkAvailable())
 
 var builder = WebApplication.CreateBuilder(args);
 
-builder.Services.AddCors(opts =>
-    opts.AddPolicy(
-        "AllowAll",
-        cors => cors.AllowAnyOrigin().AllowAnyMethod().AllowAnyHeader().WithExposedHeaders("Auto")
-    )
-);
-
 builder
     .Services.AddControllers()
     .AddJsonOptions(config =>
