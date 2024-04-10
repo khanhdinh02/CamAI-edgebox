@@ -30,7 +30,7 @@ public static class CameraExtension
     public static void CheckConnection(this Camera camera)
     {
         var result = FFMpegArguments
-            .FromUrlInput(camera.GetUri(), opts => opts.WithCustomArgument("-timeout 3000"))
+            .FromUrlInput(camera.GetUri())
             .OutputToFile(
                 "-",
                 false,
