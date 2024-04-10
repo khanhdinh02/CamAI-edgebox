@@ -1,5 +1,6 @@
 ﻿using System.Reflection;
 using CamAI.EdgeBox.Consumers;
+using CamAI.EdgeBox.Consumers.Messages;
 using CamAI.EdgeBox.Controllers;
 using CamAI.EdgeBox.Models;
 using MassTransit;
@@ -24,10 +25,20 @@ public static class MassTransitConfiguration
             );
 
             // register sync data request message
-            var publisher = typeof(SyncDataRequest).GetCustomAttribute<PublisherAttribute>()!;
             cfg.Message<SyncDataRequest>(x =>
             {
-                x.SetEntityName(publisher.QueueName);
+                x.SetEntityName(
+                    typeof(SyncDataRequest).GetCustomAttribute<PublisherAttribute>()!.QueueName
+                );
+            });
+
+            cfg.Message<HealthCheckResponseMessage>(x =>
+            {
+                x.SetEntityName(
+                    typeof(HealthCheckResponseMessage)
+                        .GetCustomAttribute<PublisherAttribute>()!
+                        .QueueName
+                );
             });
 
             var consumer = typeof(UpdateDataConsumer).GetCustomAttribute<ConsumerAttribute>()!;

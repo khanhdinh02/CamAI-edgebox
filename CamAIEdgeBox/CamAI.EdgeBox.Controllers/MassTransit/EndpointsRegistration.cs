@@ -44,7 +44,12 @@ public static class ReceiveEndpointConfigurator
         var method = topologyConfigurator!
             .GetType()
             .GetMethod(nameof(IMessageTopologyConfigurator<object>.SetEntityName));
-        method!.Invoke(topologyConfigurator, [endpoint.QueueName]);
+
+        try
+        {
+            method!.Invoke(topologyConfigurator, [endpoint.QueueName]);
+        }
+        catch (Exception) { }
     }
 
     public static void RegisterConsumer(
