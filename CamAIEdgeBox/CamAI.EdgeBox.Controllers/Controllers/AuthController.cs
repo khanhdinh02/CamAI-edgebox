@@ -1,5 +1,6 @@
 using CamAI.EdgeBox.Controllers.Models;
 using CamAI.EdgeBox.Services;
+using CamAI.EdgeBox.Services.Utils;
 using Microsoft.AspNetCore.Mvc;
 
 namespace CamAI.EdgeBox.Controllers.Controllers;
@@ -14,8 +15,7 @@ public class AuthController : Controller
         if (!AuthService.Login(loginDto.Username, loginDto.Password))
             return Unauthorized();
 
-        HttpContext.Session.SetString("ID", "something");
-        return Ok();
+        return Ok(new { Token = Hasher.Hash("yes") });
     }
 
     [HttpPost("password")]
