@@ -45,7 +45,6 @@ async Task InitData(WebApplicationBuilder builder1)
     );
 
     // sync data from server
-    GlobalDataHelper.GetData();
     if (GlobalData.Shop == null || GlobalData.Brand == null)
         await FetchServerData(busControl);
 
@@ -103,6 +102,7 @@ builder.Services.Configure<RouteOptions>(opts =>
 });
 
 // get local data
+GlobalDataHelper.GetData();
 await InitData(builder);
 
 builder.ConfigureMassTransit();
