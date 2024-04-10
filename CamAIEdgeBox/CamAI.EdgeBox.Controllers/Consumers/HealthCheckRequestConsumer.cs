@@ -4,6 +4,7 @@ using CamAI.EdgeBox.MassTransit;
 using CamAI.EdgeBox.Models;
 using CamAI.EdgeBox.Services;
 using CamAI.EdgeBox.Services.MassTransit;
+using CamAI.EdgeBox.Services.Utils;
 using MassTransit;
 
 namespace CamAI.EdgeBox.Consumers;
@@ -25,7 +26,8 @@ public class HealthCheckRequestConsumer(AiService aiService, IPublishEndpoint bu
                 {
                     EdgeBoxId = GlobalData.EdgeBox.Id,
                     Status = EdgeBoxInstallStatus.Unhealthy,
-                    Reason = $"Only {numOfRunningAi} out of {expectedNumOfAi} is running"
+                    Reason = $"Only {numOfRunningAi} out of {expectedNumOfAi} is running",
+                    IpAddress = NetworkUtil.GetLocalIpAddress()
                 }
             );
         }
@@ -34,7 +36,8 @@ public class HealthCheckRequestConsumer(AiService aiService, IPublishEndpoint bu
                 new HealthCheckResponseMessage
                 {
                     EdgeBoxId = GlobalData.EdgeBox.Id,
-                    Status = EdgeBoxInstallStatus.Working
+                    Status = EdgeBoxInstallStatus.Working,
+                    IpAddress = NetworkUtil.GetLocalIpAddress()
                 }
             );
         return Task.CompletedTask;

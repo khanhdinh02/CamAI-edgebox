@@ -12,6 +12,7 @@ public class HealthCheckResponseMessage
     public Guid EdgeBoxId { get; set; } = GlobalData.EdgeBox!.Id;
     public EdgeBoxInstallStatus Status { get; set; }
     public string? Reason { get; set; }
+    public string IpAddress { get; set; } = null!;
 }
 
 public enum EdgeBoxInstallStatus

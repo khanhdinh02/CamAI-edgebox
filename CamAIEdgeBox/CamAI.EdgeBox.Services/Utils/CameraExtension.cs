@@ -37,7 +37,7 @@ public static class CameraExtension
         nwStream.Write(describeRequestBytes, 0, describeRequestBytes.Length);
 
         // receive response
-        nwStream.ReadTimeout = 5000;
+        nwStream.ReadTimeout = 2000;
         var bytesToRead = new byte[client.ReceiveBufferSize];
         var bytesRead = nwStream.Read(bytesToRead, 0, client.ReceiveBufferSize);
         var response = Encoding.ASCII.GetString(bytesToRead, 0, bytesRead);

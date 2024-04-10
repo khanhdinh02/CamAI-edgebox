@@ -8,14 +8,18 @@ using CamAI.EdgeBox.Models;
 using CamAI.EdgeBox.Services;
 using CamAI.EdgeBox.Services.AI;
 using CamAI.EdgeBox.Services.Streaming;
+using CamAI.EdgeBox.Services.Utils;
 using FFMpegCore;
+using MassTransit;
 using Serilog;
 
-async Task FetchServerData(WebApplicationBuilder builder1)
+async Task InitData(WebApplicationBuilder builder1)
 {
+    // init edge box
     var edgeBoxId = builder1.Configuration.GetRequiredSection("EdgeBoxId").Get<Guid>();
     GlobalData.EdgeBox ??= new DbEdgeBox { Id = edgeBoxId };
 
+    // init services
     Log.Information("Configuring bus for global data");
     builder1.Services.AddScoped<UpdateDataConsumer>();
 #pragma warning disable ASP0000
@@ -24,18 +28,31 @@ async Task FetchServerData(WebApplicationBuilder builder1)
     using var scope = provider.CreateScope();
     var consumer = scope.ServiceProvider.GetRequiredService<UpdateDataConsumer>();
 
-    // sync data from server
     var busControl = builder1.CreateSyncBusControl(consumer);
     await busControl.StartAsync();
     Log.Information("Bus for global data started");
 
-    var syncRequest = new SyncDataRequest { EdgeBoxId = edgeBoxId };
-    await busControl.Publish(syncRequest);
-    while (GlobalData.Shop == null || GlobalData.Brand == null)
-        Thread.Sleep(1000);
+    // publish health message
+    await busControl.Publish(
+        new HealthCheckResponseMessage
+        {
+            EdgeBoxId = GlobalData.EdgeBox.Id,
+            Status = EdgeBoxInstallStatus.Working,
+            IpAddress = NetworkUtil.GetLocalIpAddress()
+        }
+    );
+
+    // sync data from server
+    GlobalDataHelper.GetData();
+    if (GlobalData.Shop == null || GlobalData.Brand == null)
+        await FetchServerData(busControl);
+
     await busControl.StopAsync();
-    Log.Information("Bus for global data stopped");
 }
+
+// check network connection
+if (!System.Net.NetworkInformation.NetworkInterface.GetIsNetworkAvailable())
+    throw new Exception("No internet connection. Please connect to internet before running");
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -83,10 +100,8 @@ builder.Services.Configure<RouteOptions>(opts =>
     opts.LowercaseQueryStrings = true;
 });
 
-// get data
-GlobalDataHelper.GetData();
-if (GlobalData.EdgeBox == null || GlobalData.Shop == null || GlobalData.Brand == null)
-    await FetchServerData(builder);
+// get local data
+await InitData(builder);
 
 builder.ConfigureMassTransit();
 builder.Services.AddDistributedMemoryCache();
@@ -104,7 +119,6 @@ app.UseSwaggerUI();
 app.MapControllers();
 
 app.UseSession();
-app.UseAuthorization();
 app.Use(
     (context, next) =>
     {
@@ -138,3 +152,14 @@ using (var scope = app.Services.CreateScope())
 app.MapGet("/", () => Results.Ok("Hello word"));
 
 app.Run();
+return;
+
+async Task FetchServerData(IBusControl busControl)
+{
+    var syncRequest = new SyncDataRequest { EdgeBoxId = GlobalData.EdgeBox!.Id };
+    await busControl.Publish(syncRequest);
+
+    while (GlobalData.Shop == null || GlobalData.Brand == null)
+        Thread.Sleep(1000);
+    Log.Information("Bus for global data stopped");
+}
