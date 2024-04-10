@@ -20,7 +20,7 @@ async Task InitData(WebApplicationBuilder builder1)
     GlobalData.EdgeBox ??= new DbEdgeBox { Id = edgeBoxId };
 
     // init services
-    Log.Information("Configuring bus for global data");
+    Console.WriteLine("Configuring bus for global data");
     builder1.Services.AddScoped<UpdateDataConsumer>();
 #pragma warning disable ASP0000
     var provider = builder1.Services.BuildServiceProvider();
@@ -30,10 +30,10 @@ async Task InitData(WebApplicationBuilder builder1)
 
     var busControl = builder1.CreateSyncBusControl(consumer);
     await busControl.StartAsync();
-    Log.Information("Bus for global data started");
+    Console.WriteLine("Bus for global data started");
 
     var localIpAddress = NetworkUtil.GetLocalIpAddress();
-    Log.Information("Ip address sent to server {IpAddress}", localIpAddress);
+    Console.WriteLine("Ip address sent to server {0}", localIpAddress);
     // publish health message
     await busControl.Publish(
         new HealthCheckResponseMessage
@@ -163,5 +163,5 @@ async Task FetchServerData(IBusControl busControl)
 
     while (GlobalData.Shop == null || GlobalData.Brand == null)
         Thread.Sleep(1000);
-    Log.Information("Bus for global data stopped");
+    Console.WriteLine("Bus for global data stopped");
 }
