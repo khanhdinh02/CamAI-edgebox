@@ -32,13 +32,15 @@ async Task InitData(WebApplicationBuilder builder1)
     await busControl.StartAsync();
     Log.Information("Bus for global data started");
 
+    var localIpAddress = NetworkUtil.GetLocalIpAddress();
+    Log.Information("Ip address sent to server {IpAddress}", localIpAddress);
     // publish health message
     await busControl.Publish(
         new HealthCheckResponseMessage
         {
             EdgeBoxId = GlobalData.EdgeBox.Id,
             Status = EdgeBoxInstallStatus.Working,
-            IpAddress = NetworkUtil.GetLocalIpAddress()
+            IpAddress = localIpAddress
         }
     );
 
