@@ -1,5 +1,6 @@
 ﻿using CamAI.EdgeBox.Models;
 using CamAI.EdgeBox.Services;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace CamAI.EdgeBox.Controllers.Controllers;

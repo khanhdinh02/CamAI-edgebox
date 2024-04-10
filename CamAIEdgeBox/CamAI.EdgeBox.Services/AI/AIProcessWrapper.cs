@@ -51,6 +51,14 @@ public class AiProcessWrapper(Camera camera, IServiceProvider provider)
         CleanDirectory(aiOutputPath);
 
         aiProcess = CreateNewAiProcess(configuration, camera.GetUri());
+        aiProcess.Exited += (_, _) =>
+        {
+            Log.Information(
+                "AI process exited for camera #{Camera}, please look for log",
+                camera.Id
+            );
+            AiProcessManager.Kill(camera);
+        };
         aiProcess.Start();
         WaitForAiOutput(aiOutputPath);
         aiProcessUtil = new AiProcessUtil(configuration, camera, aiProcess!);
@@ -85,6 +93,7 @@ public class AiProcessWrapper(Camera camera, IServiceProvider provider)
         process.StartInfo.WorkingDirectory = configuration.BaseDirectory;
         process.StartInfo.RedirectStandardInput = true;
         process.StartInfo.FileName = configuration.ProcessFileName;
+        process.EnableRaisingEvents = true;
 
         var argumentsBuilder = new StringBuilder(configuration.ProcessArgument);
         argumentsBuilder.Replace("{BaseDirectory}", configuration.BaseDirectory);

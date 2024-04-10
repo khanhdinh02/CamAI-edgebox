@@ -1,7 +1,7 @@
+using System.Net;
 using System.Text.Json.Serialization;
 using CamAI.EdgeBox.Consumers;
 using CamAI.EdgeBox.Controllers;
-using CamAI.EdgeBox.Controllers.BackgroundServices;
 using CamAI.EdgeBox.MassTransit;
 using CamAI.EdgeBox.Middlewares;
 using CamAI.EdgeBox.Models;
@@ -56,8 +56,6 @@ builder.Host.UseSerilog(
 
 builder.Services.AddScoped<CameraService>().AddScoped<AiService>().AddScoped<EdgeBoxService>();
 
-builder.Services.AddMemoryCache();
-builder.Services.AddHostedService<CpuTrackingService>();
 builder.Services.Configure<AiConfiguration>(
     builder.Configuration.GetSection(AiConfiguration.Section)
 );
@@ -91,6 +89,8 @@ if (GlobalData.EdgeBox == null || GlobalData.Shop == null || GlobalData.Brand ==
     await FetchServerData(builder);
 
 builder.ConfigureMassTransit();
+builder.Services.AddDistributedMemoryCache();
+builder.Services.AddSession();
 
 var app = builder.Build();
 
@@ -102,6 +102,28 @@ app.UseSwagger();
 app.UseSwaggerUI();
 
 app.MapControllers();
+
+app.UseSession();
+app.UseAuthorization();
+app.Use(
+    (context, next) =>
+    {
+        if (context.Request.Path.Value?.ToLower().Contains("login") == true)
+        {
+            next();
+            return Task.CompletedTask;
+        }
+
+        if (!context.Session.TryGetValue("ID", out _))
+        {
+            context.Response.StatusCode = (int)HttpStatusCode.Unauthorized;
+            return Task.CompletedTask;
+        }
+
+        next();
+        return Task.CompletedTask;
+    }
+);
 
 using (var scope = app.Services.CreateScope())
 {
