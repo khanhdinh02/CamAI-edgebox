@@ -72,6 +72,7 @@ public class InteractionProcessor : IDisposable
                 if (
                     calculation.Count != 0
                     && calculation.Count % (interaction.MinDuration / 2) == 0
+                    && calculation.Evidences.Count == 0
                 )
                     aiProcessUtil.CaptureEvidence(calculation);
 
