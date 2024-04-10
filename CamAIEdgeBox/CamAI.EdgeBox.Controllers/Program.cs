@@ -11,6 +11,7 @@ using CamAI.EdgeBox.Services.Streaming;
 using CamAI.EdgeBox.Services.Utils;
 using FFMpegCore;
 using MassTransit;
+using Microsoft.Extensions.Primitives;
 using Serilog;
 
 async Task InitData(WebApplicationBuilder builder1)
@@ -97,8 +98,7 @@ GlobalFFOptions.Configure(x =>
 builder.Services.AddCors(opts =>
     opts.AddPolicy(
         name: "AllowAll",
-        policy =>
-            policy.AllowAnyOrigin().AllowAnyMethod().AllowAnyHeader().WithExposedHeaders("auto")
+        policy => policy.WithOrigins().AllowAnyMethod().AllowAnyHeader().WithExposedHeaders("auto")
     )
 );
 
@@ -114,7 +114,6 @@ await InitData(builder);
 
 builder.ConfigureMassTransit();
 builder.Services.AddDistributedMemoryCache();
-builder.Services.AddSession();
 
 var app = builder.Build();
 
@@ -127,7 +126,6 @@ app.UseSwaggerUI();
 
 app.MapControllers();
 
-app.UseSession();
 app.Use(
     (context, next) =>
     {
@@ -137,7 +135,10 @@ app.Use(
             return Task.CompletedTask;
         }
 
-        if (!context.Session.TryGetValue("ID", out _))
+        if (
+            StringValues.IsNullOrEmpty(context.Request.Headers.Authorization)
+            || !Hasher.Verify("yes", context.Request.Headers.Authorization!)
+        )
         {
             context.Response.StatusCode = (int)HttpStatusCode.Unauthorized;
             return Task.CompletedTask;
