@@ -23,7 +23,11 @@ $(document).ready(function () {
     function displayCameraDetails(camera) {
         $('#name').html(camera.name);
         $('#zone').html(camera.zone);
+        $('#protocol').html(camera.protocol);
         $('#status').html(camera.status);
+        $('#host').html(camera.host);
+        $('#port').html(camera.port);
+        $('#path').html(camera.path);
         $('#willRunAI').html(camera.willRunAI);
     }
 
