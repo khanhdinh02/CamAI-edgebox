@@ -1,4 +1,3 @@
-using CamAI.EdgeBox.Services.Utils;
 using MassTransit;
 using Serilog;
 
@@ -14,8 +13,6 @@ public static class IncidentProcessorUtil
     {
         var evidences = new List<Evidence>();
         foreach (var evidence in model.Evidences.Where(x => !x.IsSent))
-        {
-            evidence.IsSent = true;
             evidences.Add(
                 new Evidence
                 {
@@ -24,7 +21,6 @@ public static class IncidentProcessorUtil
                     Content = await File.ReadAllBytesAsync(evidence.Path, cancellationToken)
                 }
             );
-        }
 
         var incident = new Incident
         {
@@ -40,7 +36,17 @@ public static class IncidentProcessorUtil
             incident.IncidentType,
             incident.Id
         );
-        await bus.Publish(incident, cancellationToken);
+
+        try
+        {
+            await bus.Publish(incident, cancellationToken);
+            foreach (var evidence in model.Evidences.Where(x => !x.IsSent))
+                evidence.IsSent = true;
+        }
+        catch (Exception ex)
+        {
+            Log.Information("oh no, send incident has exception, {Ex}", ex);
+        }
     }
 
     public static void CaptureEvidence(
