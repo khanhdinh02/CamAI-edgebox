@@ -96,6 +96,8 @@ public class AiProcessWrapper(Camera camera, IServiceProvider provider)
             .ContinueWith(x =>
                 Log.Information("oh no, interaction processor stop, exception {Ex}", x.Exception)
             );
+
+        GC.KeepAlive(watcher);
     }
 
     private static Process CreateNewAiProcess(AiConfiguration configuration, Uri cameraUri)
