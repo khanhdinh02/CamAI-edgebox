@@ -9,7 +9,7 @@ public static class GlobalDataHelper
     {
         Console.WriteLine(
             "Fetching local data from: {0}",
-            Environment.SpecialFolder.LocalApplicationData
+            Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData)
         );
 
         GlobalData.Shop = ShopRepository.Get();
