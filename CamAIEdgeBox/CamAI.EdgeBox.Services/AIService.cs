@@ -122,6 +122,16 @@ public class AiService(IServiceProvider provider)
         var shop = GlobalData.Shop!;
         var currentTime = TimeOnly.FromDateTime(DateTime.Now);
 
+        if (shop.OpenTime == shop.CloseTime)
+        {
+            Log.Information(
+                "Shop open time and close time are equal {OpenTime}, running AI all the time. Current time {Now}",
+                shop.OpenTime,
+                currentTime
+            );
+            return true;
+        }
+
         Log.Information(
             "Shop open time {OpenTime}, close time {CloseTime}. Current time {Now}",
             shop.OpenTime,
@@ -129,6 +139,8 @@ public class AiService(IServiceProvider provider)
             currentTime
         );
 
-        return shop.OpenTime < currentTime && currentTime < shop.CloseTime;
+        if (shop.OpenTime < shop.CloseTime)
+            return shop.OpenTime < currentTime && currentTime < shop.CloseTime;
+        return shop.OpenTime > currentTime && currentTime > shop.CloseTime;
     }
 }

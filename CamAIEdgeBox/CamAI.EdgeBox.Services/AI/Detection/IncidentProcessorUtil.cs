@@ -27,6 +27,7 @@ public static class IncidentProcessorUtil
         var incident = new Incident
         {
             Id = model.Id,
+            AiId = model.AiId,
             StartTime = model.StartTime,
             EndTime = model.EndTime,
             IncidentType = model.Type,

@@ -10,6 +10,7 @@ public class Incident
 {
     public Guid EdgeBoxId { get; } = GlobalData.EdgeBox!.Id;
     public Guid Id { get; set; }
+    public int AiId { get; set; }
     public IncidentType IncidentType { get; set; }
     public DateTime StartTime { get; set; }
     public DateTime? EndTime { get; set; }
