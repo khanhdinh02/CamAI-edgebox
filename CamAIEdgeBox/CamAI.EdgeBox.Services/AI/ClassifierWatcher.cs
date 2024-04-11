@@ -26,6 +26,7 @@ public class ClassifierWatcher : IDisposable
         fileWatcher = new FileSystemWatcher(watchDirectory);
         watchFile = Path.Combine(watchDirectory, outputFile);
         ConfigureFilters();
+        GC.KeepAlive(fileWatcher);
     }
 
     private void ConfigureFilters()
@@ -65,6 +66,7 @@ public class ClassifierWatcher : IDisposable
 
     protected virtual void Dispose(bool disposing)
     {
+        Log.Information("Oh no why GC is disposing filewatcher");
         if (disposed)
             return;
         if (disposing)
