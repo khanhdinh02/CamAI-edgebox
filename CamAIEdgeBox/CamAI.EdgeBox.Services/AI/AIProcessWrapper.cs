@@ -80,10 +80,22 @@ public class AiProcessWrapper(Camera camera, IServiceProvider provider)
         );
 
 #pragma warning disable 4014
-        Task.Run(() => humanCount.Start(cancellationTokenSource.Token));
-        Task.Run(() => phone.Start(cancellationTokenSource.Token));
-        Task.Run(() => uniform.Start(cancellationTokenSource.Token));
-        Task.Run(() => interaction.Start(cancellationTokenSource.Token));
+        Task.Run(() => humanCount.Start(cancellationTokenSource.Token))
+            .ContinueWith(x =>
+                Log.Information("oh no, human count stop, exception {Ex}", x.Exception)
+            );
+        Task.Run(() => phone.Start(cancellationTokenSource.Token))
+            .ContinueWith(x =>
+                Log.Information("oh no, phone processor stop, exception {Ex}", x.Exception)
+            );
+        Task.Run(() => uniform.Start(cancellationTokenSource.Token))
+            .ContinueWith(x =>
+                Log.Information("oh no, uniform processor stop, exception {Ex}", x.Exception)
+            );
+        Task.Run(() => interaction.Start(cancellationTokenSource.Token))
+            .ContinueWith(x =>
+                Log.Information("oh no, interaction processor stop, exception {Ex}", x.Exception)
+            );
     }
 
     private static Process CreateNewAiProcess(AiConfiguration configuration, Uri cameraUri)
