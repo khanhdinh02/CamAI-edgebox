@@ -12,7 +12,8 @@ namespace CamAI.EdgeBox.Consumers;
     queueName: "ActivateConsumer_{MachineName}",
     exchangeName: Constants.ActivateEdgeBox,
     exchangeType: ExchangeType.Direct,
-    routingKey: "{EdgeBoxId}"
+    routingKey: "{EdgeBoxId}",
+    timeToLive: 10
 )]
 public class ActivatedEdgeBoxConsumer(
     ILogger<ActivatedEdgeBoxConsumer> logger,
