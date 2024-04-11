@@ -69,6 +69,11 @@ public static class IncidentProcessorUtil
 
     public static void CleanUpEvidence(this AiIncidentModel model)
     {
+        Log.Information(
+            "Cleaning up evidence for type {Type}, AiId {AiId}",
+            model.Type,
+            model.AiId
+        );
         foreach (var evidence in model.Evidences)
             File.Delete(evidence.Path);
     }

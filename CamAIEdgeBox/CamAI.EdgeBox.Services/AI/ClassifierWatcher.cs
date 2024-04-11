@@ -37,6 +37,7 @@ public class ClassifierWatcher : IDisposable
 
     private void HandleFileChange(object sender, FileSystemEventArgs e)
     {
+        Log.Information("Classifier watcher, new row");
         var lastLine = Retry.Do(
             () => File.ReadLines(watchFile).Last().Split(outputSeparator),
             TimeSpan.FromSeconds(1)
@@ -52,6 +53,7 @@ public class ClassifierWatcher : IDisposable
             lineStr.ToString(),
             Options
         );
+        Log.Information("Classifier watcher, invoking time, count {Count} result", result!.Count);
         Notifier?.Invoke(time, result!);
     }
 

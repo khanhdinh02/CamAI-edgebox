@@ -104,6 +104,12 @@ public class PhoneProcessor : IDisposable
                 )
                     aiProcessUtil.CaptureEvidence(calculation);
 
+                Log.Information(
+                    "Phone processor, AiId {AiId}, Score {Score}, TotalTime {TotalTime}",
+                    calculation.AiId,
+                    calculation.Score,
+                    calculation.TotalTime
+                );
                 if (
                     calculation.Score >= phone.MinScore
                     && calculation.TotalTime >= phone.MinDuration
