@@ -12,6 +12,8 @@ public static class IncidentProcessorUtil
     )
     {
         var evidences = new List<Evidence>();
+
+        model.Evidences.RemoveAll(x => !File.Exists(x.Path));
         foreach (var evidence in model.Evidences.Where(x => !x.IsSent))
             evidences.Add(
                 new Evidence
