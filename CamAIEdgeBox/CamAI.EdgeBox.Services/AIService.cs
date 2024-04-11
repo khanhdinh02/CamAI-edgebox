@@ -141,6 +141,6 @@ public class AiService(IServiceProvider provider)
 
         if (shop.OpenTime < shop.CloseTime)
             return shop.OpenTime < currentTime && currentTime < shop.CloseTime;
-        return shop.OpenTime > currentTime && currentTime > shop.CloseTime;
+        return !(shop.OpenTime > currentTime && currentTime > shop.CloseTime);
     }
 }

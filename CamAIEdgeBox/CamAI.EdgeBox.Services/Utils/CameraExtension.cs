@@ -43,17 +43,4 @@ public static class CameraExtension
         if (!result)
             throw new CameraConnectionException(camera);
     }
-
-    private static string CreateRtspDescribeRequest(Camera camera)
-    {
-        var strBuilder = new StringBuilder();
-        strBuilder.AppendLine($"DESCRIBE {camera.GetUri()} RTSP/1.0");
-        strBuilder.AppendLine("CSeq: 1");
-        strBuilder.AppendLine(
-            $"Authorization: Basic {Convert.ToBase64String(Encoding.UTF8.GetBytes($"{camera.Username}:{camera.Password}"))}"
-        );
-        strBuilder.AppendLine();
-        var message = strBuilder.ToString();
-        return message;
-    }
 }
