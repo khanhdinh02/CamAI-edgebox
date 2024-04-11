@@ -26,13 +26,9 @@ $(document).ready(function () {
             username: $('#username').val(),
             password: $('#password').val()
         };
-        // const formData = {
-        //     "username": "admin",
-        //     "password": "7a0f5308a6ee401d90c26f4d2c8b4b01"
-        // }
 
         $.ajax({
-            url: 'http://localhost:8080/api/auth/login',
+            url: `http://${document.location.host}/api/auth/login`,
             type: 'POST',
             contentType: 'application/json',
             data: JSON.stringify(formData),

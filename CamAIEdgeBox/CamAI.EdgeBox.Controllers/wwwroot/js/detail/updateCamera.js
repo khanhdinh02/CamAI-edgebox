@@ -48,7 +48,7 @@ $(document).ready(function () {
         console.log(formData)
 
         $.ajax({
-            url: `http://localhost:8080/api/cameras/${cameraId}`,
+            url: `http://${document.location.host}/api/cameras/${cameraId}`,
             beforeSend: function (request) {
                 request.setRequestHeader("Authorization", localStorage.getItem("Token"));
             },

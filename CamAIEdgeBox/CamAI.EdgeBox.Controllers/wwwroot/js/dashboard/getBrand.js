@@ -1,7 +1,7 @@
 $(document).ready(function () {
 
     $.ajax({
-        url: 'http://localhost:8080/api/brands',
+        url: `http://${document.location.host}/api/brands`,
         beforeSend: function (request) {
             request.setRequestHeader("Authorization", localStorage.getItem("Token"));
         },

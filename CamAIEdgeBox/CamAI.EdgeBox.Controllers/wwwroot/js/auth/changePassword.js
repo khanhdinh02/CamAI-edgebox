@@ -40,7 +40,7 @@ $(document).ready(function () {
         // }
 
         $.ajax({
-            url: 'http://localhost:8080/api/auth/password',
+            url: `http://${document.location.host}/api/auth/password`,
             type: 'POST',
             contentType: 'application/json',
             data: JSON.stringify(formData),

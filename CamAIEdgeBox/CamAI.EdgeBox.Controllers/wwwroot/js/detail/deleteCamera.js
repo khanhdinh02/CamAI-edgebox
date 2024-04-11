@@ -4,7 +4,7 @@ $(document).ready(function () {
         const cameraId = urlParams.get('id');
 
         $.ajax({
-            url: `http://localhost:8080/api/cameras/${cameraId}`,
+            url: `http://${document.location.host}/api/cameras/${cameraId}`,
             beforeSend: function (request) {
                 request.setRequestHeader("Authorization", localStorage.getItem("Token"));
             },
