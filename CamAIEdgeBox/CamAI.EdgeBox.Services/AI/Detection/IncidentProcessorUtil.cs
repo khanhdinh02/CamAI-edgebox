@@ -35,8 +35,10 @@ public static class IncidentProcessorUtil
         };
 
         Log.Information(
-            "Send new incident {Type}, incident id {IncidentId}",
+            "Send new incident {Type}, AiId {Id}, End time {EndTime}, incident id {IncidentId}",
+            incident.AiId,
             incident.IncidentType,
+            incident.EndTime,
             incident.Id
         );
 
