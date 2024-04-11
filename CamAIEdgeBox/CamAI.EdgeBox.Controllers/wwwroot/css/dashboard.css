@@ -1,0 +1,20 @@
+.brand-shop-edgebox-section {
+    width: 90%;
+    margin: 20px auto;
+}
+
+.brand-shop-container, .edgebox-container {
+    padding: 30px;
+    margin-bottom: 30px;
+    box-shadow: 0px 3px 4px #00000024,
+    0px 3px 3px #0000001f,
+    0px 1px 8px #00000033;
+}
+
+.brand-container {
+    width: 43%;
+}
+
+.shop-container {
+    width: 43%;
+}

@@ -1,0 +1,41 @@
+.modal-form-container {
+    padding: 0 20px 20px 20px;
+}
+
+.main-button, .red-button {
+    font-weight: 600;
+    font-size: large;
+    background-color: #5474b4;
+    color: white;
+    padding: 10px 20px;
+    border-radius: 5px;
+    border-color: transparent;
+    margin-top: 10px;
+}
+
+.action-button-blue, .action-button-red {
+    font-weight: 600;
+    font-size: large;
+    background-color: #5474b4;
+    color: white;
+    padding: 5px 10px;
+    border-radius: 5px;
+    border-color: transparent;
+}
+
+.action-button-red {
+    background-color: #e3356b;
+}
+
+.back-button {
+    background-color: transparent;
+    font-size: x-large;
+    padding: 10px 20px;
+    border-color: transparent;
+}
+
+.title {
+    font-size: xx-large;
+    font-weight: bold;
+    margin-bottom: 20px;
+}

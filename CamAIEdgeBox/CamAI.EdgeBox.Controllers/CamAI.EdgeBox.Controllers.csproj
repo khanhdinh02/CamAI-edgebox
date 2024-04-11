@@ -25,4 +25,8 @@
       <ProjectReference Include="..\CamAI.EdgeBox.Services\CamAI.EdgeBox.Services.csproj" />
     </ItemGroup>
 
+    <ItemGroup>
+      <Folder Include="wwwroot\" />
+    </ItemGroup>
+
 </Project>

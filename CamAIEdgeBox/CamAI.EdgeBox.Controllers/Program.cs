@@ -118,6 +118,7 @@ app.UseCors("AllowAll");
 app.UseSwagger();
 app.UseSwaggerUI();
 
+app.UseStaticFiles();
 app.MapControllers();
 
 app.Use(
