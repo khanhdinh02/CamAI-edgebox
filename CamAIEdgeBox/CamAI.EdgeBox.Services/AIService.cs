@@ -17,7 +17,16 @@ public class AiService(IServiceProvider provider)
             nextRunTime += TimeSpan.FromDays(1);
 
         timer.Interval = (nextRunTime - currentTime.ToTimeSpan()).TotalMilliseconds;
-        timer.Elapsed += (_, _) => action();
+        Log.Information(
+            "Setup timer for next event, run at {RunAtTime}, wait for {Minute} minutes",
+            nextRunTime,
+            timer.Interval
+        );
+        timer.Elapsed += (_, _) =>
+        {
+            Log.Information("Timer elapsed at {CurrentTime}", TimeOnly.FromDateTime(DateTime.Now));
+            action();
+        };
         timer.AutoReset = false;
         timer.Start();
     }
