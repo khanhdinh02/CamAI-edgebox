@@ -34,10 +34,6 @@ $(document).ready(function () {
             oldPassword: $('#oldPassword').val(),
             newPassword: $('#newPassword').val()
         };
-        // const formData = {
-        //     "username": "admin",
-        //     "password": "7a0f5308a6ee401d90c26f4d2c8b4b01"
-        // }
 
         $.ajax({
             url: `http://${document.location.host}/api/auth/password`,

@@ -2,26 +2,6 @@ $(document).ready(function () {
     $('#addCameraForm').submit(function (event) {
         event.preventDefault();
 
-        // let isReturn = false;
-
-        // if ($('#username').val().length == 0) {
-        //     $('#errorUsernameMessage').text("Username is required");
-        //     isReturn = true;
-        // } else {
-        //     $('#errorUsernameMessage').text("");
-        //     isReturn = false;
-        // }
-
-        // if ($('#password').val().length == 0) {
-        //     $('#errorPasswordMessage').text("Password is required");
-        //     isReturn = true;
-        // } else {
-        //     $('#errorPasswordMessage').text("");
-        //     isReturn = false;
-        // }
-
-        // if (isReturn) return;
-
         const zoneCheck = $('.zone:checked').map(function () {
             return $(this).val();
         }).get();

@@ -13,9 +13,6 @@ $(document).ready(function () {
             $('#camEmail').html(xhr.email);
         },
         error: function (xhr, status, error) {
-            // console.log(xhr);
-            // console.log(status);
-            // console.log(error);
             console.error('Error fetching brand details:', error);
             $('#brandDetails').html('An error occurred while fetching brand details.');
         }

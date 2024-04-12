@@ -15,9 +15,6 @@ $(document).ready(function () {
             $('#shopCloseTime').html(xhr.closeTime);
         },
         error: function (xhr, status, error) {
-            // console.log(xhr);
-            // console.log(status);
-            // console.log(error);
             console.error('Error fetching shop details:', error);
             $('#shopDetails').html('An error occurred while fetching shop details.');
         }
