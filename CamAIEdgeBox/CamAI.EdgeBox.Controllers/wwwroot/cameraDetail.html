@@ -3,7 +3,7 @@
     <head>
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1">
-        <title>CamAI List</title>
+        <title>CamAI Detail</title>
         <link rel="stylesheet" href="css/dashboard.css">
         <link rel="stylesheet" href="css/common.css">
         <link
@@ -101,7 +101,7 @@
                                     <div>
                                         <label for="name"
                                             class="form-label">Name</label>
-                                        <input type="text" class="form-control"
+                                        <input type="text" class="form-control" required
                                             id="updateName">
                                         <div class="pb-3" style="color: red;"
                                             id="errorNameMessage"></div>
@@ -141,7 +141,7 @@
                                     <div>
                                         <label for="username"
                                             class="form-label">Username</label>
-                                        <input type="text" class="form-control"
+                                        <input type="text" class="form-control" required
                                             id="updateUsername">
                                         <div class="pb-3" style="color: red;"
                                             id="errorUsernameMessage"></div>
@@ -151,7 +151,7 @@
                                     <div>
                                         <label for="password"
                                             class="form-label">Password</label>
-                                        <input type="password"
+                                        <input type="password" required
                                             class="form-control"
                                             id="updatePassword">
                                         <div class="pb-3" style="color: red;"
@@ -162,7 +162,7 @@
                                     <div>
                                         <label for="protocol"
                                             class="form-label">Protocol</label>
-                                        <input type="text" class="form-control"
+                                        <input type="text" class="form-control" required
                                             id="updateProtocol">
                                         <div class="pb-3" style="color: red;"
                                             id="errorProtocolMessage"></div>
@@ -172,7 +172,7 @@
                                     <div>
                                         <label for="port"
                                             class="form-label">Port</label>
-                                        <input type="text" class="form-control"
+                                        <input type="text" class="form-control" required
                                             id="updatePort">
                                         <div class="pb-3" style="color: red;"
                                             id="errorPortMessage"></div>
@@ -182,7 +182,7 @@
                                     <div>
                                         <label for="Host"
                                             class="form-label">Host</label>
-                                        <input type="text" class="form-control"
+                                        <input type="text" class="form-control" required
                                             id="updateHost">
                                         <div class="pb-3" style="color: red;"
                                             id="errorHostMessage"></div>
@@ -192,7 +192,7 @@
                                     <div>
                                         <label for="path"
                                             class="form-label">Path</label>
-                                        <input type="text" class="form-control"
+                                        <input type="text" class="form-control" required
                                             id="updatePath">
                                         <div class="pb-3" style="color: red;"
                                             id="errorPathMessage"></div>
@@ -202,7 +202,7 @@
                                     <div class="form-check mb-2">
                                         <label class="form-check-label"
                                             for="updateWillRunAi">Run AI</label>
-                                        <input class="form-check-input"
+                                        <input class="form-check-input" required
                                             type="checkbox" role="switch"
                                             id="updateWillRunAi">
                                     </div>

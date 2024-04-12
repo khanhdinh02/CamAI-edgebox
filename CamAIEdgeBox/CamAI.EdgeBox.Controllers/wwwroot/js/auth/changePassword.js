@@ -2,24 +2,6 @@ $(document).ready(function () {
     $('#changePasswordForm').submit(function (event) {
         event.preventDefault();
 
-        let isReturn = false;
-
-        if ($('#oldPassword').val().length == 0) {
-            $('#errorOldPasswordMessage').text("Old Password is required");
-            isReturn = true;
-        } else {
-            $('#errorOldPasswordMessage').text("");
-            isReturn = false;
-        }
-
-        if ($('#newPassword').val().length == 0) {
-            $('#errorNewPasswordMessage').text("New Password is required");
-            isReturn = true;
-        } else {
-            $('#errorNewPasswordMessage').text("");
-            isReturn = false;
-        }
-
         if ($('#oldPassword').val() !== $('#newPassword').val()) {
             $('#errorMessage').text("The passwords are not match")
             isReturn = true;
