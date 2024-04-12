@@ -13,6 +13,7 @@ $(document).ready(function () {
             $('#shopEmail').html(xhr.email);
             $('#shopOpenTime').html(xhr.openTime);
             $('#shopCloseTime').html(xhr.closeTime);
+            $('#isShopOpen').html(xhr.isShopOpen);
         },
         error: function (xhr, status, error) {
             console.error('Error fetching shop details:', error);

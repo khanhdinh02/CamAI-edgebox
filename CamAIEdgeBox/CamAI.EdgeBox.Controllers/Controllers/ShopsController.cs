@@ -1,4 +1,5 @@
-﻿using CamAI.EdgeBox.Models;
+﻿using CamAI.EdgeBox.Controllers.Models;
+using CamAI.EdgeBox.Models;
 using CamAI.EdgeBox.Services;
 using Microsoft.AspNetCore.Mvc;
 
@@ -9,9 +10,18 @@ namespace CamAI.EdgeBox.Controllers.Controllers;
 public class ShopsController : Controller
 {
     [HttpGet]
-    public Shop? GetShop()
+    public ShopDto? GetShop()
     {
-        return GlobalData.Shop;
+        var shop = GlobalData.Shop!;
+        return new ShopDto
+        {
+            Name = shop.Name,
+            Phone = shop.Phone,
+            Address = shop.Address,
+            OpenTime = shop.OpenTime,
+            CloseTime = shop.CloseTime,
+            IsShopOpen = AiService.IsShopOpen()
+        };
     }
 
     [HttpPut]

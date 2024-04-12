@@ -1,6 +1,7 @@
 using CamAI.EdgeBox.Models;
 using CamAI.EdgeBox.Repositories;
 using CamAI.EdgeBox.Services.Utils;
+using Microsoft.AspNetCore.Mvc.TagHelpers;
 
 namespace CamAI.EdgeBox.Services;
 
@@ -23,7 +24,11 @@ public static class AuthService
     {
         var hashedPassword = AuthRepository.GetPassword();
         if (hashedPassword == "")
-            return password == GlobalData.EdgeBox!.Id.ToString("N");
+        {
+            if (!Guid.TryParse(password, out var id))
+                return false;
+            return id == GlobalData.EdgeBox!.Id;
+        }
 
         return Hasher.Verify(password, hashedPassword);
     }

@@ -18,6 +18,7 @@ public class HealthCheckRequestConsumer(AiService aiService, IPublishEndpoint bu
         var (expectedNumOfAi, numOfRunningAi) = aiService.GetRunningAIStatus();
         if (
             GlobalData.EdgeBox!.EdgeBoxStatus == EdgeBoxStatus.Active
+            && AiService.IsShopOpen()
             && expectedNumOfAi > numOfRunningAi
         )
         {

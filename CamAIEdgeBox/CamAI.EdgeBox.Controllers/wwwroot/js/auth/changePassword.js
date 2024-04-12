@@ -2,7 +2,9 @@ $(document).ready(function () {
     $('#changePasswordForm').submit(function (event) {
         event.preventDefault();
 
-        if ($('#oldPassword').val() !== $('#newPassword').val()) {
+        if ($('#newPasswordConfirmed').val() !== $('#newPassword').val()) {
+            console.log($('#newPasswordConfirmed').val() );
+            console.log($('#newPassword').val() );
             $('#errorMessage').text("The passwords are not match")
             isReturn = true;
         } else {
@@ -19,6 +21,9 @@ $(document).ready(function () {
 
         $.ajax({
             url: `http://${document.location.host}/api/auth/password`,
+            beforeSend: function (request) {
+                request.setRequestHeader("Authorization", localStorage.getItem("Token"));
+            },
             type: 'POST',
             contentType: 'application/json',
             data: JSON.stringify(formData),
@@ -28,8 +33,7 @@ $(document).ready(function () {
                 window.location.href = "/index.html"
             },
             error: function (xhr, status, error) {
-                const errorMessage = xhr.responseJSON ? xhr.responseJSON.message : 'An error occurred.';
-                $('#errorMessage').text(errorMessage); // Display error message
+                $('#errorMessage').text(xhr.responseText); // Display error message
             }
         });
     });
