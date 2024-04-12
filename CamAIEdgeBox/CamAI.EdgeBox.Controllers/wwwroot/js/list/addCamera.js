@@ -33,8 +33,6 @@ $(document).ready(function () {
             contentType: 'application/json',
             data: JSON.stringify(formData),
             success: function (data, status, xhr) {
-                console.log(data)
-                alert("Camera Added!")
                 window.location.href = "/cameraList.html"
             },
             error: function (xhr, status, error) {

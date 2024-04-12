@@ -10,8 +10,6 @@ $(document).ready(function () {
             },
             type: 'DELETE',
             success: function (data, status, xhr) {
-                console.log(data)
-                alert("Camera Deleted!")
                 window.location.href = `/cameraList.html`;
             },
             error: function (xhr, status, error) {

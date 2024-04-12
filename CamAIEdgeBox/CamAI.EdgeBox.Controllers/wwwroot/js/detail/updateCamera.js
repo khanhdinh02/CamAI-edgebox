@@ -36,8 +36,6 @@ $(document).ready(function () {
             contentType: 'application/json',
             data: JSON.stringify(formData),
             success: function (data, status, xhr) {
-                console.log(data)
-                alert("Camera Updated!")
                 window.location.href = `/cameraDetail.html?id=${cameraId}`;
             },
             error: function (xhr, status, error) {
