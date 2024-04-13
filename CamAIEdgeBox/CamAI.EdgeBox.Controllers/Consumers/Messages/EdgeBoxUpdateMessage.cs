@@ -5,7 +5,7 @@ namespace CamAI.EdgeBox.Consumers.Messages;
 [MessageUrn(nameof(EdgeBoxUpdateMessage))]
 public class EdgeBoxUpdateMessage
 {
-    public string SerialNumber { get; set; } = null!;
+    public string? SerialNumber { get; set; } = null!;
     public string? Name { get; set; } = null!;
     public string Model { get; set; } = null!;
     public EdgeBoxActivationStatus ActivationStatus { get; set; }

@@ -6,7 +6,7 @@ public class DbEdgeBox : BaseEntity
     public EdgeBoxStatus EdgeBoxStatus { get; set; } = EdgeBoxStatus.Inactive;
     public string? Model { get; set; }
     public string? Version => GlobalData.Version;
-    public string SerialNumber { get; set; } = null!;
+    public string? SerialNumber { get; set; }
     public string? MacAddress => GlobalData.MacAddress;
     public string? OsName => GlobalData.OsName;
 }
