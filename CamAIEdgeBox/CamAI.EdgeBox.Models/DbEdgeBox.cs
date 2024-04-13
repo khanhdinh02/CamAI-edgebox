@@ -2,6 +2,7 @@
 
 public class DbEdgeBox : BaseEntity
 {
+    public new Guid Id => GlobalData.EdgeBoxId;
     public string? Name { get; set; }
     public EdgeBoxStatus EdgeBoxStatus { get; set; } = EdgeBoxStatus.Inactive;
     public string? Model { get; set; }

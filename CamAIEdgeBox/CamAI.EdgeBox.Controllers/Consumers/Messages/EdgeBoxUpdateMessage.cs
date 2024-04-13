@@ -3,7 +3,7 @@ using MassTransit;
 namespace CamAI.EdgeBox.Consumers.Messages;
 
 [MessageUrn(nameof(EdgeBoxUpdateMessage))]
-public class EdgeBoxUpdateMessage
+public class EdgeBoxUpdateMessage : BaseUpdateMessage
 {
     public string? SerialNumber { get; set; } = null!;
     public string? Name { get; set; } = null!;

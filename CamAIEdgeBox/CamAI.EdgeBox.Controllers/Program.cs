@@ -1,6 +1,8 @@
+using System.Diagnostics;
 using System.Net;
 using System.Text.Json.Serialization;
 using CamAI.EdgeBox.Consumers;
+using CamAI.EdgeBox.Consumers.Messages;
 using CamAI.EdgeBox.Controllers;
 using CamAI.EdgeBox.MassTransit;
 using CamAI.EdgeBox.Middlewares;
@@ -26,6 +28,7 @@ async Task InitData(WebApplicationBuilder builder1)
     var consumer = scope.ServiceProvider.GetRequiredService<UpdateDataConsumer>();
 
     var edgeBoxId = builder1.Configuration.GetRequiredSection("EdgeBoxId").Get<Guid>();
+    GlobalData.EdgeBoxId = edgeBoxId;
     var busControl = builder1.CreateSyncBusControl(consumer, edgeBoxId);
     await busControl.StartAsync();
     Console.WriteLine("Bus for global data started");
@@ -157,7 +160,7 @@ async Task InitializeEdgeBoxWithServer(IBusControl busControl, IConfiguration co
         version
     );
 
-    var syncRequest = new InitializeRequest
+    var initializeRequest = new InitializeRequest
     {
         EdgeBoxId = edgeBoxId,
         IpAddress = localIpAddress,
@@ -165,12 +168,21 @@ async Task InitializeEdgeBoxWithServer(IBusControl busControl, IConfiguration co
         MacAddress = macAddr,
         OperatingSystem = osName
     };
-    await busControl.Publish(syncRequest);
+    await busControl.Publish(initializeRequest);
 
     GlobalData.Version = version;
     GlobalData.MacAddress = macAddr;
     GlobalData.OsName = osName;
     while (GlobalData.EdgeBox == null || GlobalData.Shop == null || GlobalData.Brand == null)
         Thread.Sleep(1000);
+
+    if (GlobalData.EdgeBox.EdgeBoxStatus == EdgeBoxStatus.Active)
+        await busControl.Publish(
+            new ConfirmedEdgeBoxActivationMessage
+            {
+                EdgeBoxId = GlobalData.EdgeBoxId,
+                IsActivatedSuccessfully = true
+            }
+        );
     Console.WriteLine("Bus for global data stopped");
 }

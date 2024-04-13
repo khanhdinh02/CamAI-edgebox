@@ -33,6 +33,15 @@ public static class MassTransitConfiguration
                 );
             });
 
+            cfg.Message<ConfirmedEdgeBoxActivationMessage>(x =>
+            {
+                x.SetEntityName(
+                    typeof(ConfirmedEdgeBoxActivationMessage)
+                        .GetCustomAttribute<PublisherAttribute>()!
+                        .QueueName
+                );
+            });
+
             cfg.Message<HealthCheckResponseMessage>(x =>
             {
                 x.SetEntityName(
