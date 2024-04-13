@@ -2,10 +2,13 @@
 
 public class DbEdgeBox : BaseEntity
 {
-    public string Name { get; set; } = null!;
+    public string? Name { get; set; }
     public EdgeBoxStatus EdgeBoxStatus { get; set; } = EdgeBoxStatus.Inactive;
     public string? Model { get; set; }
-    public string? Version { get; set; }
+    public string? Version => GlobalData.Version;
+    public string SerialNumber { get; set; } = null!;
+    public string? MacAddress => GlobalData.MacAddress;
+    public string? OsName => GlobalData.OsName;
 }
 
 public enum EdgeBoxStatus

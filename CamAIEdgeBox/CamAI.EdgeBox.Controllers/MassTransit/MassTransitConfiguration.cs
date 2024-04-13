@@ -12,7 +12,8 @@ public static class MassTransitConfiguration
 {
     public static IBusControl CreateSyncBusControl(
         this WebApplicationBuilder builder,
-        UpdateDataConsumer updateDataConsumer
+        UpdateDataConsumer updateDataConsumer,
+        Guid edgeBoxId
     )
     {
         var settings = builder.Configuration.GetSection("RabbitMq").Get<RabbitMqConfiguration>()!;
@@ -25,10 +26,10 @@ public static class MassTransitConfiguration
             );
 
             // register sync data request message
-            cfg.Message<SyncDataRequest>(x =>
+            cfg.Message<InitializeRequest>(x =>
             {
                 x.SetEntityName(
-                    typeof(SyncDataRequest).GetCustomAttribute<PublisherAttribute>()!.QueueName
+                    typeof(InitializeRequest).GetCustomAttribute<PublisherAttribute>()!.QueueName
                 );
             });
 
@@ -44,7 +45,7 @@ public static class MassTransitConfiguration
             var consumer = typeof(UpdateDataConsumer).GetCustomAttribute<ConsumerAttribute>()!;
             cfg.AutoStart = true;
             cfg.ReceiveEndpoint(
-                $"EdgeBox_{GlobalData.EdgeBox!.Id:N}",
+                $"EdgeBox_{edgeBoxId:N}",
                 e =>
                 {
                     e.ConcurrentMessageLimit = 5;
@@ -62,7 +63,7 @@ public static class MassTransitConfiguration
                         x =>
                         {
                             x.ExchangeType = consumer.ExchangeType;
-                            x.RoutingKey = GlobalData.EdgeBox.Id.ToString("N");
+                            x.RoutingKey = edgeBoxId.ToString("N");
                         }
                     );
                 }

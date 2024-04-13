@@ -16,10 +16,6 @@ using Serilog;
 
 async Task InitData(WebApplicationBuilder builder1)
 {
-    // init edge box
-    var edgeBoxId = builder1.Configuration.GetRequiredSection("EdgeBoxId").Get<Guid>();
-    GlobalData.EdgeBox ??= new DbEdgeBox { Id = edgeBoxId };
-
     // init services
     Console.WriteLine("Configuring bus for global data");
     builder1.Services.AddScoped<UpdateDataConsumer>();
@@ -29,26 +25,13 @@ async Task InitData(WebApplicationBuilder builder1)
     using var scope = provider.CreateScope();
     var consumer = scope.ServiceProvider.GetRequiredService<UpdateDataConsumer>();
 
-    var busControl = builder1.CreateSyncBusControl(consumer);
+    var edgeBoxId = builder1.Configuration.GetRequiredSection("EdgeBoxId").Get<Guid>();
+    var busControl = builder1.CreateSyncBusControl(consumer, edgeBoxId);
     await busControl.StartAsync();
     Console.WriteLine("Bus for global data started");
 
-    var localIpAddress = NetworkUtil.GetLocalIpAddress();
-    Console.WriteLine("Ip address sent to server {0}", localIpAddress);
-    // publish health message
-    await busControl.Publish(
-        new HealthCheckResponseMessage
-        {
-            EdgeBoxId = GlobalData.EdgeBox.Id,
-            Status = EdgeBoxInstallStatus.Working,
-            IpAddress = localIpAddress
-        }
-    );
-
     // sync data from server
-    if (GlobalData.Shop == null || GlobalData.Brand == null)
-        await FetchServerData(busControl);
-
+    await InitializeEdgeBoxWithServer(busControl, builder1.Configuration);
     await busControl.StopAsync();
 }
 
@@ -103,7 +86,6 @@ builder.Services.Configure<RouteOptions>(opts =>
 });
 
 // get local data
-GlobalDataHelper.GetData();
 await InitData(builder);
 
 builder.ConfigureMassTransit();
@@ -159,12 +141,36 @@ app.MapGet("/", () => Results.Ok("Hello word"));
 app.Run();
 return;
 
-async Task FetchServerData(IBusControl busControl)
+async Task InitializeEdgeBoxWithServer(IBusControl busControl, IConfiguration configuration)
 {
-    var syncRequest = new SyncDataRequest { EdgeBoxId = GlobalData.EdgeBox!.Id };
+    var localIpAddress = NetworkUtil.GetLocalIpAddress();
+    var macAddr = NetworkUtil.GetMacAddress();
+    var osName = NetworkUtil.GetOsName();
+    var edgeBoxId = configuration.GetRequiredSection("EdgeBoxId").Get<Guid>();
+    var version = configuration.GetRequiredSection("Version").Get<string>()!;
+    Console.WriteLine(
+        "Current IP address {0}, MAC Address {1}, OS name {2}, Edge box id {3}, Version {4}",
+        localIpAddress,
+        macAddr,
+        osName,
+        edgeBoxId,
+        version
+    );
+
+    var syncRequest = new InitializeRequest
+    {
+        EdgeBoxId = edgeBoxId,
+        IpAddress = localIpAddress,
+        Version = version,
+        MacAddress = macAddr,
+        OperatingSystem = osName
+    };
     await busControl.Publish(syncRequest);
 
-    while (GlobalData.Shop == null || GlobalData.Brand == null)
+    GlobalData.Version = version;
+    GlobalData.MacAddress = macAddr;
+    GlobalData.OsName = osName;
+    while (GlobalData.EdgeBox == null || GlobalData.Shop == null || GlobalData.Brand == null)
         Thread.Sleep(1000);
     Console.WriteLine("Bus for global data stopped");
 }

@@ -12,7 +12,8 @@ namespace CamAI.EdgeBox.Consumers;
 public class UpdateDataConsumer
     : IConsumer<BrandUpdateMessage>,
         IConsumer<ShopUpdateMessage>,
-        IConsumer<CameraUpdateMessage>
+        IConsumer<CameraUpdateMessage>,
+        IConsumer<EdgeBoxUpdateMessage>
 {
     public Task Consume(ConsumeContext<BrandUpdateMessage> context)
     {
@@ -32,6 +33,24 @@ public class UpdateDataConsumer
     {
         foreach (var camera in context.Message.Cameras)
             StaticCameraService.UpsertCameraFromServerData(camera);
+        return Task.CompletedTask;
+    }
+
+    public Task Consume(ConsumeContext<EdgeBoxUpdateMessage> context)
+    {
+        var message = context.Message;
+        EdgeBoxService.UpsertEdgeBox(
+            new DbEdgeBox
+            {
+                Name = message.Name,
+                Model = message.Model,
+                SerialNumber = message.SerialNumber,
+                EdgeBoxStatus =
+                    message.ActivationStatus == EdgeBoxActivationStatus.Activated
+                        ? EdgeBoxStatus.Active
+                        : EdgeBoxStatus.Inactive
+            }
+        );
         return Task.CompletedTask;
     }
 }
