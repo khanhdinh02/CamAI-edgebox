@@ -20,6 +20,6 @@ public abstract class MessageQueueEndpointAttribute(string queueName) : Attribut
         sb.Replace("{ShopId}", GlobalData.Shop?.Id.ToString("N"));
         sb.Replace("{EdgeBoxId}", GlobalData.EdgeBox?.Id.ToString("N"));
         sb.Replace(" ", "");
-        return sb.ToString();
+        return Encoding.UTF8.GetString(Encoding.UTF8.GetBytes(sb.ToString()));
     }
 }
