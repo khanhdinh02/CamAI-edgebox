@@ -158,7 +158,7 @@ public class AiProcessWrapper(Camera camera, IServiceProvider provider)
 
     public class AiProcessUtil(AiConfiguration configuration, Camera camera, Process aiProcess)
     {
-        public Guid CameraId => camera.Id;
+        public Camera Camera => camera;
 
         public string CaptureFrame(string outputFileName)
         {

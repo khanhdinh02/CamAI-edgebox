@@ -19,7 +19,7 @@ public static class IncidentProcessorUtil
                 new Evidence
                 {
                     EvidenceType = EvidenceType.Image,
-                    Camera = StaticCameraService.GetCamera(evidence.CameraId),
+                    Camera = evidence.Camera,
                     Content = await File.ReadAllBytesAsync(evidence.Path, cancellationToken)
                 }
             );
@@ -65,9 +65,7 @@ public static class IncidentProcessorUtil
             model.AiId
         );
         var captureName = util.CaptureFrame(model.NewEvidenceName());
-        model.Evidences.Add(
-            new CalculationEvidence { Path = captureName, CameraId = util.CameraId }
-        );
+        model.Evidences.Add(new CalculationEvidence { Path = captureName, Camera = util.Camera });
     }
 
     public static bool ShouldBeSend(this AiIncidentModel model)
