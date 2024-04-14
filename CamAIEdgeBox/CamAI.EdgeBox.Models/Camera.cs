@@ -4,7 +4,7 @@ namespace CamAI.EdgeBox.Models;
 
 public class Camera : BaseEntity
 {
-    public Guid ShopId { get; set; }
+    public Guid ShopId => GlobalData.Shop!.Id;
 
     [StringLength(255)]
     public string Name { get; set; } = null!;
