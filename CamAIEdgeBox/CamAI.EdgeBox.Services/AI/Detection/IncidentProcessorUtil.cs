@@ -19,7 +19,7 @@ public static class IncidentProcessorUtil
                 new Evidence
                 {
                     EvidenceType = EvidenceType.Image,
-                    CameraId = evidence.CameraId,
+                    Camera = StaticCameraService.GetCamera(evidence.CameraId),
                     Content = await File.ReadAllBytesAsync(evidence.Path, cancellationToken)
                 }
             );

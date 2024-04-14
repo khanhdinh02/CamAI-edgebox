@@ -9,7 +9,7 @@ using Constants = CamAI.EdgeBox.Services.MassTransit.Constants;
 namespace CamAI.EdgeBox.Consumers;
 
 [Consumer("{EdgeBoxId}_Streaming", Constants.Streaming, "{EdgeBoxId}", ExchangeType.Direct)]
-public class StreamingConsumer(CameraService cameraService) : IConsumer<StreamingMessage>
+public class StreamingConsumer : IConsumer<StreamingMessage>
 {
     public Task Consume(ConsumeContext<StreamingMessage> context)
     {
@@ -20,7 +20,7 @@ public class StreamingConsumer(CameraService cameraService) : IConsumer<Streamin
 
     private void StartStreaming(StreamingMessage message)
     {
-        var camera = cameraService.GetCamera(message.CameraId);
+        var camera = StaticCameraService.GetCamera(message.CameraId);
         StreamingProcessManager.RunEncoder(camera, message.HttpRelayUri!);
     }
 }

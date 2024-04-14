@@ -132,7 +132,7 @@ app.Use(
 using (var scope = app.Services.CreateScope())
 {
     var cameraService = scope.ServiceProvider.GetRequiredService<CameraService>();
-    foreach (var camera in cameraService.GetCamera())
+    foreach (var camera in StaticCameraService.GetCamera())
         cameraService.CheckCameraConnection(camera, runAi: false);
 
     var aiService = scope.ServiceProvider.GetRequiredService<AiService>();

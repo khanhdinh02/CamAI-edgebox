@@ -26,7 +26,7 @@ public class CamerasController(CameraService cameraService) : Controller
     public Camera UpdateCamera([FromRoute] Guid id, [FromBody] Camera cameraDto)
     {
         // Check if camera exist
-        cameraService.GetCamera(id);
+        StaticCameraService.GetCamera(id);
 
         cameraDto.Id = id;
         return cameraService.UpsertCamera(cameraDto);

@@ -9,11 +9,6 @@ namespace CamAI.EdgeBox.Services;
 
 public class CameraService(IPublishEndpoint bus, AiService aiService)
 {
-    public List<Camera> GetCamera() => CameraRepository.GetAll();
-
-    public Camera GetCamera(Guid id) =>
-        CameraRepository.GetById(id) ?? throw new NullReferenceException($"Not found camera {id}");
-
     public Camera UpsertCamera(Camera camera)
     {
         UpdateCameraConnectionStatus(camera);
@@ -39,7 +34,7 @@ public class CameraService(IPublishEndpoint bus, AiService aiService)
 
     public void CheckCameraConnection(Guid id, bool runAi = true)
     {
-        var camera = GetCamera(id);
+        var camera = StaticCameraService.GetCamera(id);
         CheckCameraConnection(camera, runAi);
     }
 
@@ -92,4 +87,9 @@ public static class StaticCameraService
             camera.Status = CameraStatus.Disconnected;
         }
     }
+
+    public static List<Camera> GetCamera() => CameraRepository.GetAll();
+
+    public static Camera GetCamera(Guid id) =>
+        CameraRepository.GetById(id) ?? throw new NullReferenceException($"Not found camera {id}");
 }
