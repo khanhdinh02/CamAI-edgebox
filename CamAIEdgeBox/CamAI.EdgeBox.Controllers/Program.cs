@@ -4,6 +4,7 @@ using System.Text.Json.Serialization;
 using CamAI.EdgeBox.Consumers;
 using CamAI.EdgeBox.Consumers.Messages;
 using CamAI.EdgeBox.Controllers;
+using CamAI.EdgeBox.Controllers.BackgroundServices;
 using CamAI.EdgeBox.MassTransit;
 using CamAI.EdgeBox.Middlewares;
 using CamAI.EdgeBox.Models;
@@ -53,6 +54,7 @@ builder
 
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
+builder.Services.AddHostedService<HealthCheckBackgroundService>();
 
 builder.Host.UseSerilog(
     (context, logConfig) =>
