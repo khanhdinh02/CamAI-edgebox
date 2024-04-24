@@ -19,6 +19,11 @@ public class CameraService(IPublishEndpoint bus, AiService aiService)
         return camera;
     }
 
+    public void PublishCameraChangeMessage(Camera camera)
+    {
+        bus.Publish(new CameraChangeMessage { Camera = camera, Action = Action.Upsert });
+    }
+
     private static void UpdateCameraConnectionStatus(Camera camera)
     {
         try
