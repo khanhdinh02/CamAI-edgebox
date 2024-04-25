@@ -11,16 +11,34 @@ public class CameraService(IPublishEndpoint bus, AiService aiService)
 {
     public Camera UpsertCamera(Camera camera)
     {
+        var oldCamera = CameraRepository.GetById(camera.Id);
+        var rerunAi =
+            (
+                oldCamera != null
+                && (
+                    camera.Port != oldCamera.Port
+                    || camera.Host != oldCamera.Host
+                    || camera.Protocol != oldCamera.Protocol
+                    || camera.Username != oldCamera.Username
+                    || camera.Password != oldCamera.Password
+                    || camera.Path != oldCamera.Path
+                )
+            ) || ((oldCamera?.WillRunAI ?? false) && camera.WillRunAI);
         UpdateCameraConnectionStatus(camera);
         CameraRepository.UpsertCamera(camera);
         GlobalData.Cameras = CameraRepository.GetAll();
         bus.Publish(new CameraChangeMessage { Camera = camera, Action = Action.Upsert });
-        aiService.RunAi(camera);
+        if (rerunAi)
+        {
+            aiService.KillAi(camera);
+            aiService.RunAi(camera);
+        }
         return camera;
     }
 
     public void PublishCameraChangeMessage(Camera camera)
     {
+        camera.ShopId = GlobalData.Shop!.Id;
         bus.Publish(new CameraChangeMessage { Camera = camera, Action = Action.Upsert });
     }
 
@@ -58,15 +76,10 @@ public class CameraService(IPublishEndpoint bus, AiService aiService)
         if (camera == null)
             return;
 
+        aiService.KillAi(camera);
         CameraRepository.DeleteCamera(id);
         GlobalData.Cameras = CameraRepository.GetAll();
-        bus.Publish(
-            new CameraChangeMessage
-            {
-                Camera = new Camera { Id = id },
-                Action = Action.Delete
-            }
-        );
+        bus.Publish(new CameraChangeMessage { Camera = camera, Action = Action.Delete });
     }
 }
 
