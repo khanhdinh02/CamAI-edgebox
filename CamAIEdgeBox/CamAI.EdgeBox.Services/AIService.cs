@@ -126,6 +126,11 @@ public class AiService(IServiceProvider provider)
         SetUpTimer(shop.OpenTime, StartAllAiProcess);
     }
 
+    public void KillAi(Camera camera)
+    {
+        AiProcessManager.Kill(camera);
+    }
+
     public static bool IsShopOpen()
     {
         var shop = GlobalData.Shop!;
