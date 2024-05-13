@@ -15,7 +15,13 @@ public class StreamingProcess(Camera camera, Uri httpRelayUri) : IDisposable
     {
         Running = true;
         var result = FFMpegArguments
-            .FromUrlInput(camera.GetUri())
+            .FromUrlInput(
+                camera.GetUri(),
+                options =>
+                {
+                    options.WithCustomArgument("-hwaccel cuda");
+                }
+            )
             .OutputToUrl(
                 httpRelayUri,
                 options =>
