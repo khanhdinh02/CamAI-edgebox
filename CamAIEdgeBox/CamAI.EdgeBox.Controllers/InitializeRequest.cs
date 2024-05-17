@@ -13,4 +13,5 @@ public class InitializeRequest
     public string MacAddress { get; set; } = null!;
     public string Version { get; set; } = null!;
     public string OperatingSystem { get; set; } = null!;
+    public string SerialNumber { get; set; } = null!;
 }

@@ -1,3 +1,6 @@
+using System.Diagnostics;
+using Serilog;
+
 namespace CamAI.EdgeBox.Services.Utils;
 
 public static class IOUtil
@@ -17,5 +20,43 @@ public static class IOUtil
 
         // Finally, delete the empty directory
         Directory.Delete(path, recursive: true);
+    }
+
+    public static string GetSerialNumber()
+    {
+        try
+        {
+            var serialNumber = File.ReadAllText("/sys/firmware/devicetree/base/serial-number");
+            if (!string.IsNullOrEmpty(serialNumber))
+                return serialNumber;
+        }
+        catch { }
+
+        try
+        {
+            var proc = new Process
+            {
+                StartInfo = new ProcessStartInfo
+                {
+                    FileName = "dmidecode",
+                    Arguments = "-t system",
+                    UseShellExecute = false,
+                    RedirectStandardOutput = true,
+                    CreateNoWindow = true
+                }
+            };
+            proc.Start();
+            while (!proc.StandardOutput.EndOfStream)
+            {
+                var line = proc.StandardOutput.ReadLine();
+                if (line != null)
+                    return line;
+            }
+        }
+        catch { }
+
+        Log.Fatal("InformationCannot get edge box serial number");
+        Environment.Exit(60);
+        return "";
     }
 }

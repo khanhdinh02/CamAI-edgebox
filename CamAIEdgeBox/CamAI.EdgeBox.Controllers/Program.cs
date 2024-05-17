@@ -173,7 +173,8 @@ async Task InitializeEdgeBoxWithServer(IBusControl busControl, IConfiguration co
         IpAddress = localIpAddress,
         Version = version,
         MacAddress = macAddr,
-        OperatingSystem = osName
+        OperatingSystem = osName,
+        SerialNumber = IOUtil.GetSerialNumber()
     };
     await busControl.Publish(initializeRequest);
 
