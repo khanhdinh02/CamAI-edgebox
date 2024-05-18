@@ -19,8 +19,8 @@ public class SerialNumberMismatchConsumer : IConsumer<SerialNumberMismatchMessag
 {
     public Task Consume(ConsumeContext<SerialNumberMismatchMessage> context)
     {
-        Log.Fatal(
-            "Edge box serial number mismatch, current edge box serial number is {SerialNumber}, but serial number in server is {ServerSerialNumber}",
+        Console.WriteLine(
+            "Edge box serial number mismatch, current edge box serial number is {0}, but serial number in server is {1}",
             IOUtil.GetSerialNumber(),
             context.Message.SerialNumber
         );
