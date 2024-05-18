@@ -28,7 +28,7 @@ public static class IOUtil
         {
             var serialNumber = File.ReadAllText("/sys/firmware/devicetree/base/serial-number");
             if (!string.IsNullOrEmpty(serialNumber))
-                return serialNumber;
+                return serialNumber.Replace("\0", string.Empty);
         }
         catch { }
 
