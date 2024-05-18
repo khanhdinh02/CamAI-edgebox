@@ -35,11 +35,11 @@ public class HumanCountProcessor : IDisposable
                 continue;
             humanCountItems.Clear();
 
-            var total = items.Select(x => x.Count).Average();
+            var total = items.Select(x => x.Count).Max();
             var countModel = new HumanCountModel
             {
                 Time = DateTime.Now,
-                Total = Convert.ToInt32(total),
+                Total = total,
                 ShopId = GlobalData.Shop!.Id
             };
             try
