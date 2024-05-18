@@ -27,6 +27,7 @@ public class CameraService(IPublishEndpoint bus, AiService aiService)
         UpdateCameraConnectionStatus(camera);
         CameraRepository.UpsertCamera(camera);
         GlobalData.Cameras = CameraRepository.GetAll();
+        camera.ShopId = GlobalData.Shop!.Id;
         bus.Publish(new CameraChangeMessage { Camera = camera, Action = Action.Upsert });
         if (rerunAi)
         {

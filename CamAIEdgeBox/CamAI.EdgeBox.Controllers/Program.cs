@@ -40,6 +40,12 @@ async Task InitData(WebApplicationBuilder builder1)
     // sync data from server
     await InitializeEdgeBoxWithServer(busControl, builder1.Configuration);
     await busControl.StopAsync();
+
+    Console.WriteLine(
+        "Received Brand Id {0}, Shop Id {1}",
+        GlobalData.Brand?.Id,
+        GlobalData.Shop?.Id
+    );
 }
 
 // check network connection
