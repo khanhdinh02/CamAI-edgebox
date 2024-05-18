@@ -13,6 +13,7 @@ public static class MassTransitConfiguration
     public static IBusControl CreateSyncBusControl(
         this WebApplicationBuilder builder,
         UpdateDataConsumer updateDataConsumer,
+        SerialNumberMismatchConsumer serialNumberMismatchConsumer,
         Guid edgeBoxId
     )
     {
@@ -72,6 +73,34 @@ public static class MassTransitConfiguration
                         x =>
                         {
                             x.ExchangeType = consumer.ExchangeType;
+                            x.RoutingKey = edgeBoxId.ToString("N");
+                        }
+                    );
+                }
+            );
+
+            var serialNumberMismatchConsumerAttribute =
+                typeof(SerialNumberMismatchConsumer).GetCustomAttribute<ConsumerAttribute>()!;
+            cfg.AutoStart = true;
+            cfg.ReceiveEndpoint(
+                $"SerialMismatch_{edgeBoxId:N}",
+                e =>
+                {
+                    e.ConcurrentMessageLimit = 5;
+                    e.ConfigureConsumeTopology = false;
+                    e.DiscardFaultedMessages();
+                    e.DiscardSkippedMessages();
+
+                    ConsumerExtensions.Consumer(
+                        e,
+                        typeof(SerialNumberMismatchConsumer),
+                        _ => serialNumberMismatchConsumer
+                    );
+                    e.Bind(
+                        serialNumberMismatchConsumerAttribute.ExchangeName,
+                        x =>
+                        {
+                            x.ExchangeType = serialNumberMismatchConsumerAttribute.ExchangeType;
                             x.RoutingKey = edgeBoxId.ToString("N");
                         }
                     );

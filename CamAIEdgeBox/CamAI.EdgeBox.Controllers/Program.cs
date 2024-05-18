@@ -22,15 +22,18 @@ async Task InitData(WebApplicationBuilder builder1)
     // init services
     Console.WriteLine("Configuring bus for global data");
     builder1.Services.AddScoped<UpdateDataConsumer>();
+    builder1.Services.AddScoped<SerialNumberMismatchConsumer>();
 #pragma warning disable ASP0000
     var provider = builder1.Services.BuildServiceProvider();
 #pragma warning restore ASP0000
     using var scope = provider.CreateScope();
     var consumer = scope.ServiceProvider.GetRequiredService<UpdateDataConsumer>();
+    var serialNumberConsumer =
+        scope.ServiceProvider.GetRequiredService<SerialNumberMismatchConsumer>();
 
     var edgeBoxId = builder1.Configuration.GetRequiredSection("EdgeBoxId").Get<Guid>();
     GlobalData.EdgeBoxId = edgeBoxId;
-    var busControl = builder1.CreateSyncBusControl(consumer, edgeBoxId);
+    var busControl = builder1.CreateSyncBusControl(consumer, serialNumberConsumer, edgeBoxId);
     await busControl.StartAsync();
     Console.WriteLine("Bus for global data started");
 
