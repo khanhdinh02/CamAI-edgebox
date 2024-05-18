@@ -158,13 +158,15 @@ async Task InitializeEdgeBoxWithServer(IBusControl busControl, IConfiguration co
     var osName = NetworkUtil.GetOsName();
     var edgeBoxId = configuration.GetRequiredSection("EdgeBoxId").Get<Guid>();
     var version = configuration.GetRequiredSection("Version").Get<string>()!;
+    var serialNumber = IOUtil.GetSerialNumber();
     Console.WriteLine(
-        "Current IP address {0}, MAC Address {1}, OS name {2}, Edge box id {3}, Version {4}",
+        "Current IP address {0}, MAC Address {1}, OS name {2}, Edge box id {3}, Version {4}, Serial number {5}",
         localIpAddress,
         macAddr,
         osName,
         edgeBoxId,
-        version
+        version,
+        serialNumber
     );
 
     var initializeRequest = new InitializeRequest
@@ -174,7 +176,7 @@ async Task InitializeEdgeBoxWithServer(IBusControl busControl, IConfiguration co
         Version = version,
         MacAddress = macAddr,
         OperatingSystem = osName,
-        SerialNumber = IOUtil.GetSerialNumber()
+        SerialNumber = serialNumber
     };
     await busControl.Publish(initializeRequest);
 
