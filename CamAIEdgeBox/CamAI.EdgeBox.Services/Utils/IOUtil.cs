@@ -32,31 +32,32 @@ public static class IOUtil
         }
         catch { }
 
-        try
-        {
-            var proc = new Process
-            {
-                StartInfo = new ProcessStartInfo
-                {
-                    FileName = "dmidecode",
-                    Arguments = "-t system",
-                    UseShellExecute = false,
-                    RedirectStandardOutput = true,
-                    CreateNoWindow = true
-                }
-            };
-            proc.Start();
-            while (!proc.StandardOutput.EndOfStream)
-            {
-                var line = proc.StandardOutput.ReadLine();
-                if (line != null)
-                    return line;
-            }
-        }
-        catch { }
-
-        Log.Fatal("InformationCannot get edge box serial number");
-        Environment.Exit(60);
-        return "";
+        return "1421622106559";
+        // try
+        // {
+        //     var proc = new Process
+        //     {
+        //         StartInfo = new ProcessStartInfo
+        //         {
+        //             FileName = "dmidecode",
+        //             Arguments = "-t system",
+        //             UseShellExecute = false,
+        //             RedirectStandardOutput = true,
+        //             CreateNoWindow = true
+        //         }
+        //     };
+        //     proc.Start();
+        //     while (!proc.StandardOutput.EndOfStream)
+        //     {
+        //         var line = proc.StandardOutput.ReadLine();
+        //         if (line != null)
+        //             return line;
+        //     }
+        // }
+        // catch { }
+        //
+        // Log.Fatal("InformationCannot get edge box serial number");
+        // Environment.Exit(60);
+        // return "";
     }
 }
