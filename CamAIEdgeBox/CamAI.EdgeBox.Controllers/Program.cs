@@ -178,6 +178,7 @@ async Task InitializeEdgeBoxWithServer(IBusControl busControl, IConfiguration co
         serialNumber
     );
 
+    GlobalData.InitializeRequestId = Guid.NewGuid().ToString();
     var initializeRequest = new InitializeRequest
     {
         EdgeBoxId = edgeBoxId,
@@ -185,7 +186,8 @@ async Task InitializeEdgeBoxWithServer(IBusControl busControl, IConfiguration co
         Version = version,
         MacAddress = macAddr,
         OperatingSystem = osName,
-        SerialNumber = serialNumber
+        SerialNumber = serialNumber,
+        RequestId = GlobalData.InitializeRequestId
     };
     await busControl.Publish(initializeRequest);
 

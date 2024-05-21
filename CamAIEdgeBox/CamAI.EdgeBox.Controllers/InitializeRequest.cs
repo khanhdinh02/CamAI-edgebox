@@ -14,4 +14,5 @@ public class InitializeRequest
     public string Version { get; set; } = null!;
     public string OperatingSystem { get; set; } = null!;
     public string SerialNumber { get; set; } = null!;
+    public string RequestId { get; set; } = null!;
 }
