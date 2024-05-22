@@ -98,12 +98,14 @@ public class CameraService(IPublishEndpoint bus, AiService aiService)
 
 public static class StaticCameraService
 {
-    public static Camera UpsertCameraFromServerData(Camera camera)
+    public static void UpsertCameraFromServerData(List<Camera> cameras)
     {
-        UpdateCameraConnectionStatus(camera);
-        CameraRepository.UpsertCamera(camera);
-        GlobalData.Cameras = CameraRepository.GetAll();
-        return camera;
+        foreach (var camera in cameras)
+        {
+            UpdateCameraConnectionStatus(camera);
+        }
+
+        GlobalData.Cameras = cameras;
     }
 
     private static void UpdateCameraConnectionStatus(Camera camera)

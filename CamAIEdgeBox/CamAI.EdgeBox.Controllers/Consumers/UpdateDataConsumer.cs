@@ -32,8 +32,7 @@ public class UpdateDataConsumer(AiService aiService)
 
     public Task Consume(ConsumeContext<CameraUpdateMessage> context)
     {
-        foreach (var camera in context.Message.Cameras)
-            StaticCameraService.UpsertCameraFromServerData(camera);
+        StaticCameraService.UpsertCameraFromServerData(context.Message.Cameras);
         return Task.CompletedTask;
     }
 

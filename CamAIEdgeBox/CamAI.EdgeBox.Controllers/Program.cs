@@ -194,7 +194,12 @@ async Task InitializeEdgeBoxWithServer(IBusControl busControl, IConfiguration co
     GlobalData.Version = version;
     GlobalData.MacAddress = macAddr;
     GlobalData.OsName = osName;
-    while (GlobalData.EdgeBox == null || GlobalData.Shop == null || GlobalData.Brand == null)
+    while (
+        GlobalData.EdgeBox == null
+        || GlobalData.Shop == null
+        || GlobalData.Brand == null
+        || GlobalData.Cameras == null
+    )
         Thread.Sleep(1000);
 
     if (GlobalData.EdgeBox.EdgeBoxStatus == EdgeBoxStatus.Active)
