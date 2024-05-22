@@ -125,8 +125,7 @@ app.Use(
     {
         if (context.Request.Path.Value?.ToLower().Contains("login") == true)
         {
-            next();
-            return Task.CompletedTask;
+            return next(context);
         }
 
         if (
@@ -138,8 +137,14 @@ app.Use(
             return Task.CompletedTask;
         }
 
-        next();
-        return Task.CompletedTask;
+        try
+        {
+            return next(context);
+        }
+        catch (Exception ex)
+        {
+            throw;
+        }
     }
 );
 

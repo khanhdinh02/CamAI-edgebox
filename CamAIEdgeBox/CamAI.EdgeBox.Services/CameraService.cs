@@ -20,7 +20,7 @@ public class CameraService(IPublishEndpoint bus, AiService aiService)
                 GlobalData.EdgeBox?.Model,
                 GlobalData.MaxNumberOfRunningAi
             );
-            throw new Exception(
+            throw new ArgumentException(
                 $"The model {GlobalData.EdgeBox?.Model} can only run AI for {GlobalData.MaxNumberOfRunningAi} cameras"
             );
         }

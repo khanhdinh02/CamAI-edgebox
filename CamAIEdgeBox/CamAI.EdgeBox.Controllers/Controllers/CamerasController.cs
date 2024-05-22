@@ -6,7 +6,7 @@ namespace CamAI.EdgeBox.Controllers.Controllers;
 
 [Route("api/[controller]")]
 [ApiController]
-public class CamerasController(CameraService cameraService) : Controller
+public class CamerasController(CameraService cameraService) : ControllerBase
 {
     [HttpGet]
     public List<Camera> GetCameras() => GlobalData.Cameras;
