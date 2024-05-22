@@ -42,9 +42,12 @@ async Task InitData(WebApplicationBuilder builder1)
     await busControl.StopAsync();
 
     Console.WriteLine(
-        "Received Brand Id {0}, Shop Id {1}",
+        "Received Brand Id {0}, Shop Id {1}, Max number of running AI {2}, number of cameras: {3} and names {4}",
         GlobalData.Brand?.Id,
-        GlobalData.Shop?.Id
+        GlobalData.Shop?.Id,
+        GlobalData.MaxNumberOfRunningAi,
+        GlobalData.Cameras?.Count,
+        string.Join(',', GlobalData.Cameras?.Select(x => x.Name) ?? [])
     );
 }
 
