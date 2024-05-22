@@ -11,14 +11,7 @@ public static class CameraRepository
 
     public static List<Camera> GetAll()
     {
-        try
-        {
-            return JsonSerializer.Deserialize<List<Camera>>(File.ReadAllText(GetPath()))!;
-        }
-        catch (FileNotFoundException)
-        {
-            return [];
-        }
+        return GlobalData.Cameras;
     }
 
     public static void UpsertCamera(Camera camera)
