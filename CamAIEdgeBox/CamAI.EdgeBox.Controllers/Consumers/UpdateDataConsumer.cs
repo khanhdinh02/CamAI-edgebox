@@ -18,14 +18,14 @@ public class UpdateDataConsumer(AiService aiService)
     public Task Consume(ConsumeContext<BrandUpdateMessage> context)
     {
         var brand = context.Message.ToBrand();
-        BrandService.UpsertBrand(brand);
+        GlobalData.Brand = brand;
         return Task.CompletedTask;
     }
 
     public Task Consume(ConsumeContext<ShopUpdateMessage> context)
     {
         var shop = context.Message.ToShop();
-        ShopService.UpsertShop(shop);
+        GlobalData.Shop = shop;
         aiService.RunAi();
         return Task.CompletedTask;
     }
@@ -40,18 +40,17 @@ public class UpdateDataConsumer(AiService aiService)
     public Task Consume(ConsumeContext<EdgeBoxUpdateMessage> context)
     {
         var message = context.Message;
-        EdgeBoxService.UpsertEdgeBox(
-            new DbEdgeBox
-            {
-                Name = message.Name,
-                Model = message.Model,
-                SerialNumber = message.SerialNumber,
-                EdgeBoxStatus =
-                    message.ActivationStatus == EdgeBoxActivationStatus.Activated
-                        ? EdgeBoxStatus.Active
-                        : EdgeBoxStatus.Inactive
-            }
-        );
+        GlobalData.EdgeBox = new DbEdgeBox
+        {
+            Name = message.Name,
+            Model = message.Model,
+            SerialNumber = message.SerialNumber,
+            EdgeBoxStatus =
+                message.ActivationStatus == EdgeBoxActivationStatus.Activated
+                    ? EdgeBoxStatus.Active
+                    : EdgeBoxStatus.Inactive
+        };
+        GlobalData.MaxNumberOfRunningAi = message.MaxNumberOfRunningAi;
         return Task.CompletedTask;
     }
 }

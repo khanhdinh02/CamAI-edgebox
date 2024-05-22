@@ -30,7 +30,6 @@ public class EdgeBoxService(ILogger<EdgeBoxService> logger)
 
     public static DbEdgeBox UpsertEdgeBox(DbEdgeBox edgeBox)
     {
-        EdgeBoxRepository.UpsertEdgeBox(edgeBox);
         GlobalData.EdgeBox = edgeBox;
         return edgeBox;
     }

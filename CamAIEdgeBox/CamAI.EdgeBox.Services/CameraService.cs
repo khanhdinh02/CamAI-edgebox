@@ -3,6 +3,7 @@ using CamAI.EdgeBox.Repositories;
 using CamAI.EdgeBox.Services.Contracts;
 using CamAI.EdgeBox.Services.Utils;
 using MassTransit;
+using Serilog;
 using Action = CamAI.EdgeBox.Services.Contracts.Action;
 
 namespace CamAI.EdgeBox.Services;
@@ -12,6 +13,17 @@ public class CameraService(IPublishEndpoint bus, AiService aiService)
     public Camera UpsertCamera(Camera camera)
     {
         var oldCamera = CameraRepository.GetById(camera.Id);
+        if (oldCamera == null && GlobalData.MaxNumberOfRunningAi == GlobalData.Cameras.Count)
+        {
+            Log.Warning(
+                "The model {ModelName} can only run AI for {NumberOfCamera} cameras",
+                GlobalData.EdgeBox?.Model,
+                GlobalData.MaxNumberOfRunningAi
+            );
+            throw new Exception(
+                $"The model {GlobalData.EdgeBox?.Model} can only run AI for {GlobalData.MaxNumberOfRunningAi} cameras"
+            );
+        }
         var rerunAi =
             (
                 oldCamera != null

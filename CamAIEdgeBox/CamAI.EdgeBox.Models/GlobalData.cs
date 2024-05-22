@@ -10,5 +10,6 @@ public static class GlobalData
     public static string? MacAddress { get; set; }
     public static string? OsName { get; set; }
     public static Guid EdgeBoxId { get; set; }
-    public static string InitializeRequestId { get; set; }
+    public static string InitializeRequestId { get; set; } = null!;
+    public static int MaxNumberOfRunningAi { get; set; }
 }
