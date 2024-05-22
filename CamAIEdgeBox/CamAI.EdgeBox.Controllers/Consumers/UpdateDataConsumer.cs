@@ -49,6 +49,7 @@ public class UpdateDataConsumer(AiService aiService)
                     ? EdgeBoxStatus.Active
                     : EdgeBoxStatus.Inactive
         };
+        Console.WriteLine("Max number of running AI {0}", message.MaxNumberOfRunningAi);
         GlobalData.MaxNumberOfRunningAi = message.MaxNumberOfRunningAi;
         return Task.CompletedTask;
     }
