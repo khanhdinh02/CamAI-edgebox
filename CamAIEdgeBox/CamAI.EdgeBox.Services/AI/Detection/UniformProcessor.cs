@@ -60,8 +60,13 @@ public class UniformProcessor : IDisposable
             var newOutputs = outputs.Where(x => !scoreIds.Contains(x.Id));
             foreach (var output in newOutputs)
             {
-                var model = new UniformModel { AiId = output.Id, };
-                uniformCalculation.TryAdd(model.AiId, model);
+                if (uniformCalculation.TryGetValue(output.Id, out var model))
+                    model.PositiveCount += 1;
+                else
+                {
+                    var newModel = new UniformModel { AiId = output.Id, };
+                    uniformCalculation.TryAdd(newModel.AiId, newModel);
+                }
             }
 
             // calculate incident

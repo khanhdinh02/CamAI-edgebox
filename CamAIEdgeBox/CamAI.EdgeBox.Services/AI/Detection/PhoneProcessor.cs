@@ -83,12 +83,20 @@ public class PhoneProcessor : IDisposable
             var newOutputs = outputs.Where(x => !scoreIds.Contains(x.Id));
             foreach (var output in newOutputs)
             {
-                var model = new PhoneModel
+                if (calculations.TryGetValue(output.Id, out var model))
                 {
-                    AiId = output.Id,
-                    Intervals = [new DetectionInterval(output.Data.Action.Conf)]
-                };
-                calculations.TryAdd(model.AiId, model);
+                    var interval = model.Intervals[^1];
+                    interval.Scores = CalculateNewScores(output.Data.Action.Conf, interval);
+                }
+                else
+                {
+                    var newModel = new PhoneModel
+                    {
+                        AiId = output.Id,
+                        Intervals = [new DetectionInterval(output.Data.Action.Conf)]
+                    };
+                    calculations.TryAdd(newModel.AiId, newModel);
+                }
             }
 
             // calculate incident

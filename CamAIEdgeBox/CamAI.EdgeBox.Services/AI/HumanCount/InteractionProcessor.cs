@@ -62,8 +62,13 @@ public class InteractionProcessor : IDisposable
             var newOutputs = outputs.Where(x => !scoreIds.Contains(x.Id));
             foreach (var output in newOutputs)
             {
-                var model = new InteractionModel { AiId = output.Id, };
-                calculations.TryAdd(model.AiId, model);
+                if (calculations.TryGetValue(output.Id, out var model))
+                    model.Count += 1;
+                else
+                {
+                    var newModel = new InteractionModel { AiId = output.Id, };
+                    calculations.TryAdd(newModel.AiId, newModel);
+                }
             }
 
             // send message
@@ -76,7 +81,11 @@ public class InteractionProcessor : IDisposable
                 )
                     aiProcessUtil.CaptureEvidence(calculation);
 
-                if (calculation.Count > interaction.MinDuration && calculation.EndTime != null)
+                if (
+                    calculation.Count > interaction.MinDuration
+                    && calculation.EndTime != null
+                    && calculation.Evidences.Count != 0
+                )
                     await bus.SendIncident(calculation, cancellationToken);
             }
 
