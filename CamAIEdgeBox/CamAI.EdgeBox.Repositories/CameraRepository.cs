@@ -19,7 +19,7 @@ public static class CameraRepository
         Mutex.WaitOne();
         var cameras = GetAll().Where(x => x.Id != camera.Id).ToList();
         cameras.Add(camera);
-        File.WriteAllText(GetPath(), JsonSerializer.Serialize(cameras));
+        GlobalData.Cameras = cameras;
         Mutex.ReleaseMutex();
     }
 

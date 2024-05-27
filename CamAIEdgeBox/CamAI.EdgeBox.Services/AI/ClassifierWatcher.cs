@@ -1,4 +1,4 @@
-﻿using System.Text;
+using System.Text;
 using System.Text.Json;
 using CamAI.EdgeBox.Services.Utils;
 using Serilog;
@@ -20,7 +20,7 @@ public class ClassifierWatcher : IDisposable
 
     public ClassifierWatcher(string watchDirectory, string outputFile, string outputSeparator)
     {
-        Log.Information("Creating watcher");
+        Log.Information("Creating watcher {Path}", outputFile);
         this.outputSeparator = outputSeparator;
         this.outputFile = outputFile;
         fileWatcher = new FileSystemWatcher(watchDirectory);

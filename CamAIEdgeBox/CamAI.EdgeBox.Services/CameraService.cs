@@ -5,6 +5,7 @@ using CamAI.EdgeBox.Services.Utils;
 using MassTransit;
 using Serilog;
 using Action = CamAI.EdgeBox.Services.Contracts.Action;
+using ArgumentException = System.ArgumentException;
 
 namespace CamAI.EdgeBox.Services;
 
@@ -13,7 +14,7 @@ public class CameraService(IPublishEndpoint bus, AiService aiService)
     public Camera UpsertCamera(Camera camera)
     {
         var oldCamera = CameraRepository.GetById(camera.Id);
-        if (oldCamera == null && GlobalData.MaxNumberOfRunningAi == GlobalData.Cameras.Count)
+        if (oldCamera == null && GlobalData.MaxNumberOfRunningAi == GlobalData.Cameras?.Count)
         {
             Log.Warning(
                 "The model {ModelName} can only run AI for {NumberOfCamera} cameras",
@@ -36,9 +37,20 @@ public class CameraService(IPublishEndpoint bus, AiService aiService)
                     || camera.Path != oldCamera.Path
                 )
             ) || ((oldCamera?.WillRunAI ?? false) && camera.WillRunAI);
+        var duplicateCameras = GlobalData.Cameras?.Where(x =>
+            x.Path == camera.Path
+            && x.Port == camera.Port
+            && x.Password == camera.Password
+            && x.Username == camera.Username
+            && x.Host == camera.Host
+            && x.Protocol == camera.Protocol
+            && x.Id != camera.Id
+        );
+        if (duplicateCameras?.Any() ?? false)
+            throw new ArgumentException("Duplicate camera");
+
         UpdateCameraConnectionStatus(camera);
         CameraRepository.UpsertCamera(camera);
-        GlobalData.Cameras = CameraRepository.GetAll();
         camera.ShopId = GlobalData.Shop!.Id;
         bus.Publish(new CameraChangeMessage { Camera = camera, Action = Action.Upsert });
         if (rerunAi)
@@ -90,8 +102,7 @@ public class CameraService(IPublishEndpoint bus, AiService aiService)
             return;
 
         aiService.KillAi(camera);
-        CameraRepository.DeleteCamera(id);
-        GlobalData.Cameras = CameraRepository.GetAll();
+        GlobalData.Cameras = GlobalData.Cameras?.Where(x => x.Id != id).ToList() ?? [];
         bus.Publish(new CameraChangeMessage { Camera = camera, Action = Action.Delete });
     }
 }
