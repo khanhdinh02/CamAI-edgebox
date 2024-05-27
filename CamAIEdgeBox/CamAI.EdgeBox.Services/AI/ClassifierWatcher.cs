@@ -20,11 +20,11 @@ public class ClassifierWatcher : IDisposable
 
     public ClassifierWatcher(string watchDirectory, string outputFile, string outputSeparator)
     {
-        Log.Information("Creating watcher {Path}", outputFile);
         this.outputSeparator = outputSeparator;
         this.outputFile = outputFile;
         fileWatcher = new FileSystemWatcher(watchDirectory);
         watchFile = Path.Combine(watchDirectory, outputFile);
+        Log.Information("Creating watcher {Path}", watchFile);
         ConfigureFilters();
         GC.KeepAlive(fileWatcher);
     }

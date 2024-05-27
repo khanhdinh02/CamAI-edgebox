@@ -1,4 +1,5 @@
 using System.Diagnostics;
+using System.Reflection.Metadata.Ecma335;
 using Serilog;
 
 namespace CamAI.EdgeBox.Services.Utils;
@@ -28,11 +29,30 @@ public static class IOUtil
         {
             var serialNumber = File.ReadAllText("/sys/firmware/devicetree/base/serial-number");
             if (!string.IsNullOrEmpty(serialNumber))
-                return serialNumber.Replace("\0", string.Empty);
+                return serialNumber.Replace("\0", string.Empty).Trim();
         }
         catch { }
 
-        return "KHOVCL";
+        try
+        {
+            Console.WriteLine(
+                "Path {0}",
+                Path.Combine(
+                    Environment.GetFolderPath(Environment.SpecialFolder.UserProfile),
+                    "serial_number"
+                )
+            );
+            var serialNumber = File.ReadAllText(
+                Path.Combine(
+                    Environment.GetFolderPath(Environment.SpecialFolder.UserProfile),
+                    "serial_number"
+                )
+            );
+            if (!string.IsNullOrEmpty(serialNumber))
+                return serialNumber.Replace("\0", string.Empty).Trim();
+        }
+        catch { }
+        return "";
         // try
         // {
         //     var proc = new Process
