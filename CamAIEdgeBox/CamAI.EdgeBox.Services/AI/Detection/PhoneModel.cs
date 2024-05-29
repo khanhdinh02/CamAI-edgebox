@@ -35,7 +35,7 @@ public class DetectionInterval
 
     public double IntervalScore()
     {
-        var takeAmount = Scores.Count / 3;
+        var takeAmount = Scores.Count * 2 / 3;
         return Scores.Take(takeAmount).Sum();
     }
 }

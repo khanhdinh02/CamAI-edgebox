@@ -76,11 +76,16 @@ public class UniformProcessor : IDisposable
                     continue;
 
                 // capture evidence
+                var output = outputs.Find(x => x.Id == id);
                 if (
-                    calculation.Evidences.Count < 6
+                    output != null
+                    && calculation.Evidences.Count < 6
                     && (
-                        calculation.TotalCount == 4
-                        || (calculation.TotalCount != 0 && calculation.TotalCount % 30 == 0)
+                        (calculation.Evidences.Count == 0 && calculation.TotalCount >= 4)
+                        || (
+                            calculation.TotalCount != 0
+                            && calculation.TotalCount > calculation.Evidences.Count * 30
+                        )
                     )
                 )
                     aiProcessUtil.CaptureEvidence(calculation);
