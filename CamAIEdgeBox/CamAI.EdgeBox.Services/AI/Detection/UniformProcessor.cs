@@ -50,6 +50,12 @@ public class UniformProcessor : IDisposable
                     if (calculation.PositiveRatio < uniform.Ratio)
                     {
                         calculation.EndTime = DateTime.Now;
+                        Log.Information(
+                            "Removing uniform incident {AiId}, end time {EndTime}, Total time {TotalTime}",
+                            calculation.AiId,
+                            calculation.EndTime,
+                            calculation.TotalCount
+                        );
                         uniformToRemove.Add(calculation);
                     }
                 }
@@ -72,7 +78,7 @@ public class UniformProcessor : IDisposable
             // calculate incident
             foreach (var (id, calculation) in uniformCalculation)
             {
-                if (calculation.PositiveRatio < uniform.Ratio)
+                if (calculation.PositiveRatio < uniform.Ratio && calculation.EndTime == null)
                     continue;
 
                 // capture evidence
@@ -92,7 +98,15 @@ public class UniformProcessor : IDisposable
 
                 // send incident
                 if (calculation.TotalCount > uniform.MinDuration && calculation.ShouldBeSend())
+                {
+                    if (calculation.EndTime != null)
+                        Log.Information(
+                            "Sending end time for uniform calculation {AiId} {EndTime}",
+                            calculation.AiId,
+                            calculation.EndTime
+                        );
                     await bus.SendIncident(calculation, cancellationToken);
+                }
             }
 
             // remove calculation
